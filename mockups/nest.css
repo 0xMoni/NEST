@@ -194,3 +194,19 @@ table.data { width: 100%; border-collapse: collapse; min-width: 760px; }
   .card { padding: 20px 16px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* Print / PDF fallback: always light, no app chrome */
+@media print {
+  :root, :root[data-theme="light"] {
+    --bg: #ffffff; --surface: #ffffff; --surface-2: #faf8f3; --surface-3: #f0ece3;
+    --border: #e5e0d5; --border-strong: #d3ccbd; --text: #16171a; --muted: #5c5f66; --faint: #83858c;
+    --gold: #8a6522; --gold-soft: rgba(143, 106, 36, .10); --risk: #b4452a; --risk-soft: rgba(180, 69, 42, .08);
+    --watch: #86660c; --watch-soft: rgba(134, 102, 12, .09); --ok: #2f7a43; --ok-soft: rgba(47, 122, 67, .09);
+  }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; box-shadow: none !important; }
+  .shell { display: block; }
+  .side, .head-actions, .toast { display: none !important; }
+  .main { padding: 0; max-width: none; }
+  table.data { min-width: 0; }
+  .stat, .card, tr { break-inside: avoid; }
+}
