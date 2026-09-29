@@ -16,6 +16,7 @@
 }
 .expand svg { width: 14px; height: 14px; color: var(--faint); transition: transform .2s; flex: none; }
 .expand[aria-expanded="true"] svg { transform: rotate(90deg); color: var(--gold); }
+.below-list { color: var(--risk); font-weight: 700; }
 .status-sub { display: block; font-size: 13px; color: var(--muted); margin-top: 4px; }
 tr.detail td { padding: 0 12px 18px; background: var(--surface-2); }
 tr.detail[hidden] { display: none; }
@@ -191,8 +192,8 @@ tr.row.open td { border-bottom-color: transparent; }
       return { cls: 'risk', label: 'Short', sub: 'Attend the next ' + need + ' classes' };
     }
     var canMiss = Math.floor(s.att / 0.75 - s.held);
-    if (canMiss <= 1) return { cls: 'watch', label: 'Close to the line', sub: canMiss === 1 ? 'Can miss 1 more' : 'Can’t miss any more' };
-    return { cls: 'ok', label: 'On track', sub: 'Can miss ' + canMiss + ' more' };
+    if (canMiss <= 1) return { cls: 'watch', label: 'Close to the line', sub: '' };
+    return { cls: 'ok', label: 'On track', sub: '' };
   }
 
   var range = NEST.store.get('attRange', 'week');  // 'week' | 'sem'
@@ -215,11 +216,11 @@ tr.row.open td { border-bottom-color: transparent; }
       '<div class="cls-list' + (range === 'sem' ? ' dense' : '') + '">' + chips + '</div>';
   }
 
-  var held = 0, att = 0, short = 0;
+  var held = 0, att = 0, short = [];
   var html = subjects.map(function (s, i) {
     var pct = Math.round(s.att / s.held * 100), st = status(s);
     s.sessions = sessions(s, i);
-    held += s.held; att += s.att; if (st.cls === 'risk') short++;
+    held += s.held; att += s.att; if (st.cls === 'risk') short.push(s.name + ' · ' + pct + '%');
     return '<tr class="row ' + st.cls + '" data-i="' + i + '">' +
       '<td class="code">' + s.code + '</td>' +
       '<td><button class="expand subj" type="button" aria-expanded="false" aria-controls="d' + i + '">' +
@@ -228,7 +229,7 @@ tr.row.open td { border-bottom-color: transparent; }
       '<td class="n">' + s.held + '</td>' +
       '<td class="n">' + s.att + '</td>' +
       '<td><div class="pbar"><span class="track mark"><i style="width:' + pct + '%"></i></span><span class="v">' + pct + '%</span></div></td>' +
-      '<td><span class="pill ' + st.cls + '">' + st.label + '</span><span class="status-sub">' + st.sub + '</span></td>' +
+      '<td><span class="pill ' + st.cls + '">' + st.label + '</span>' + (st.sub ? '<span class="status-sub">' + st.sub + '</span>' : '') + '</td>' +
       '</tr>' +
       '<tr class="detail" id="d' + i + '" hidden><td colspan="7"></td></tr>';
   }).join('');
@@ -247,7 +248,7 @@ tr.row.open td { border-bottom-color: transparent; }
   document.getElementById('sMeter').style.width = overall + '%';
   document.getElementById('sAttended').innerHTML = att + ' <small>/ ' + held + '</small>';
   document.getElementById('sMissed').textContent = (held - att) + ' classes missed this semester';
-  document.getElementById('sShort').textContent = short ? short + ' subject' + (short > 1 ? 's' : '') + ' below the line' : 'All subjects above the line';
+  document.getElementById('sShort').innerHTML = short.length ? '<span class="below-list">' + short.map(esc).join('<br>') + '</span>' : 'All subjects above 75%';
 
   tbody.addEventListener('click', function (e) {
     var r = e.target.closest('.seg button');
@@ -264,7 +265,7 @@ tr.row.open td { border-bottom-color: transparent; }
     subjects.forEach(function (s) {
       var st = status(s);
       var miss = s.sessions.filter(function (c) { return c.missed; }).map(function (c) { return c.key; }).join('; ');
-      rows.push([s.code, s.name, s.fac, s.held, s.att, Math.round(s.att / s.held * 100) + '%', st.label + ' – ' + st.sub, miss]);
+      rows.push([s.code, s.name, s.fac, s.held, s.att, Math.round(s.att / s.held * 100) + '%', st.label + (st.sub ? ' – ' + st.sub : ''), miss]);
     });
     rows.push(['', 'Overall', '', held, att, overall + '%', '', '']);
     NEST.downloadCSV('NEST-attendance-sem5.csv', rows);
