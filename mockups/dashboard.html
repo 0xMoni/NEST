@@ -505,7 +505,7 @@ button, input, select { font: inherit; color: inherit; }
       <div class="brand-role">STUDENT</div>
     </div>
     <nav class="nav" aria-label="Main">
-      <a href="#" aria-current="page">
+      <a href="dashboard.html" aria-current="page">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
         Dashboard</a>
       <a href="attendance.html">
@@ -936,7 +936,7 @@ button, input, select { font: inherit; color: inherit; }
 
   /* ---- Newsletters & notices ---- */
   var news = [
-    { id: 'n1', src: 'Exam cell', t: 'CIE-2 timetable released', s: 'Exams run 12–16 Oct · check your hall', when: 'Today' },
+    { id: 'n1', src: 'Exam cell', t: 'Lab internals timetable released', s: 'Runs 12–16 Oct · check your lab batch', when: 'Today' },
     { id: 'n2', src: 'Placement cell', t: 'Infosys campus drive on 12 Oct', s: 'Eligibility: CGPA 7.0+ · register by 5 Oct', when: 'Yesterday' },
     { id: 'n3', src: 'AI & DS newsletter', t: 'September issue: student projects & a faculty Q&A', s: '6 min read', when: '27 Sep' },
     { id: 'n4', src: 'Library', t: 'IEEE Xplore access now on campus Wi-Fi', s: 'Sign in with your college email', when: '24 Sep' }
@@ -1124,6 +1124,7 @@ button, input, select { font: inherit; color: inherit; }
     if (lastFocus) lastFocus.focus();
   }
   $$('[data-open-profile]').forEach(function (b) { b.addEventListener('click', openProfile); });
+  if (location.hash === '#profile') openProfile();  // other pages link to dashboard.html#profile
   $('#drClose').addEventListener('click', closeProfile);
   $('#scrim').addEventListener('click', closeProfile);
   $('.dr-photo').addEventListener('click', function () {
