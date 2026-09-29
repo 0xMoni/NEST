@@ -21,13 +21,26 @@ tr.detail td { padding: 0 12px 18px; background: var(--surface-2); }
 tr.detail[hidden] { display: none; }
 tr.row.open { background: var(--surface-2); }
 tr.row.open td { border-bottom-color: transparent; }
-.missed-head { font-family: var(--head); font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding-top: 4px; margin-bottom: 10px; }
-.missed-list { display: flex; flex-wrap: wrap; gap: 8px; }
-.missed-list span {
-  font-family: var(--head); font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 8px;
-  background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+.d-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 4px 0 12px; }
+.d-sum { font-family: var(--head); font-size: 12px; font-weight: 600; color: var(--ok); }
+.d-sum.has-miss { color: var(--risk); }
+.seg { display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); }
+.seg button {
+  min-height: 30px; padding: 0 12px; border: 0; border-radius: 7px; background: none; cursor: pointer;
+  font-family: var(--head); font-size: 11px; font-weight: 600; color: var(--muted);
 }
-.missed-list span b { color: var(--text); font-weight: 600; margin-left: 4px; }
+.seg button:hover { color: var(--text); }
+.seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+.cls-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.cls {
+  font-family: var(--head); font-size: 12px; font-weight: 500; padding: 5px 10px; border-radius: 8px;
+  border: 1px solid var(--border); color: var(--faint);
+}
+.cls b { font-weight: 600; margin-left: 5px; }
+.cls.miss { background: var(--risk-soft); border-color: color-mix(in srgb, var(--risk) 55%, transparent); color: var(--risk); }
+.cls-list.dense { gap: 6px; }
+.cls-list.dense .cls { font-size: 11px; padding: 4px 8px; }
+.none { font-size: 14px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -65,7 +78,6 @@ tr.row.open td { border-bottom-color: transparent; }
   <main class="main">
     <header class="head">
       <div>
-        <div class="eyebrow">Semester 5 · as of today</div>
         <h1>Attendance</h1>
       </div>
       <div class="head-actions">
@@ -115,7 +127,7 @@ tr.row.open td { border-bottom-color: transparent; }
       </div>
     </section>
 
-    <p class="foot-note">Click a subject to see the dates you missed. The line on each bar marks 75%.</p>
+    <p class="foot-note">Click a subject to see its classes, with the ones you missed highlighted. The line on each bar marks 75%.</p>
   </main>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -124,14 +136,52 @@ tr.row.open td { border-bottom-color: transparent; }
 <script>
 (function () {
   var esc = NEST.esc;
+  // Mock "today" for the data set (Tue 29 Sep 2026); the last-7-days window is 23–29 Sep.
+  var TODAY = new Date(2026, 8, 29), WINDOW = 7;
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  // Weekly timetable (same as the dashboard): day → subject code per period.
+  var week = {
+    1: ['DL', 'ML', 'CN', 'SEPM', 'MLL', 'MLL'],
+    2: ['ML', 'CN', 'SEPM', 'DL', 'DVL', 'DVL'],
+    3: ['CN', 'CC', 'ML', 'SEPM', 'DL', 'LIB'],
+    4: ['SEPM', 'DL', 'CC', 'ML', 'CN', 'LIB'],
+    5: ['CC', 'ML', 'DL', 'CN', 'DVL', 'DVL'],
+    6: ['CN', 'SEPM', 'CC', 'DL']
+  };
+  // forced: recent absences (date, period) so the last-7-days view has something to show
   var subjects = [
     { code: 'ML',   name: 'Machine Learning',              fac: 'Dr. Meera Rao',    held: 33, att: 30 },
-    { code: 'CN',   name: 'Computer Networks',             fac: 'Prof. Arjun Nair', held: 32, att: 25, recent: [['25 Sep', 'P2']] },
-    { code: 'SEPM', name: 'Software Engg. & Project Mgmt', fac: 'Prof. Kavya S',    held: 31, att: 22, recent: [['28 Sep', 'P3'], ['24 Sep', 'P3']] },
+    { code: 'CN',   name: 'Computer Networks',             fac: 'Prof. Arjun Nair', held: 32, att: 25, forced: ['25 Sep P4'] },
+    { code: 'SEPM', name: 'Software Engg. & Project Mgmt', fac: 'Prof. Kavya S',    held: 31, att: 22, forced: ['28 Sep P4', '24 Sep P1'] },
     { code: 'DL',   name: 'Deep Learning',                 fac: 'Dr. Rahul Menon',  held: 30, att: 27 },
-    { code: 'DVL',  name: 'Data Visualization Lab',        fac: 'Prof. Divya K',    held: 30, att: 25, recent: [['22 Sep', 'P5–6']] },
+    { code: 'DVL',  name: 'Data Visualization Lab',        fac: 'Prof. Divya K',    held: 30, att: 25, forced: ['22 Sep P5', '22 Sep P6'] },
     { code: 'CC',   name: 'Cloud Computing (elective)',    fac: 'Prof. Sanjay R',   held: 28, att: 23 }
   ];
+
+  function label(d, p) { return d.getDate() + ' ' + MONTHS[d.getMonth()] + ' P' + p; }
+
+  // Walk back from today through the timetable until we have `held` classes for the subject.
+  function sessions(s, idx) {
+    var out = [], d = new Date(TODAY);
+    while (out.length < s.held) {
+      var day = week[d.getDay()] || [];
+      for (var p = day.length; p >= 1 && out.length < s.held; p--) {
+        if (day[p - 1] === s.code) out.push({ date: new Date(d), p: p, key: label(d, p), recent: (TODAY - d) / 864e5 < WINDOW });
+      }
+      d.setDate(d.getDate() - 1);
+    }
+    // mark absences: forced ones first, then older classes picked with a fixed seed
+    var need = s.held - s.att, seed = idx * 13 + 5;
+    out.forEach(function (c) { if ((s.forced || []).indexOf(c.key) >= 0) { c.missed = true; need--; } });
+    var older = out.filter(function (c) { return !c.recent && !c.missed; });
+    while (need > 0 && older.length) {
+      seed = (seed * 37 + 11) % 101;
+      older.splice(seed % older.length, 1)[0].missed = true; need--;
+    }
+    return out;  // newest first
+  }
 
   // Status: below 75% → classes needed in a row to recover; otherwise how many more can be missed.
   function status(s) {
@@ -145,26 +195,31 @@ tr.row.open td { border-bottom-color: transparent; }
     return { cls: 'ok', label: 'On track', sub: 'Can miss ' + canMiss + ' more' };
   }
 
-  // Mock absence dates: the known recent ones, then earlier ones spread across the semester (from 3 Aug).
-  function missedDates(s, idx) {
-    var out = (s.recent || []).slice(), need = s.held - s.att - out.length;
-    var months = ['Aug', 'Sep'], seed = idx * 17 + 3;
-    for (var i = 0; i < need; i++) {
-      seed = (seed * 31 + 7) % 97;
-      var day = 3 + Math.floor(i * 48 / Math.max(need, 1)) + (seed % 3);  // days after 3 Aug
-      var d = new Date(2026, 7, day);
-      while (d.getDay() === 0) d.setDate(d.getDate() + 1);
-      out.push([d.getDate() + ' ' + months[d.getMonth() - 7], 'P' + (1 + seed % 6)]);
-    }
-    return out.sort(function (a, b) { return toDate(b[0]) - toDate(a[0]); });
+  var range = NEST.store.get('attRange', 'week');  // 'week' | 'sem'
+
+  function detailHTML(s) {
+    var list = range === 'week' ? s.sessions.filter(function (c) { return c.recent; }) : s.sessions;
+    var missed = list.filter(function (c) { return c.missed; }).length;
+    var chips = list.length ? list.map(function (c) {
+      var txt = DAYS[c.date.getDay()] + ' ' + c.date.getDate() + ' ' + MONTHS[c.date.getMonth()];
+      return '<span class="cls' + (c.missed ? ' miss' : '') + '" title="' + (c.missed ? 'Missed' : 'Present') + '">' +
+        txt + '<b>P' + c.p + '</b>' + (c.missed ? '<span class="sr"> (missed)</span>' : '') + '</span>';
+    }).join('') : '<span class="none">No classes in this period.</span>';
+    var summary = !list.length ? '' : missed ? missed + ' of ' + list.length + ' classes missed' : 'No classes missed · ' + list.length + ' attended';
+    return '<div class="d-head">' +
+        '<span class="d-sum' + (missed ? ' has-miss' : '') + '">' + summary + '</span>' +
+        '<div class="seg" role="group" aria-label="Range">' +
+          '<button type="button" data-r="week" aria-pressed="' + (range === 'week') + '">Last 7 days</button>' +
+          '<button type="button" data-r="sem" aria-pressed="' + (range === 'sem') + '">Whole semester</button>' +
+        '</div></div>' +
+      '<div class="cls-list' + (range === 'sem' ? ' dense' : '') + '">' + chips + '</div>';
   }
-  function toDate(s) { var p = s.split(' '); return new Date(2026, p[1] === 'Aug' ? 7 : 8, +p[0]); }
 
   var held = 0, att = 0, short = 0;
   var html = subjects.map(function (s, i) {
     var pct = Math.round(s.att / s.held * 100), st = status(s);
+    s.sessions = sessions(s, i);
     held += s.held; att += s.att; if (st.cls === 'risk') short++;
-    var dates = missedDates(s, i);
     return '<tr class="row ' + st.cls + '" data-i="' + i + '">' +
       '<td class="code">' + s.code + '</td>' +
       '<td><button class="expand subj" type="button" aria-expanded="false" aria-controls="d' + i + '">' +
@@ -175,12 +230,17 @@ tr.row.open td { border-bottom-color: transparent; }
       '<td><div class="pbar"><span class="track mark"><i style="width:' + pct + '%"></i></span><span class="v">' + pct + '%</span></div></td>' +
       '<td><span class="pill ' + st.cls + '">' + st.label + '</span><span class="status-sub">' + st.sub + '</span></td>' +
       '</tr>' +
-      '<tr class="detail" id="d' + i + '" hidden><td colspan="7">' +
-        '<div class="missed-head">Missed · ' + (s.held - s.att) + ' classes</div>' +
-        '<div class="missed-list">' + dates.map(function (d) { return '<span>' + d[0] + '<b>' + d[1] + '</b></span>'; }).join('') + '</div>' +
-      '</td></tr>';
+      '<tr class="detail" id="d' + i + '" hidden><td colspan="7"></td></tr>';
   }).join('');
-  document.getElementById('rows').innerHTML = html;
+  var tbody = document.getElementById('rows');
+  tbody.innerHTML = html;
+
+  function renderOpenDetails() {
+    subjects.forEach(function (s, i) {
+      var det = document.getElementById('d' + i);
+      if (!det.hidden) det.firstChild.innerHTML = detailHTML(s);
+    });
+  }
 
   var overall = Math.round(att / held * 100);
   document.getElementById('sOverall').textContent = overall + '%';
@@ -189,20 +249,24 @@ tr.row.open td { border-bottom-color: transparent; }
   document.getElementById('sMissed').textContent = (held - att) + ' classes missed this semester';
   document.getElementById('sShort').textContent = short ? short + ' subject' + (short > 1 ? 's' : '') + ' below the line' : 'All subjects above the line';
 
-  document.getElementById('rows').addEventListener('click', function (e) {
+  tbody.addEventListener('click', function (e) {
+    var r = e.target.closest('.seg button');
+    if (r) { range = r.dataset.r; NEST.store.set('attRange', range); renderOpenDetails(); return; }
     var tr = e.target.closest('tr.row'); if (!tr) return;
-    var btn = tr.querySelector('.expand'), det = document.getElementById(btn.getAttribute('aria-controls'));
+    var i = +tr.dataset.i, btn = tr.querySelector('.expand'), det = document.getElementById('d' + i);
     var open = btn.getAttribute('aria-expanded') !== 'true';
     btn.setAttribute('aria-expanded', open); det.hidden = !open; tr.classList.toggle('open', open);
+    if (open) det.firstChild.innerHTML = detailHTML(subjects[i]);
   });
 
   document.getElementById('exportBtn').addEventListener('click', function () {
-    var rows = [['Code', 'Subject', 'Faculty', 'Held', 'Attended', 'Percentage', 'Status']];
+    var rows = [['Code', 'Subject', 'Faculty', 'Held', 'Attended', 'Percentage', 'Status', 'Missed classes']];
     subjects.forEach(function (s) {
       var st = status(s);
-      rows.push([s.code, s.name, s.fac, s.held, s.att, Math.round(s.att / s.held * 100) + '%', st.label + ' – ' + st.sub]);
+      var miss = s.sessions.filter(function (c) { return c.missed; }).map(function (c) { return c.key; }).join('; ');
+      rows.push([s.code, s.name, s.fac, s.held, s.att, Math.round(s.att / s.held * 100) + '%', st.label + ' – ' + st.sub, miss]);
     });
-    rows.push(['', 'Overall', '', held, att, overall + '%', '']);
+    rows.push(['', 'Overall', '', held, att, overall + '%', '', '']);
     NEST.downloadCSV('NEST-attendance-sem5.csv', rows);
     NEST.toast('Attendance exported');
   });
