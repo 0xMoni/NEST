@@ -263,12 +263,11 @@ button, input, select { font: inherit; color: inherit; }
 .tile .per { font-family: var(--head); font-size: 10.5px; font-weight: 600; letter-spacing: .12em; color: var(--muted); }
 .tile .sub { font-family: var(--head); font-weight: 600; font-size: 13.5px; line-height: 1.3; margin-top: 10px; }
 .tile .front, .tile .reveal { transition: opacity .18s, transform .18s; }
-.tile .front { font-size: 13px; color: var(--faint); margin-top: 3px; }
-.tile .reveal {
-  position: absolute; left: 14px; right: 14px; bottom: 12px;
-  font-size: 13px; color: var(--muted); line-height: 1.35;
-  opacity: 0; transform: translateY(6px);
-}
+/* front and reveal share one grid cell, so the tile is sized for the taller one and nothing overlaps */
+.tile .swap { display: grid; margin-top: 6px; }
+.tile .front, .tile .reveal { grid-area: 1 / 1; }
+.tile .front { font-size: 13px; color: var(--faint); }
+.tile .reveal { font-size: 13px; color: var(--muted); line-height: 1.35; opacity: 0; transform: translateY(6px); }
 .tile .reveal b { display: block; color: var(--text); font-weight: 700; }
 .tile:hover .reveal, .tile:focus-visible .reveal, .tile.open .reveal { opacity: 1; transform: none; }
 .tile:hover .front, .tile:focus-visible .front, .tile.open .front { opacity: 0; }
@@ -872,8 +871,8 @@ button, input, select { font: inherit; color: inherit; }
       return '<div class="' + cls + '" tabindex="0" aria-label="' + per + ', ' + esc(s.n) + ', ' + esc(s.f) + ', ' + t0 + ' to ' + t1 + ', ' + s.r + '">' +
         '<div class="row"><span class="per">' + per + '</span>' + badge + '</div>' +
         '<div class="sub">' + esc(s.n) + '</div>' +
-        '<div class="front">' + (s.lab ? 'Lab' : s.free ? 'Free period' : 'Lecture') + '</div>' +
-        '<div class="reveal" aria-hidden="true"><b>' + esc(s.f) + '</b>' + t0 + '–' + t1 + ' · ' + s.r + '</div>' +
+        '<div class="swap"><div class="front">' + (s.lab ? 'Lab' : s.free ? 'Free period' : 'Lecture') + '</div>' +
+        '<div class="reveal" aria-hidden="true"><b>' + esc(s.f) + '</b>' + t0 + '–' + t1 + ' · ' + s.r + '</div></div>' +
         '</div>';
     }).join('');
     var last = mins(times[codes.length - 1][1]);
