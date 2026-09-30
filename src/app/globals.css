@@ -1,26 +1,133 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ============================================================
+   NEST design tokens.
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+   Three theme states, not two: bare :root is the complete light
+   palette, the media query covers "follow the OS", and
+   [data-theme] pins an explicit choice and beats both. Every
+   colour is defined on bare :root first, so nothing is left
+   undefined in the un-stamped state.
+   ============================================================ */
+
+:root {
+  color-scheme: light;
+
+  /* brand panel */
+  --panel: #efece3;
+  --panel-2: #f7f5ef;
+  --panel-ink: #15181c;
+  --panel-ink-2: #6b7280;
+  --weave: 150, 122, 72;
+  --weave-alpha: 0.34;
+  --logo-filter: none;
+
+  /* surfaces and type */
+  --paper: #faf9f6;
+  --ink: #15181c;
+  --ink-2: #5d6570;
+  --ink-3: #8b939d;
+  --line: #e6e3da;
+  --line-hover: #cdc8ba;
+  --field: #ffffff;
+
+  --btn: #15181c;
+  --btn-text: #faf9f6;
+
+  /* semantic */
+  --danger: #a02a20;
+  --danger-bg: #fdeeeb;
+  --warn: #85600f;
+  --ok: #1c6349;
+  --ring: rgba(21, 24, 28, 0.28);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --panel: #0e1116;
+    --panel-2: #14181f;
+    --panel-ink: #f0f1f3;
+    --panel-ink-2: #98a1ad;
+    --weave: 198, 166, 104;
+    --weave-alpha: 0.3;
+    --logo-filter: invert(1) brightness(1.22) hue-rotate(180deg);
+
+    --paper: #101319;
+    --ink: #edeff2;
+    --ink-2: #99a2ac;
+    --ink-3: #6d757f;
+    --line: rgba(255, 255, 255, 0.12);
+    --line-hover: rgba(255, 255, 255, 0.24);
+    --field: rgba(255, 255, 255, 0.045);
+
+    --btn: #edeff2;
+    --btn-text: #12161b;
+
+    --danger: #f5b5ae;
+    --danger-bg: rgba(74, 30, 27, 0.6);
+    --warn: #f0c993;
+    --ok: #82d2ab;
+    --ring: rgba(237, 239, 242, 0.34);
   }
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --panel: #0e1116;
+  --panel-2: #14181f;
+  --panel-ink: #f0f1f3;
+  --panel-ink-2: #98a1ad;
+  --weave: 198, 166, 104;
+  --weave-alpha: 0.3;
+  --logo-filter: invert(1) brightness(1.22) hue-rotate(180deg);
+
+  --paper: #101319;
+  --ink: #edeff2;
+  --ink-2: #99a2ac;
+  --ink-3: #6d757f;
+  --line: rgba(255, 255, 255, 0.12);
+  --line-hover: rgba(255, 255, 255, 0.24);
+  --field: rgba(255, 255, 255, 0.045);
+
+  --btn: #edeff2;
+  --btn-text: #12161b;
+
+  --danger: #f5b5ae;
+  --danger-bg: rgba(74, 30, 27, 0.6);
+  --warn: #f0c993;
+  --ok: #82d2ab;
+  --ring: rgba(237, 239, 242, 0.34);
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-line: var(--line);
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-newsreader);
+}
+
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::after,
+  *::before {
+    animation: none !important;
+    transition: none !important;
+  }
 }
