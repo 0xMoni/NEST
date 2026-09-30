@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./login.module.css";
 
@@ -25,6 +27,7 @@ function seeded(seed: number) {
 }
 
 export default function LoginPage() {
+  const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const brandRef = useRef<HTMLElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -158,7 +161,7 @@ export default function LoginPage() {
     (field === "email" ? emailRef : passwordRef).current?.focus();
   };
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setNotice(null);
     setBadField(null);
@@ -170,12 +173,22 @@ export default function LoginPage() {
       return fail(`Use your college email — the one ending in @${COLLEGE_DOMAIN}.`, "email");
 
     setBusy(true);
-    // TODO(auth): replace with supabase.auth.signInWithPassword once the
-    // clients from phase 01 land.
-    setTimeout(() => {
-      setBusy(false);
-      setNotice({ kind: "ok", text: "Signed in. Auth isn't wired up yet, so nothing happens next." });
-    }, 1200);
+    const { error } = await createClient().auth.signInWithPassword({ email: v, password });
+    setBusy(false);
+
+    if (error) {
+      // Deliberately vague: saying which half was wrong tells an attacker
+      // which addresses are real accounts.
+      return fail(
+        error.message === "Invalid login credentials"
+          ? "That email and password don't match."
+          : error.message,
+        "password",
+      );
+    }
+
+    router.push("/dashboard");
+    router.refresh(); // let the server re-read the new session cookie
   };
 
   const showHint = email.trim().length > 1 && !email.includes("@");
