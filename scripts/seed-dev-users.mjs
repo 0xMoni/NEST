@@ -17,7 +17,9 @@ for (const line of readFileSync(new URL("../.env.local", import.meta.url), "utf8
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SECRET_KEY;
-const domain = process.env.NEXT_PUBLIC_COLLEGE_EMAIL_DOMAIN ?? "nest.edu";
+// Seed accounts stay on nest.edu so they are obviously not real students.
+// Pass a domain to override: node scripts/seed-dev-users.mjs eastpoint.ac.in
+const domain = process.argv[2] ?? "nest.edu";
 
 if (!url || !serviceKey) {
   console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY in .env.local");

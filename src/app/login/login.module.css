@@ -264,6 +264,9 @@
 }
 
 .hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   margin: 8px 0 0;
 }
 .hint button {

@@ -6,10 +6,21 @@ import { createClient } from "@/lib/supabase/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./login.module.css";
 
-// The college's own domain. Placeholder for now — see docs/dev-accounts.md.
-// This is a courtesy check only: the same rule is enforced in Postgres, because
-// anyone can bypass client-side JavaScript.
-const COLLEGE_DOMAIN = process.env.NEXT_PUBLIC_COLLEGE_EMAIL_DOMAIN ?? "nest.edu";
+// Students are split across more than one college domain, so this is a list.
+// A courtesy check only: the same rule belongs in Postgres too, because anyone
+// can bypass client-side JavaScript.
+const COLLEGE_DOMAINS = (process.env.NEXT_PUBLIC_COLLEGE_EMAIL_DOMAINS ?? "nest.edu")
+  .split(",")
+  .map((d) => d.trim().toLowerCase())
+  .filter(Boolean);
+
+// The one students see in the placeholder and the first completion chip.
+const PRIMARY_DOMAIN = COLLEGE_DOMAINS[0];
+
+function listDomains(domains: string[]) {
+  if (domains.length === 1) return `@${domains[0]}`;
+  return domains.map((d) => `@${d}`).slice(0, -1).join(", ") + ` or @${domains.at(-1)}`;
+}
 
 type Theme = "light" | "dark";
 type Notice = { kind: "error" | "ok"; text: string } | null;
@@ -169,8 +180,8 @@ export default function LoginPage() {
     const v = email.trim().toLowerCase();
     if (!v || !password) return fail("Enter your college email and password.", v ? "password" : "email");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return fail("That doesn't look like an email address.", "email");
-    if (!v.endsWith(`@${COLLEGE_DOMAIN}`))
-      return fail(`Use your college email — the one ending in @${COLLEGE_DOMAIN}.`, "email");
+    if (!COLLEGE_DOMAINS.some((d) => v.endsWith(`@${d}`)))
+      return fail(`Use your college email — it ends in ${listDomains(COLLEGE_DOMAINS)}.`, "email");
 
     setBusy(true);
     const { error } = await createClient().auth.signInWithPassword({ email: v, password });
@@ -282,7 +293,7 @@ export default function LoginPage() {
                       setNotice(null);
                     }
                   }}
-                  placeholder={`you@${COLLEGE_DOMAIN}`}
+                  placeholder={`you@${PRIMARY_DOMAIN}`}
                   autoComplete="username"
                   spellCheck={false}
                   autoCapitalize="off"
@@ -292,15 +303,20 @@ export default function LoginPage() {
               </div>
               {showHint && (
                 <p className={styles.hint}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail(`${email.trim()}@${COLLEGE_DOMAIN}`);
-                      passwordRef.current?.focus();
-                    }}
-                  >
-                    Complete with @{COLLEGE_DOMAIN}
-                  </button>
+                  {/* One chip per domain — auto-picking would be wrong for a third
+                      of students, since the domain depends on their semester. */}
+                  {COLLEGE_DOMAINS.map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => {
+                        setEmail(`${email.trim()}@${d}`);
+                        passwordRef.current?.focus();
+                      }}
+                    >
+                      @{d}
+                    </button>
+                  ))}
                 </p>
               )}
             </div>
