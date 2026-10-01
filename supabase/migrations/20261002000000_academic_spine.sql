@@ -8,39 +8,6 @@
 -- right rather than a dozen.
 -- ============================================================
 
--- ---------- helpers ----------
--- security definer so a policy can read these tables without being
--- blocked by the policies it is in the middle of evaluating.
-
-create or replace function public.is_admin()
-returns boolean language sql stable security definer set search_path = public as $$
-  select exists (select 1 from public.profiles where id = auth.uid() and role = 'admin');
-$$;
-
-create or replace function public.teaches_assignment(a_id uuid)
-returns boolean language sql stable security definer set search_path = public as $$
-  select exists (
-    select 1 from public.faculty_assignments
-    where id = a_id and faculty_id = auth.uid()
-  );
-$$;
-
-create or replace function public.teaches_section(s_id uuid)
-returns boolean language sql stable security definer set search_path = public as $$
-  select exists (
-    select 1 from public.faculty_assignments
-    where section_id = s_id and faculty_id = auth.uid()
-  );
-$$;
-
-create or replace function public.studies_in_section(s_id uuid)
-returns boolean language sql stable security definer set search_path = public as $$
-  select exists (
-    select 1 from public.section_students
-    where section_id = s_id and student_id = auth.uid()
-  );
-$$;
-
 -- ---------- structure ----------
 
 create table public.subjects (
@@ -132,6 +99,42 @@ create table public.mentorships (
   student_id uuid not null references public.profiles on delete cascade primary key
 );
 create index on public.mentorships (mentor_id);
+
+-- ---------- helpers ----------
+-- Defined after the tables on purpose: a `language sql` body is parsed when
+-- the function is created, so declaring these first fails with
+-- "relation does not exist".
+-- security definer so a policy can read these tables without being
+-- blocked by the policies it is in the middle of evaluating.
+
+create or replace function public.is_admin()
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.profiles where id = auth.uid() and role = 'admin');
+$$;
+
+create or replace function public.teaches_assignment(a_id uuid)
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (
+    select 1 from public.faculty_assignments
+    where id = a_id and faculty_id = auth.uid()
+  );
+$$;
+
+create or replace function public.teaches_section(s_id uuid)
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (
+    select 1 from public.faculty_assignments
+    where section_id = s_id and faculty_id = auth.uid()
+  );
+$$;
+
+create or replace function public.studies_in_section(s_id uuid)
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (
+    select 1 from public.section_students
+    where section_id = s_id and student_id = auth.uid()
+  );
+$$;
 
 -- ============================================================
 -- Row level security

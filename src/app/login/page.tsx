@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import styles from "./login.module.css";
 
 // Students sign in with their USN. Staff have no USN, so the same field also
@@ -11,6 +11,25 @@ const USN_PATTERN = /^[0-9][A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{3}$/i;
 
 type Theme = "light" | "dark";
 type Notice = { kind: "error" | "ok"; text: string } | null;
+
+/** The theme is external state — it lives on the document element and in the
+ *  OS setting — so it is read, not mirrored. Copying it into useState meant
+ *  setting state inside an effect, which cascades renders for no gain. */
+function subscribeTheme(onChange: () => void) {
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  mq.addEventListener("change", onChange);
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  return () => {
+    mq.removeEventListener("change", onChange);
+    observer.disconnect();
+  };
+}
+
+function readTheme(): Theme {
+  const pinned = document.documentElement.getAttribute("data-theme") as Theme | null;
+  return pinned ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+}
 
 /** Deterministic PRNG, so the weave is a designed object rather than a
  *  different picture on every visit. */
@@ -26,12 +45,12 @@ function seeded(seed: number) {
 
 export default function LoginPage() {
   const router = useRouter();
+  const theme = useSyncExternalStore(subscribeTheme, readTheme, () => "light" as Theme);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const brandRef = useRef<HTMLElement>(null);
   const idRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
-  const [theme, setTheme] = useState<Theme>("light");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [revealed, setRevealed] = useState(false);
@@ -110,21 +129,6 @@ export default function LoginPage() {
   /* ---------------- theme ---------------- */
 
   useEffect(() => {
-    const stamped = document.documentElement.getAttribute("data-theme") as Theme | null;
-    const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
-    setTheme(stamped ?? (systemDark.matches ? "dark" : "light"));
-
-    // follow the OS only while no choice has been pinned
-    const onSystem = () => {
-      if (!document.documentElement.getAttribute("data-theme")) {
-        setTheme(systemDark.matches ? "dark" : "light");
-      }
-    };
-    systemDark.addEventListener("change", onSystem);
-    return () => systemDark.removeEventListener("change", onSystem);
-  }, []);
-
-  useEffect(() => {
     drawWeave();
     let t: ReturnType<typeof setTimeout>;
     const onResize = () => {
@@ -140,13 +144,14 @@ export default function LoginPage() {
 
   const toggleTheme = () => {
     const next: Theme = theme === "dark" ? "light" : "dark";
+    // Setting the attribute is the whole change — the store above is watching
+    // it, so React re-reads on its own.
     document.documentElement.setAttribute("data-theme", next);
     try {
       localStorage.setItem("nest-theme", next);
     } catch {
       /* private window, blocked storage — the theme just won't persist */
     }
-    setTheme(next);
   };
 
   /* ---------------- form ---------------- */
