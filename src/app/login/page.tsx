@@ -165,12 +165,12 @@ export default function LoginPage() {
     setBadField(null);
 
     const v = identifier.trim();
-    if (!v || !password) return fail("Enter your USN and password.", v ? "password" : "email");
+    if (!v || !password) return fail("Enter your USN or email, and your password.", v ? "password" : "email");
 
     // Catch an obviously malformed USN here so it never costs a round trip.
     // Anything with an @ is a staff email and goes straight through.
     if (!v.includes("@") && !USN_PATTERN.test(v))
-      return fail("That doesn't look like a USN. It looks like 1EP24CS001.", "email");
+      return fail("That doesn't look like a USN or an email. A USN looks like 1EP24CS001.", "email");
 
     setBusy(true);
     const res = await fetch("/auth/login", {
@@ -265,7 +265,7 @@ export default function LoginPage() {
             )}
 
             <div className={`${styles.field} ${styles.rise} ${styles.d1}`}>
-              <label htmlFor="email">USN</label>
+              <label htmlFor="email">USN or email</label>
               <div className={styles.control}>
                 <input
                   ref={idRef}
@@ -280,7 +280,7 @@ export default function LoginPage() {
                       setNotice(null);
                     }
                   }}
-                  placeholder="1EP24CS001"
+                  placeholder="1EP24CS001 or you@example.com"
                   autoComplete="username"
                   spellCheck={false}
                   autoCapitalize="characters"

@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   const { identifier, password } = await request.json().catch(() => ({}));
 
   if (typeof identifier !== "string" || typeof password !== "string" || !identifier || !password) {
-    return NextResponse.json({ error: "Enter your USN and password." }, { status: 400 });
+    return NextResponse.json({ error: "Enter your USN or email, and your password." }, { status: 400 });
   }
 
   const id = identifier.trim();
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
   // Unknown USN and wrong password are deliberately indistinguishable: saying
   // which it was lets someone enumerate who actually has an account.
-  const generic = { error: "That USN and password don't match." };
+  const generic = { error: "Those details don't match an account." };
 
   if (!email) return NextResponse.json(generic, { status: 401 });
 
