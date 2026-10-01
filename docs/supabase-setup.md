@@ -15,18 +15,35 @@ is scripted.
 
 ## 2. Copy the keys
 
-**Project Settings → API**, and copy into `.env.local`:
+Fastest route — the **Connect** dialog, which hands you the URL and publishable
+key already formatted for Next.js:
 
-| Dashboard field | Goes into |
+```
+https://supabase.com/dashboard/project/_?showConnect=true
+```
+
+For the secret key, and to see everything in one place:
+
+```
+https://supabase.com/dashboard/project/_/settings/api-keys/
+```
+
+The `_` in those URLs resolves to whichever project you have open.
+
+| Dashboard value | Goes into |
 | --- | --- |
 | Project URL | `NEXT_PUBLIC_SUPABASE_URL` |
-| `anon` / publishable key | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
-| `service_role` key | `SUPABASE_SERVICE_ROLE_KEY` |
+| Publishable key (`sb_publishable_…`) | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
+| Secret key (`sb_secret_…`) | `SUPABASE_SECRET_KEY` |
 
-The `anon` key is meant to be public — it ends up in the page source either way,
-and row-level security is what actually protects the data. The `service_role`
-key bypasses every policy we write. It has no `NEXT_PUBLIC_` prefix for exactly
-that reason, and it must never be imported into anything that runs in a browser.
+**On the naming.** Supabase renamed these: `anon` is now *publishable*, and
+`service_role` is now *secret*. Older keys still work and both appear on the
+same page, but the legacy pair is being retired at the end of 2026 — so take the
+`sb_publishable_` / `sb_secret_` versions. Our variable names keep the old words
+because that is what the Supabase client libraries still call the arguments.
+
+There is no longer a **Settings → API** page; keys live under **Settings → API
+Keys**.
 
 ## 3. Turn off email confirmation
 
