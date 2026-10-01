@@ -2,25 +2,12 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./login.module.css";
 
-// Students are split across more than one college domain, so this is a list.
-// A courtesy check only: the same rule belongs in Postgres too, because anyone
-// can bypass client-side JavaScript.
-const COLLEGE_DOMAINS = (process.env.NEXT_PUBLIC_COLLEGE_EMAIL_DOMAINS ?? "eastpoint.ac.in,epcet.ac.in")
-  .split(",")
-  .map((d) => d.trim().toLowerCase())
-  .filter(Boolean);
-
-// The one students see in the placeholder and the first completion chip.
-const PRIMARY_DOMAIN = COLLEGE_DOMAINS[0];
-
-function listDomains(domains: string[]) {
-  if (domains.length === 1) return `@${domains[0]}`;
-  return domains.map((d) => `@${d}`).slice(0, -1).join(", ") + ` or @${domains.at(-1)}`;
-}
+// Students sign in with their USN. Staff have no USN, so the same field also
+// takes an email — anything containing @ is treated as one.
+const USN_PATTERN = /^[0-9][A-Z]{2}[0-9]{2}[A-Z]{2}[0-9]{3}$/i;
 
 type Theme = "light" | "dark";
 type Notice = { kind: "error" | "ok"; text: string } | null;
@@ -41,11 +28,11 @@ export default function LoginPage() {
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const brandRef = useRef<HTMLElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
+  const idRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
   const [theme, setTheme] = useState<Theme>("light");
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [revealed, setRevealed] = useState(false);
   const [capsOn, setCapsOn] = useState(false);
@@ -169,7 +156,7 @@ export default function LoginPage() {
     setBadField(field);
     setShaking(false);
     requestAnimationFrame(() => setShaking(true));
-    (field === "email" ? emailRef : passwordRef).current?.focus();
+    (field === "email" ? idRef : passwordRef).current?.focus();
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -177,32 +164,32 @@ export default function LoginPage() {
     setNotice(null);
     setBadField(null);
 
-    const v = email.trim().toLowerCase();
-    if (!v || !password) return fail("Enter your college email and password.", v ? "password" : "email");
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) return fail("That doesn't look like an email address.", "email");
-    if (!COLLEGE_DOMAINS.some((d) => v.endsWith(`@${d}`)))
-      return fail(`Use your college email — it ends in ${listDomains(COLLEGE_DOMAINS)}.`, "email");
+    const v = identifier.trim();
+    if (!v || !password) return fail("Enter your USN and password.", v ? "password" : "email");
+
+    // Catch an obviously malformed USN here so it never costs a round trip.
+    // Anything with an @ is a staff email and goes straight through.
+    if (!v.includes("@") && !USN_PATTERN.test(v))
+      return fail("That doesn't look like a USN. It looks like 1EP24CS001.", "email");
 
     setBusy(true);
-    const { error } = await createClient().auth.signInWithPassword({ email: v, password });
+    const res = await fetch("/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ identifier: v, password }),
+    });
     setBusy(false);
 
-    if (error) {
-      // Deliberately vague: saying which half was wrong tells an attacker
-      // which addresses are real accounts.
-      return fail(
-        error.message === "Invalid login credentials"
-          ? "That email and password don't match."
-          : error.message,
-        "password",
-      );
+    if (!res.ok) {
+      const { error } = await res.json().catch(() => ({ error: "Sign-in failed." }));
+      return fail(error, "password");
     }
 
     router.push("/dashboard");
     router.refresh(); // let the server re-read the new session cookie
   };
 
-  const showHint = email.trim().length > 1 && !email.includes("@");
+
   const dark = theme === "dark";
 
   return (
@@ -278,47 +265,29 @@ export default function LoginPage() {
             )}
 
             <div className={`${styles.field} ${styles.rise} ${styles.d1}`}>
-              <label htmlFor="email">College email</label>
+              <label htmlFor="email">USN</label>
               <div className={styles.control}>
                 <input
-                  ref={emailRef}
-                  type="email"
+                  ref={idRef}
+                  type="text"
                   id="email"
                   name="email"
-                  value={email}
+                  value={identifier}
                   onChange={(e) => {
-                    setEmail(e.target.value);
+                    setIdentifier(e.target.value);
                     if (badField === "email") {
                       setBadField(null);
                       setNotice(null);
                     }
                   }}
-                  placeholder={`you@${PRIMARY_DOMAIN}`}
+                  placeholder="1EP24CS001"
                   autoComplete="username"
                   spellCheck={false}
-                  autoCapitalize="off"
+                  autoCapitalize="characters"
                   aria-invalid={badField === "email"}
                   required
                 />
               </div>
-              {showHint && (
-                <p className={styles.hint}>
-                  {/* One chip per domain — auto-picking would be wrong for a third
-                      of students, since the domain depends on their semester. */}
-                  {COLLEGE_DOMAINS.map((d) => (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => {
-                        setEmail(`${email.trim()}@${d}`);
-                        passwordRef.current?.focus();
-                      }}
-                    >
-                      @{d}
-                    </button>
-                  ))}
-                </p>
-              )}
             </div>
 
             <div className={`${styles.field} ${styles.rise} ${styles.d2}`}>
