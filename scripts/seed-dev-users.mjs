@@ -34,7 +34,9 @@ const users = [
   { email: `dev.admin@${domain}`, full_name: "NEST Admin", role: "admin", usn: null },
 ];
 
-const PASSWORD = "NestDev2026!";
+// Short on purpose: these are throwaway dev logins typed dozens of times a day.
+// Real student accounts must never use this — see docs/dev-accounts.md.
+const PASSWORD = process.env.SEED_PASSWORD ?? "123456";
 
 for (const u of users) {
   const { error } = await admin.auth.admin.createUser({

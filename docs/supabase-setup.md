@@ -79,7 +79,7 @@ Creates the three logins in `dev-accounts.md`. Safe to re-run.
 npm run dev
 ```
 
-Sign in at `/login` as `dev.student@eastpoint.ac.in` with `NestDev2026!`. You should be
+Sign in at `/login` as `dev.student@eastpoint.ac.in` with `123456`. You should be
 redirected away from the login page. Visiting `/login` while signed in should
 bounce you too — that's the middleware doing its job.
 

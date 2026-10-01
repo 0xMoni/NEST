@@ -17,9 +17,9 @@ Both are accepted at login, via `NEXT_PUBLIC_COLLEGE_EMAIL_DOMAINS`.
 
 | Role | Email | Password |
 | --- | --- | --- |
-| Student | `dev.student@eastpoint.ac.in` | `NestDev2026!` |
-| Faculty | `dev.faculty@eastpoint.ac.in` | `NestDev2026!` |
-| Admin | `dev.admin@eastpoint.ac.in` | `NestDev2026!` |
+| Student | `dev.student@eastpoint.ac.in` | `123456` |
+| Faculty | `dev.faculty@eastpoint.ac.in` | `123456` |
+| Admin | `dev.admin@eastpoint.ac.in` | `123456` |
 
 They sit on a real college domain so they pass exactly the same check a student
 does — testing against a fake domain would have proved nothing about the real
@@ -36,6 +36,22 @@ node scripts/seed-dev-users.mjs
 ```
 
 Safe to re-run. Pass a different domain as an argument to override.
+
+## `123456` is a default, not a password
+
+Accounts are created by an administrator, so every new student starts on the
+same default. That is normal, and safe only while the second half is true: the
+account must demand a new password on first sign-in.
+
+Without that, "default" quietly becomes "permanent" for most of the 514 students,
+and every one of their accounts shares a password that appears at the top of every
+breach list. The attendance and marks behind those logins are exactly what the
+permission rules were written to protect.
+
+**Still to build:** a `must_change_password` flag on `profiles`, set true when an
+account is created and cleared once the student picks their own. The middleware
+then sends anyone carrying that flag to a change-password screen before it lets
+them reach anything else.
 
 ## Rules while these exist
 
