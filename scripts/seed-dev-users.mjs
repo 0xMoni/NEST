@@ -17,9 +17,9 @@ for (const line of readFileSync(new URL("../.env.local", import.meta.url), "utf8
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SECRET_KEY;
-// Seed accounts stay on nest.edu so they are obviously not real students.
-// Pass a domain to override: node scripts/seed-dev-users.mjs eastpoint.ac.in
-const domain = process.argv[2] ?? "nest.edu";
+// Dev accounts live on a real college domain so they pass the same check a
+// student does. The dev. prefix keeps them obviously distinct from anyone real.
+const domain = process.argv[2] ?? "eastpoint.ac.in";
 
 if (!url || !serviceKey) {
   console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY in .env.local");
@@ -29,9 +29,9 @@ if (!url || !serviceKey) {
 const admin = createClient(url, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } });
 
 const users = [
-  { email: `student@${domain}`, full_name: "Aarav Sharma", role: "student", usn: "23AD014" },
-  { email: `faculty@${domain}`, full_name: "Dr. Meera Rao", role: "faculty", usn: null },
-  { email: `admin@${domain}`, full_name: "NEST Admin", role: "admin", usn: null },
+  { email: `dev.student@${domain}`, full_name: "Aarav Sharma", role: "student", usn: "23AD014" },
+  { email: `dev.faculty@${domain}`, full_name: "Dr. Meera Rao", role: "faculty", usn: null },
+  { email: `dev.admin@${domain}`, full_name: "NEST Admin", role: "admin", usn: null },
 ];
 
 const PASSWORD = "NestDev2026!";
@@ -40,7 +40,7 @@ for (const u of users) {
   const { error } = await admin.auth.admin.createUser({
     email: u.email,
     password: PASSWORD,
-    email_confirm: true, // nest.edu can't receive mail, so confirm them here
+    email_confirm: true, // these addresses can't receive mail, so confirm them here
     user_metadata: { full_name: u.full_name, role: u.role, usn: u.usn },
   });
 

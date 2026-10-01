@@ -1,45 +1,48 @@
 # Dev accounts
 
-Placeholder credentials for building against. **Not real.** Swap the domain for the
-college's actual one when we get it — see *Changing the domain* below.
+Placeholder credentials for building against. **Not real students.**
 
-## Domain
+## Domains
 
-```
-nest.edu
-```
+The college splits students across two domains:
 
-Chosen because it's short to type, unmistakably a placeholder, and a normal enough
-address that Supabase Auth won't reject it.
+| Domain | Who |
+| --- | --- |
+| `eastpoint.ac.in` | 5th and 7th semester |
+| `epcet.ac.in` | 3rd semester |
+
+Both are accepted at login, via `NEXT_PUBLIC_COLLEGE_EMAIL_DOMAINS`.
 
 ## The three accounts
 
-| Role    | Email              | Password       | Used for                                    |
-| ------- | ------------------ | -------------- | ------------------------------------------- |
-| Student | student@nest.edu   | `NestDev2026!` | Attendance %, scorecard, timetable, profile |
-| Faculty | faculty@nest.edu   | `NestDev2026!` | Marking attendance, entering marks, mentees |
-| Admin   | admin@nest.edu     | `NestDev2026!` | Seeding sections, subjects, assignments     |
+| Role | Email | Password |
+| --- | --- | --- |
+| Student | `dev.student@eastpoint.ac.in` | `NestDev2026!` |
+| Faculty | `dev.faculty@eastpoint.ac.in` | `NestDev2026!` |
+| Admin | `dev.admin@eastpoint.ac.in` | `NestDev2026!` |
 
-One per role rather than one per teammate, because the checks in §09 of the plan need
-exactly this: three logins that each land in the right place and can't reach the others.
-If we later want a personal login each, add `moni@nest.edu` and friends alongside these —
-the role accounts should stay, since they're what the tests use.
+They sit on a real college domain so they pass exactly the same check a student
+does — testing against a fake domain would have proved nothing about the real
+path. The `dev.` prefix keeps them unmistakably distinct from anyone real.
 
-## Rules while these are in use
+One account per role rather than one per teammate, because the checks in the plan
+need exactly this: three logins that each land in the right place and cannot reach
+the others.
 
-- **Turn off email confirmation** in Supabase Auth while developing. `nest.edu` can't
-  receive mail, so a confirmation step would lock everyone out of their own accounts.
-- **Never seed these into production.** They're known credentials on a public repo.
-- **Password reset can't be tested** with these. When we need to test that flow, we'll
-  need real inboxes — worth remembering before the AI phase, not after.
+Create or re-create them with:
 
-## Changing the domain
+```
+node scripts/seed-dev-users.mjs
+```
 
-Two places, once the app exists:
+Safe to re-run. Pass a different domain as an argument to override.
 
-1. `NEXT_PUBLIC_COLLEGE_EMAIL_DOMAIN` in `.env.local` — and in the Vercel project settings
-2. The matching database check, so the rule holds even if someone bypasses the browser
+## Rules while these exist
 
-Right now, while it's still a mockup, it's one line: `COLLEGE_DOMAIN` at the top of the
-form script in `mockups/login.html`. The placeholder text, the completion hint and the
-error message all read from it.
+- **Turn off email confirmation** in Supabase Auth while developing. These
+  addresses cannot receive mail, so a confirmation step would lock them out of
+  their own accounts.
+- **Never seed these into production.** They are known credentials on a public repo.
+- **Password reset cannot be tested** with them. That flow needs real inboxes.
+- **Do not confuse them with the real list.** The college's spreadsheet has 514
+  actual students; it is gitignored and must stay out of the repo.

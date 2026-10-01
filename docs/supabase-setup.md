@@ -49,7 +49,7 @@ Keys**.
 
 **Authentication → Providers → Email**, and switch **Confirm email** off.
 
-Our placeholder accounts are on `nest.edu`, which cannot receive mail. Leave
+Our dev accounts use addresses that cannot receive mail. Leave
 confirmation on and every seeded account is locked out of itself. Turn it back
 on before this is ever used with real addresses.
 
@@ -79,7 +79,7 @@ Creates the three logins in `dev-accounts.md`. Safe to re-run.
 npm run dev
 ```
 
-Sign in at `/login` as `student@nest.edu` with `NestDev2026!`. You should be
+Sign in at `/login` as `dev.student@eastpoint.ac.in` with `NestDev2026!`. You should be
 redirected away from the login page. Visiting `/login` while signed in should
 bounce you too — that's the middleware doing its job.
 

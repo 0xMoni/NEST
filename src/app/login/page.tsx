@@ -9,7 +9,7 @@ import styles from "./login.module.css";
 // Students are split across more than one college domain, so this is a list.
 // A courtesy check only: the same rule belongs in Postgres too, because anyone
 // can bypass client-side JavaScript.
-const COLLEGE_DOMAINS = (process.env.NEXT_PUBLIC_COLLEGE_EMAIL_DOMAINS ?? "nest.edu")
+const COLLEGE_DOMAINS = (process.env.NEXT_PUBLIC_COLLEGE_EMAIL_DOMAINS ?? "eastpoint.ac.in,epcet.ac.in")
   .split(",")
   .map((d) => d.trim().toLowerCase())
   .filter(Boolean);
