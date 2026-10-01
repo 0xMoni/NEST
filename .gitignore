@@ -42,3 +42,11 @@ next-env.d.ts
 
 # keep the template committed
 !.env.example
+
+# Real student data — never commit. The repo is public, and the college's
+# lists carry names, email addresses and phone numbers for 500+ people.
+# Keep source spreadsheets outside the repo, or inside private-data/.
+*.xlsx
+*.xls
+*.csv
+private-data/
