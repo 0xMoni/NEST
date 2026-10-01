@@ -2,16 +2,17 @@ import type { Metadata } from "next";
 import { DM_Sans, Newsreader } from "next/font/google";
 import "./globals.css";
 
+// Both are variable fonts, so no weight list: next/font ships the whole axis
+// in one file. Enumerating weights makes Turbopack emit one @font-face query
+// per weight, which it then refuses to resolve.
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
 });
 
 const newsreader = Newsreader({
   variable: "--font-newsreader",
   subsets: ["latin"],
-  weight: ["300", "400"],
   style: ["normal", "italic"],
 });
 
