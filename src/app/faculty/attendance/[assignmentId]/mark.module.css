@@ -1,0 +1,74 @@
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 4px;
+  max-width: 680px;
+}
+.count { font-size: 0.9375rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.count strong { color: var(--ink); font-weight: 500; }
+.ghost {
+  font-family: inherit;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+.ghost:hover { color: var(--ink); border-color: var(--line-hover); }
+
+.list { list-style: none; margin: 0 0 22px; padding: 0; max-width: 680px; }
+.student {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 13px 4px;
+  cursor: pointer;
+}
+.student:hover { background: var(--field); }
+.student:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+.usn { font-size: 0.8125rem; color: var(--ink-2); letter-spacing: 0.03em; }
+.name { font-weight: 450; }
+.state {
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ok);
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 3px 11px;
+}
+.absent .name { color: var(--ink-2); text-decoration: line-through; }
+.absent .state { color: var(--danger); }
+
+.save {
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--btn-text);
+  background: var(--btn);
+  border: 0;
+  border-radius: 10px;
+  padding: 13px 26px;
+  cursor: pointer;
+}
+.save:disabled { opacity: 0.6; cursor: default; }
+
+.ok { color: var(--ok); font-size: 0.9375rem; }
+.error { color: var(--danger); font-size: 0.9375rem; }
+.empty { color: var(--ink-2); border: 1px dashed var(--line); border-radius: 12px; padding: 22px; max-width: 48ch; }
