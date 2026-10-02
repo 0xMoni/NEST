@@ -78,7 +78,7 @@
 .usnBig {
   display: block;
   font-size: 0.9375rem;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
   color: var(--ok);
@@ -86,7 +86,7 @@
 /* The half every student shares is context, not information — so it is dimmed
    but kept in the same hue. Greying it dropped it to roughly the background
    and the USN stopped being readable at all. */
-.usnBig i { font-style: normal; font-weight: 400; opacity: 0.62; }
+.usnBig i { font-style: normal; opacity: 0.62; }
 
 /* ---- USN and name: full width, several columns ---- */
 .gridFull {
