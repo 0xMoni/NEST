@@ -1,154 +1,144 @@
-/* Six subjects get six hues, assigned by position so a subject keeps the same
-   colour all week. Mixed into the surface rather than used neat, so they tint
-   rather than shout — and so one set works on both themes. */
-.grid { --h1: 210; --h2: 150; --h3: 35; --h4: 280; --h5: 0; --h6: 180; }
+/* Quiet by default. The only colour is the period running now — everything
+   else is a neutral grid, because a timetable is read dozens of times a week
+   and anything loud gets tiring fast. Subject identity is carried by a small
+   dot, not by tinting the whole cell. */
 
 .status {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 14px;
-  margin-bottom: 26px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px 22px;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+  font-size: 0.9375rem;
 }
-.now, .next {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 16px 18px;
-  background: var(--field);
-}
-.now { border-color: var(--accent); background: var(--accent-soft); }
 .statLabel {
-  display: block;
   font-size: 0.625rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-3);
-  margin-bottom: 8px;
+  margin-right: 8px;
 }
-.now .statLabel { color: var(--accent); }
-.statSubject { display: block; font-size: 1.05rem; line-height: 1.2; }
-.statMeta { display: block; font-size: 0.8125rem; color: var(--ink-2); margin-top: 5px; }
-
-/* ---------- the week ---------- */
+.statNow { color: var(--accent); }
+.statMeta { color: var(--ink-2); font-size: 0.875rem; }
 
 .wrap { overflow-x: auto; padding-bottom: 4px; }
 
 .grid {
   width: 100%;
-  min-width: 860px;
+  min-width: 780px;
   border-collapse: separate;
-  border-spacing: 0;
+  border-spacing: 0 4px;
 }
 
 .grid thead th {
-  padding: 0 0 10px;
+  padding: 0 8px 10px 0;
   text-align: left;
   font-weight: 400;
   vertical-align: bottom;
+  white-space: nowrap;
 }
 .pNum {
-  display: block;
   font-size: 0.6875rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-3);
 }
 .pTime {
   display: block;
-  font-size: 0.75rem;
-  color: var(--ink-2);
-  font-variant-numeric: tabular-nums;
-  margin-top: 2px;
-}
-.gap { width: 16px; }
-.gapLabel {
-  writing-mode: vertical-rl;
-  font-size: 0.5625rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 0.6875rem;
   color: var(--ink-3);
-  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+
+/* break and lunch: a hairline with a small label, not an empty column */
+.gap { width: 22px; padding: 0 !important; }
+.gapRule {
+  width: 1px;
+  height: 100%;
+  min-height: 44px;
+  margin: 0 auto;
+  background: var(--line);
+}
+.gapHead {
+  font-size: 0.5625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  writing-mode: vertical-rl;
 }
 
 .dayCell {
-  width: 78px;
-  padding: 0 12px 0 0;
-  vertical-align: middle;
+  width: 52px;
+  padding: 0 14px 0 0;
   text-align: left;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--ink-2);
+  white-space: nowrap;
 }
-.dayName { display: block; font-size: 0.875rem; font-weight: 500; }
-.dayCount { display: block; font-size: 0.6875rem; color: var(--ink-3); margin-top: 2px; }
 
-.grid td { padding: 0 6px 6px 0; vertical-align: top; }
+.grid td { padding: 0 8px 0 0; vertical-align: top; }
 
 .slot {
-  position: relative;
-  min-height: 72px;
-  border-radius: 11px;
-  padding: 10px 11px;
+  /* fixed, not min: one long name would otherwise make its entire row taller
+     and the grid stops reading as a grid */
+  height: 58px;
+  border-radius: 9px;
+  padding: 9px 10px;
   border: 1px solid var(--line);
-  background: color-mix(in srgb, hsl(var(--h) 60% 50%) 7%, var(--field));
-  border-left: 3px solid hsl(var(--h) 45% 50%);
+  background: var(--field);
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 .code {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.625rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;
 }
-.name { font-size: 0.8125rem; line-height: 1.3; }
-.who { font-size: 0.6875rem; color: var(--ink-2); margin-top: auto; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: hsl(var(--h) 45% 55%); flex: none; }
+.name {
+  font-size: 0.8125rem;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
 .free {
-  min-height: 72px;
-  border-radius: 11px;
+  height: 58px;
+  border-radius: 9px;
   border: 1px dashed var(--line);
-  display: grid;
-  place-items: center;
-  font-size: 0.6875rem;
-  color: var(--ink-3);
+  opacity: 0.5;
 }
 
-/* today, and the period running right now */
-.today .dayName { color: var(--accent); }
-.today .slot { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
-.current {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-.nowTag {
-  position: absolute;
-  top: -7px;
-  right: 8px;
-  font-size: 0.5rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  background: var(--accent);
-  color: var(--paper);
-  border-radius: 999px;
-  padding: 2px 7px;
-}
+/* today reads from the day label and a faint row tint, nothing louder */
+.today .dayCell { color: var(--ink); font-weight: 500; }
+.today .slot { background: var(--field-2); }
 
-/* ---------- legend ---------- */
+.current { border-color: var(--accent); background: var(--accent-soft) !important; }
+.current .name { color: var(--accent); }
 
-.legend {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: 10px;
-  margin-top: 28px;
-}
-.legendItem {
+/* one line, because the faculty names left the grid and have to live somewhere */
+.key {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
-  padding: 11px 13px;
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  border-left: 3px solid hsl(var(--h) 45% 50%);
-  background: var(--field);
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-size: 0.8125rem;
+  color: var(--ink-2);
 }
-.legendItem b { font-size: 0.8125rem; font-weight: 500; }
-.legendItem span { font-size: 0.75rem; color: var(--ink-2); }
-.legendCount { margin-left: auto; font-size: 0.75rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.keyItem { display: inline-flex; align-items: baseline; gap: 7px; }
+.keyDot { width: 6px; height: 6px; border-radius: 50%; background: hsl(var(--h) 45% 55%); transform: translateY(-1px); }
+.keyItem b { color: var(--ink); font-weight: 400; }
+.keyItem span { color: var(--ink-3); }
