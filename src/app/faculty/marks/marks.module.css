@@ -36,6 +36,20 @@
   border-radius: 9px;
   padding: 10px 12px;
 }
+/* The native arrow sits hard against the border with no way to move it.
+   Replacing it buys the breathing room the text already has. The chevron is a
+   mid grey on purpose — one colour that stays visible on both themes, since a
+   data URI cannot read a custom property. */
+.form select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%23868a90' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 12px 8px;
+}
+
 .form input:focus-visible, .form select:focus-visible {
   outline: none;
   border-color: var(--ink);
