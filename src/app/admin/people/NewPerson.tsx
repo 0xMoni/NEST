@@ -28,7 +28,7 @@ export function NewPerson() {
   return (
     <form
       ref={form}
-      className={styles.form}
+      className={`${styles.form} ${styles.formPeople}`}
       action={(fd) =>
         start(async () => {
           setError(null);

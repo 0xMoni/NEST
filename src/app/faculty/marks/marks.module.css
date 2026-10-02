@@ -1,29 +1,27 @@
 .new { margin-bottom: 10px; }
 .form {
+  /* Explicit tracks, not auto-fit. auto-fit plus a two-column span kept
+     reflowing into a different shape at every width — Date wrapping under
+     Subject while Title got clipped. Four fields of known relative size want
+     four named columns. */
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 14px;
+  grid-template-columns: minmax(200px, 2.2fr) minmax(120px, 1.1fr) 92px 150px;
+  gap: 16px;
   align-items: end;
   border: 1px solid var(--line);
   border-radius: 14px;
-  padding: 18px 20px;
+  padding: 20px;
   background: var(--field);
-  max-width: 820px;
+  max-width: 900px;
 }
 .form label {
   display: grid;
   gap: 6px;
   font-size: 0.8125rem;
   color: var(--ink-2);
-  /* Grid items default to min-width:auto, so a select holding
-     "BCS501 — Machine Learning (CSE-5A)" refuses to shrink and runs straight
-     over its neighbour. This lets the track do its job. */
+  /* grid items default to min-width:auto, so a long option value would
+     otherwise refuse to shrink and run over its neighbour */
   min-width: 0;
-}
-/* the subject name is the longest thing here, so give it room */
-.form label:first-child { grid-column: span 2; }
-@media (max-width: 620px) {
-  .form label:first-child { grid-column: auto; }
 }
 .form input, .form select {
   width: 100%;
@@ -43,7 +41,28 @@
   border-color: var(--ink);
   box-shadow: 0 0 0 3px var(--ring);
 }
-.actions { display: flex; gap: 8px; }
+
+/* The people form shares these controls but has six fields of its own sizes,
+   so it sets its own tracks rather than inheriting four. */
+.formPeople {
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+  max-width: 900px;
+}
+
+@media (max-width: 860px) {
+  .form { grid-template-columns: 1fr 1fr; }
+  .formPeople { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) {
+  .form, .formPeople { grid-template-columns: 1fr; }
+}
+
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
 .primary {
   font-family: inherit;
   font-size: 0.875rem;
