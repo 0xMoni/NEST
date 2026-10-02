@@ -2,6 +2,7 @@ import { requireRole } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { Shell } from "@/components/Shell";
 import { ui, Empty, Badge, Bar } from "@/components/ui";
+import { Requests, type PendingReq } from "./Requests";
 
 export default async function Mentees() {
   const me = await requireRole("faculty");
@@ -20,6 +21,24 @@ export default async function Mentees() {
     .from("v_student_attendance")
     .select("student_id, held, attended, short");
 
+  // Requests from mentees waiting on this mentor. RLS limits it to their own.
+  const { data: reqRows } = await supabase
+    .from("profile_edit_requests")
+    .select("id, section, reason, requested_at, profiles!profile_edit_requests_student_id_fkey(full_name, usn)")
+    .eq("status", "pending")
+    .order("requested_at");
+
+  const requests: PendingReq[] = (reqRows ?? []).map((r) => ({
+    id: r.id,
+    section: r.section,
+    reason: r.reason,
+    requested_at: r.requested_at,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    student: (r as any).profiles?.full_name ?? "A student",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    usn: (r as any).profiles?.usn ?? null,
+  }));
+
   const summary = new Map<string, { held: number; attended: number; short: number }>();
   for (const r of att ?? []) {
     const s = summary.get(r.student_id) ?? { held: 0, attended: 0, short: 0 };
@@ -31,6 +50,8 @@ export default async function Mentees() {
 
   return (
     <Shell me={me} title="Mentees" sub={`${mentees.length} student${mentees.length === 1 ? "" : "s"} assigned to you.`}>
+      <Requests requests={requests} />
+
       {mentees.length === 0 ? (
         <Empty>No students have been assigned to you as mentees yet. The HOD sets this.</Empty>
       ) : (

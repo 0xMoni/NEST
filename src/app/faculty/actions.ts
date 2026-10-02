@@ -93,3 +93,30 @@ export async function setPublished(assessmentId: string, published: boolean) {
   revalidatePath("/student/scorecard");
   return { ok: true };
 }
+
+/** Approve or refuse a mentee's request to edit a profile section.
+ *
+ *  Approving opens a window rather than unlocking permanently — a student who
+ *  needed to fix an address in October should not still have the section open
+ *  in March. */
+export async function decideEditRequest(id: string, approve: boolean, hours = 48) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
+
+  const { error } = await supabase
+    .from("profile_edit_requests")
+    .update({
+      status: approve ? "approved" : "rejected",
+      decided_by: user.id,
+      decided_at: new Date().toISOString(),
+      expires_at: approve ? new Date(Date.now() + hours * 3600_000).toISOString() : null,
+    })
+    .eq("id", id);
+
+  if (error) return { error: error.message };
+  revalidatePath("/faculty/mentees");
+  return { ok: true };
+}
