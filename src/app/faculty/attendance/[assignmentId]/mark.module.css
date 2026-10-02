@@ -83,10 +83,6 @@
   font-variant-numeric: tabular-nums;
   color: var(--ok);
 }
-/* The half every student shares is context, not information — so it is dimmed
-   but kept in the same hue. Greying it dropped it to roughly the background
-   and the USN stopped being readable at all. */
-.usnBig i { font-style: normal; opacity: 0.62; }
 
 /* ---- USN and name: full width, several columns ---- */
 .gridFull {
@@ -131,7 +127,6 @@
 /* ---- absent, in either view ---- */
 .absent { background: var(--danger-bg); border-color: var(--danger); }
 .absent .usnBig, .absent .name { color: var(--danger); }
-.absent .usnBig i { opacity: 0.62; }
 .absent .usnSmall { color: var(--danger); opacity: 0.8; }
 .absent .state { color: var(--danger); }
 
