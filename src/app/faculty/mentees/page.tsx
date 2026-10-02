@@ -1,0 +1,68 @@
+import { requireRole } from "@/lib/session";
+import { createClient } from "@/lib/supabase/server";
+import { Shell } from "@/components/Shell";
+import { ui, Empty, Badge, Bar } from "@/components/ui";
+
+export default async function Mentees() {
+  const me = await requireRole("faculty");
+  const supabase = await createClient();
+
+  const { data: links } = await supabase
+    .from("mentorships")
+    .select("student_id, profiles!mentorships_student_id_fkey(id, full_name, usn, semester)");
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mentees = (links ?? []).map((l) => (l as any).profiles).filter(Boolean);
+
+  // One query for everyone's attendance, then grouped here — a query per
+  // mentee would be 24 round trips to render one page.
+  const { data: att } = await supabase
+    .from("v_student_attendance")
+    .select("student_id, held, attended, short");
+
+  const summary = new Map<string, { held: number; attended: number; short: number }>();
+  for (const r of att ?? []) {
+    const s = summary.get(r.student_id) ?? { held: 0, attended: 0, short: 0 };
+    s.held += Number(r.held ?? 0);
+    s.attended += Number(r.attended ?? 0);
+    if (r.short) s.short += 1;
+    summary.set(r.student_id, s);
+  }
+
+  return (
+    <Shell me={me} title="Mentees" sub={`${mentees.length} student${mentees.length === 1 ? "" : "s"} assigned to you.`}>
+      {mentees.length === 0 ? (
+        <Empty>No students have been assigned to you as mentees yet. The HOD sets this.</Empty>
+      ) : (
+        <div className={ui.scroll}>
+          <table className={ui.table}>
+            <thead>
+              <tr><th>USN</th><th>Name</th><th>Attendance</th><th></th><th>Subjects short</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {mentees
+                .map((m) => ({ m, s: summary.get(m.id) }))
+                .sort((a, b) => (b.s?.short ?? 0) - (a.s?.short ?? 0))
+                .map(({ m, s }) => {
+                  const pct = s?.held ? Math.round((1000 * s.attended) / s.held) / 10 : null;
+                  const atRisk = (s?.short ?? 0) > 0;
+                  return (
+                    <tr key={m.id}>
+                      <td className={ui.dim}>{m.usn}</td>
+                      <td>{m.full_name}</td>
+                      <td className={ui.num}>{pct === null ? "—" : `${pct}%`}</td>
+                      <td><Bar value={pct} short={atRisk} /></td>
+                      <td className={ui.num}>{s?.short ?? 0}</td>
+                      <td>
+                        {pct === null ? <Badge>No data</Badge> : <Badge tone={atRisk ? "bad" : "ok"}>{atRisk ? "Needs a word" : "Fine"}</Badge>}
+                      </td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Shell>
+  );
+}

@@ -50,3 +50,46 @@ export async function saveAttendance(
   revalidatePath("/student");
   return { ok: true, present: allStudentIds.length - absent.size, absent: absent.size };
 }
+
+/** Create an assessment. Starts unpublished — students see nothing until the
+ *  faculty member says so. */
+export async function createAssessment(formData: FormData) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("assessments").insert({
+    assignment_id: String(formData.get("assignment_id")),
+    title: String(formData.get("title")).trim(),
+    max_marks: Number(formData.get("max_marks")),
+    held_on: String(formData.get("held_on")) || null,
+  });
+  if (error) return { error: error.message };
+  revalidatePath("/faculty/marks");
+  return { ok: true };
+}
+
+export async function saveMarks(
+  assessmentId: string,
+  scores: { student_id: string; scored: number | null }[],
+) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("marks")
+    .upsert(scores.map((s) => ({ assessment_id: assessmentId, ...s })), {
+      onConflict: "assessment_id,student_id",
+    });
+  if (error) return { error: error.message };
+  revalidatePath(`/faculty/marks/${assessmentId}`);
+  revalidatePath("/student/scorecard");
+  return { ok: true };
+}
+
+/** Publishing is the moment marks become real to students, so it is its own
+ *  deliberate action rather than a side effect of saving. */
+export async function setPublished(assessmentId: string, published: boolean) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("assessments").update({ published }).eq("id", assessmentId);
+  if (error) return { error: error.message };
+  revalidatePath(`/faculty/marks/${assessmentId}`);
+  revalidatePath("/faculty/marks");
+  revalidatePath("/student/scorecard");
+  return { ok: true };
+}

@@ -1,0 +1,41 @@
+.grid {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: separate;
+  border-spacing: 6px;
+}
+.grid th {
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+  padding: 4px;
+  text-align: left;
+}
+.grid tbody th { width: 46px; }
+.grid td {
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 11px;
+  vertical-align: top;
+  min-width: 108px;
+}
+.grid td b {
+  display: block;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+  font-weight: 500;
+}
+.grid td span {
+  display: block;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  margin-top: 3px;
+}
+/* today's row gets the emphasis, since that is the row anyone is looking for */
+.grid tr[data-today="true"] td { border-color: var(--ink-3); }
+.grid tr[data-today="true"] th { color: var(--ink); }
+.free { color: var(--ink-3); font-style: normal; }
