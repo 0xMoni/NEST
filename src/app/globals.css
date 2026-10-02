@@ -168,3 +168,58 @@ body {
     transition: none !important;
   }
 }
+
+/* ============================================================
+   Print.
+
+   Her mockups exported a light-mode PDF deliberately, and that is
+   right: nobody wants a near-black page coming out of a printer,
+   and a dark PDF is unreadable attached to an email. So printing
+   forces the light palette regardless of the viewer's theme, and
+   drops the furniture that means nothing on paper.
+   ============================================================ */
+@media print {
+  :root,
+  :root[data-theme="dark"],
+  :root:not([data-theme="light"]) {
+    color-scheme: light;
+    --paper: #ffffff;
+    --field: #ffffff;
+    --field-2: #ffffff;
+    --raise: #f4f2ed;
+    --line: #c9c4b8;
+    --line-hover: #c9c4b8;
+    --ink: #000000;
+    --ink-2: #333333;
+    --ink-3: #555555;
+    --accent: #7a5a1e;
+    --ok: #1d6b34;
+    --warn: #7a5c0a;
+    --danger: #9c3a22;
+    --danger-bg: #f7e9e4;
+    --shadow: none;
+  }
+
+  /* navigation, buttons and toggles are not information on paper */
+  aside,
+  [data-print-hide],
+  button {
+    display: none !important;
+  }
+
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  /* a row split across a page break is worse than a short page */
+  tr,
+  li {
+    break-inside: avoid;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+}

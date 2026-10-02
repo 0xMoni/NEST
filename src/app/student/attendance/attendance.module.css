@@ -1,0 +1,85 @@
+.expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--ink);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+.expand svg { width: 14px; height: 14px; color: var(--ink-3); transition: transform 0.15s; flex: none; }
+.expand[aria-expanded="true"] svg { transform: rotate(90deg); color: var(--ink); }
+.expand:hover svg { color: var(--ink); }
+.expand:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+
+.detailRow td { background: var(--field-2); padding: 16px 14px 18px 0; }
+
+.detailHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.missSummary { font-size: 0.875rem; color: var(--danger); }
+.okSummary { font-size: 0.875rem; color: var(--ok); }
+
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+.seg button {
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+  background: none;
+  border: 0;
+  padding: 7px 13px;
+  cursor: pointer;
+}
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--raise); color: var(--ink); font-weight: 500; }
+.seg button:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+
+.classes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 6px;
+}
+.classes.dense { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+.classes li {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 6px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.classes li b { display: block; font-size: 0.75rem; font-weight: 500; }
+.classes li span { display: block; font-size: 0.6875rem; color: var(--ink-3); margin-top: 2px; }
+.present { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 30%, var(--line)) !important; }
+.missed { color: var(--danger); background: var(--danger-bg); border-color: var(--danger) !important; }
+.missed span { color: var(--danger); opacity: 0.75; }
+
+.printBtn {
+  font-family: inherit;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+.printBtn:hover { color: var(--ink); border-color: var(--line-hover); }
+
+@media print {
+  /* the chevron button is hidden in print, so show the subject name it holds */
+  .expand { display: inline !important; }
+  .expand svg { display: none !important; }
+  .detailRow td { background: transparent; }
+}
