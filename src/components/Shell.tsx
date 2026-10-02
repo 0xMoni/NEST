@@ -73,7 +73,7 @@ export function Shell({
       </aside>
 
       <main className={`${styles.main} ${wide ? styles.wide : ""}`}>
-        <h1 className={styles.title}>{title}</h1>
+        {title && <h1 className={styles.title}>{title}</h1>}
         {sub && <p className={styles.sub}>{sub}</p>}
         {children}
       </main>

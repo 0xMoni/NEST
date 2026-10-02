@@ -1,86 +1,155 @@
-.tiles {
+/* Prithika's dashboard design, on our data.
+   Her shapes: a 2px accent rule inset at the top of each card, big value with
+   a small unit, a note line, a 4px meter, and a six-tile timetable strip. */
+
+.head { margin-bottom: 30px; }
+.date {
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 8px;
+}
+
+/* ---------- stat cards ---------- */
+
+.stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-  margin-bottom: 38px;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 18px;
+  margin-bottom: 34px;
 }
-.tile {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 18px 20px 20px;
-  background: var(--field);
-}
-.label {
+
+.stat {
+  position: relative;
   display: block;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 22px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.18s;
+}
+/* the accent rule sits inset from the corners, not edge to edge */
+.stat::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: -1px;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: var(--accent);
+  opacity: 0.8;
+}
+.stat:hover { border-color: var(--line-hover); }
+.stat:hover .chev { color: var(--accent); transform: translateX(2px); }
+.stat:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+.stat.risk { background: var(--danger-bg); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
+.stat.risk::before { background: var(--danger); opacity: 1; }
+.stat.risk .eyebrow, .stat.risk .value { color: var(--danger); }
+
+.statTop { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.eyebrow {
   font-size: 0.6875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-3);
-  margin-bottom: 10px;
 }
-.big {
-  display: block;
-  font-size: 2.1rem;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-.foot {
-  display: block;
-  margin-top: 8px;
-  font-size: 0.8125rem;
-  color: var(--ink-2);
-}
+.chev { width: 15px; height: 15px; color: var(--ink-3); flex: none; transition: transform 0.2s, color 0.2s; }
 
-.h2 {
+.value {
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 16px 0 8px;
+  font-variant-numeric: tabular-nums;
+}
+.value small { font-size: 1.125rem; font-weight: 400; color: var(--ink-2); letter-spacing: 0; }
+
+.note { font-size: 0.875rem; color: var(--ink-2); }
+.note b { color: var(--ink); font-weight: 500; }
+
+.meter { height: 4px; border-radius: 4px; background: var(--raise); margin-top: 14px; overflow: hidden; }
+.meter i { display: block; height: 100%; border-radius: 4px; background: var(--accent); }
+.stat.risk .meter i { background: var(--danger); }
+
+/* ---------- timetable strip ---------- */
+
+.card {
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 34px;
+}
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.cardTitle {
   font-family: var(--font-newsreader), ui-serif, Georgia, serif;
   font-weight: 400;
-  font-size: 1.3rem;
-  margin: 0 0 14px;
+  font-size: 1.2rem;
+  margin: 0;
 }
+.cardSub { font-size: 0.875rem; color: var(--ink-2); margin: 4px 0 0; }
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 1000px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 560px)  { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.tile {
+  position: relative;
+  min-height: 104px;
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--field-2);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+.tile.now { border-color: var(--accent); background: var(--accent-soft); }
+.tile.free { border-style: dashed; }
+
+.per {
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 0.5625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  color: var(--accent);
+}
+.badge.soon { color: var(--ink-3); }
+
+.subj { font-size: 0.875rem; line-height: 1.35; margin-top: 10px; }
+.kind { font-size: 0.75rem; color: var(--ink-3); margin-top: auto; padding-top: 8px; }
 
 .empty {
   color: var(--ink-2);
-  font-size: 0.9375rem;
   border: 1px dashed var(--line);
   border-radius: 12px;
-  padding: 22px;
-  max-width: 54ch;
-}
-
-.scroll { overflow-x: auto; }
-.table {
-  width: 100%;
-  min-width: 560px;
-  border-collapse: collapse;
+  padding: 20px;
   font-size: 0.9375rem;
 }
-.table th {
-  text-align: left;
-  font-size: 0.6875rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  font-weight: 500;
-  padding: 0 14px 10px 0;
-  border-bottom: 1px solid var(--line);
-}
-.table td {
-  padding: 13px 14px 13px 0;
-  border-bottom: 1px solid var(--line);
-}
-.num { font-variant-numeric: tabular-nums; }
-.code {
-  font-size: 0.8125rem;
-  color: var(--ink-2);
-  letter-spacing: 0.04em;
-}
-.ok, .short {
-  font-size: 0.75rem;
-  padding: 3px 10px;
-  border-radius: 999px;
-  border: 1px solid currentColor;
-}
-.ok { color: var(--ok); }
-.short { color: var(--danger); }
