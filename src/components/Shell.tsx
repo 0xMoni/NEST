@@ -34,17 +34,20 @@ export function Shell({
   me,
   title,
   sub,
+  wide,
   children,
 }: {
   me: Me;
   title: string;
   sub?: string;
+  /** Drop the reading-width cap. For grids that earn the whole screen. */
+  wide?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div className={styles.shell}>
       <aside className={styles.side}>
-        <div>
+        <div className={styles.brandBlock}>
           <Image className={styles.brand} src="/nest-logo.png" alt="NEST" width={274} height={246} priority />
           <p className={styles.roleTag}>{ROLE_LABEL[me.role]}</p>
         </div>
@@ -68,7 +71,7 @@ export function Shell({
         </div>
       </aside>
 
-      <main className={styles.main}>
+      <main className={`${styles.main} ${wide ? styles.wide : ""}`}>
         <h1 className={styles.title}>{title}</h1>
         {sub && <p className={styles.sub}>{sub}</p>}
         {children}

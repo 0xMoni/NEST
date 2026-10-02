@@ -2,58 +2,133 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 16px;
   flex-wrap: wrap;
-  padding-bottom: 14px;
+  padding-bottom: 16px;
   border-bottom: 1px solid var(--line);
-  margin-bottom: 4px;
-  max-width: 680px;
 }
-.count { font-size: 0.9375rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.count { font-size: 1rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .count strong { color: var(--ink); font-weight: 500; }
+.absentCount { color: var(--danger) !important; }
+
+.controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.segmented button {
+  font-family: inherit;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  background: none;
+  border: 0;
+  padding: 9px 15px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.segmented button + button { border-left: 1px solid var(--line); }
+.segmented button:hover { color: var(--ink); }
+.segmented button[aria-pressed="true"] {
+  background: var(--field-2);
+  color: var(--ink);
+  font-weight: 500;
+}
+.segmented button:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+
 .ghost {
   font-family: inherit;
   font-size: 0.8125rem;
   color: var(--ink-2);
   background: none;
   border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 7px 14px;
+  border-radius: 10px;
+  padding: 9px 15px;
   cursor: pointer;
 }
 .ghost:hover { color: var(--ink); border-color: var(--line-hover); }
 
-.list { list-style: none; margin: 0 0 22px; padding: 0; max-width: 680px; }
-.student {
+.hint { font-size: 0.8125rem; color: var(--ink-3); margin: 14px 0 16px; }
+
+/* ---- USN only: the whole class on one screen, no scrolling ---- */
+.gridUsn {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 8px;
+}
+.chip {
+  width: 100%;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 8px;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+.chip:hover { border-color: var(--line-hover); }
+.chip:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.usnBig {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+/* the half every student shares reads as context, not information */
+.usnBig i { font-style: normal; color: var(--ink-3); font-weight: 400; }
+
+/* ---- USN and name: full width, several columns ---- */
+.gridFull {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 8px;
+}
+.card {
   width: 100%;
   display: grid;
-  grid-template-columns: 120px 1fr auto;
+  grid-template-columns: 108px 1fr auto;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   text-align: left;
   font-family: inherit;
-  font-size: 0.9375rem;
   color: var(--ink);
-  background: none;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  padding: 13px 4px;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 13px 14px;
   cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
 }
-.student:hover { background: var(--field); }
-.student:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
-.usn { font-size: 0.8125rem; color: var(--ink-2); letter-spacing: 0.03em; }
-.name { font-weight: 450; }
+.card:hover { border-color: var(--line-hover); }
+.card:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.usnSmall { font-size: 0.8125rem; color: var(--ink-2); letter-spacing: 0.03em; font-variant-numeric: tabular-nums; }
+.name { font-size: 0.9375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .state {
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ok);
   border: 1px solid currentColor;
   border-radius: 999px;
-  padding: 3px 11px;
+  padding: 3px 9px;
 }
-.absent .name { color: var(--ink-2); text-decoration: line-through; }
+
+/* ---- absent, in either view ---- */
+.absent { background: var(--danger-bg); border-color: var(--danger); }
+.absent .usnBig, .absent .name { color: var(--danger); }
+.absent .usnBig i { color: var(--danger); opacity: 0.55; }
+.absent .name { text-decoration: line-through; }
+.absent .usnSmall { color: var(--danger); opacity: 0.8; }
 .absent .state { color: var(--danger); }
 
 .save {

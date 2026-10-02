@@ -66,6 +66,7 @@ export default async function MarkAttendance({
       me={me}
       title={a.subjects.name}
       sub={`${a.sections.dept}-${a.sections.semester}${a.sections.name} · Period ${period} · ${when}`}
+      wide
     >
       <MarkSheet
         assignmentId={assignmentId}

@@ -15,8 +15,21 @@
   gap: 6px;
   font-size: 0.8125rem;
   color: var(--ink-2);
+  /* Grid items default to min-width:auto, so a select holding
+     "BCS501 — Machine Learning (CSE-5A)" refuses to shrink and runs straight
+     over its neighbour. This lets the track do its job. */
+  min-width: 0;
+}
+/* the subject name is the longest thing here, so give it room */
+.form label:first-child { grid-column: span 2; }
+@media (max-width: 620px) {
+  .form label:first-child { grid-column: auto; }
 }
 .form input, .form select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  text-overflow: ellipsis;
   font-family: inherit;
   font-size: 0.9375rem;
   color: var(--ink);
