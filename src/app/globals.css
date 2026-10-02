@@ -3,103 +3,140 @@
 /* ============================================================
    NEST design tokens.
 
-   Three theme states, not two: bare :root is the complete light
-   palette, the media query covers "follow the OS", and
-   [data-theme] pins an explicit choice and beats both. Every
-   colour is defined on bare :root first, so nothing is left
-   undefined in the un-stamped state.
+   Palette is Prithika's, from mockups/nest.css — both her dark and
+   light sets, unchanged in value. What changed is the structure
+   around them.
+
+   Hers had dark on bare :root with [data-theme="light"] to opt out,
+   and no prefers-color-scheme at all, so a student on a light-mode
+   laptop got dark pages and the OS setting was ignored. This keeps
+   the three states that matter: bare :root is the complete light
+   palette, the media query follows the OS, and [data-theme] pins a
+   choice and beats both. Nothing is left undefined in the
+   un-stamped state, which is what most people are in.
    ============================================================ */
 
 :root {
   color-scheme: light;
 
-  /* brand panel */
-  --panel: #efece3;
-  --panel-2: #f7f5ef;
-  --panel-ink: #15181c;
-  --panel-ink-2: #6b7280;
-  --weave: 150, 122, 72;
-  --weave-alpha: 0.34;
-  --logo-filter: none;
-
-  /* surfaces and type */
-  --paper: #faf9f6;
-  --ink: #15181c;
-  --ink-2: #5d6570;
-  --ink-3: #8b939d;
-  --line: #e6e3da;
-  --line-hover: #cdc8ba;
+  /* surfaces */
+  --paper: #f6f4ef;
   --field: #ffffff;
+  --field-2: #faf8f3;
+  --raise: #f0ece3;
+  --line: #e5e0d5;
+  --line-hover: #d3ccbd;
+  --shadow: 0 18px 40px rgba(40, 32, 16, 0.12);
 
-  --btn: #15181c;
-  --btn-text: #faf9f6;
+  /* type */
+  --ink: #16171a;
+  --ink-2: #5c5f66;
+  --ink-3: #83858c;
+
+  /* accent — the brass that runs through the logo and the woven panel */
+  --accent: #8a6522;
+  --accent-soft: rgba(143, 106, 36, 0.1);
 
   /* semantic */
-  --danger: #a02a20;
-  --danger-bg: #fdeeeb;
-  --warn: #85600f;
-  --ok: #1c6349;
-  --ring: rgba(21, 24, 28, 0.28);
+  --ok: #2f7a43;
+  --ok-soft: rgba(47, 122, 67, 0.09);
+  --warn: #86660c;
+  --warn-soft: rgba(134, 102, 12, 0.09);
+  --danger: #b4452a;
+  --danger-bg: rgba(180, 69, 42, 0.08);
+
+  --btn: #16171a;
+  --btn-text: #f6f4ef;
+  --ring: rgba(22, 23, 26, 0.26);
+
+  /* brand panel: the login's left side and the app sidebar */
+  --panel: #f0ece3;
+  --panel-2: #faf8f3;
+  --panel-ink: #16171a;
+  --panel-ink-2: #5c5f66;
+  --weave: 138, 101, 34;
+  --weave-alpha: 0.34;
+  --logo-filter: none;
 }
 
+/* follows the OS, unless a light choice is pinned */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --panel: #0e1116;
-    --panel-2: #14181f;
-    --panel-ink: #f0f1f3;
-    --panel-ink-2: #98a1ad;
-    --weave: 198, 166, 104;
+    --paper: #0d0f13;
+    --field: #14171c;
+    --field-2: #1a1e24;
+    --raise: #22272e;
+    --line: #252a32;
+    --line-hover: #353b45;
+    --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+
+    --ink: #ecebe6;
+    --ink-2: #a0a3ab;
+    --ink-3: #6f737c;
+
+    --accent: #cfa962;
+    --accent-soft: rgba(207, 169, 98, 0.13);
+
+    --ok: #86bf92;
+    --ok-soft: rgba(134, 191, 146, 0.12);
+    --warn: #e2c16b;
+    --warn-soft: rgba(226, 193, 107, 0.12);
+    --danger: #e8876d;
+    --danger-bg: rgba(232, 135, 109, 0.12);
+
+    --btn: #ecebe6;
+    --btn-text: #121418;
+    --ring: rgba(236, 235, 230, 0.32);
+
+    --panel: #0d0f13;
+    --panel-2: #14171c;
+    --panel-ink: #ecebe6;
+    --panel-ink-2: #a0a3ab;
+    --weave: 207, 169, 98;
     --weave-alpha: 0.3;
     --logo-filter: invert(1) brightness(1.22) hue-rotate(180deg);
-
-    --paper: #101319;
-    --ink: #edeff2;
-    --ink-2: #99a2ac;
-    --ink-3: #6d757f;
-    --line: rgba(255, 255, 255, 0.12);
-    --line-hover: rgba(255, 255, 255, 0.24);
-    --field: rgba(255, 255, 255, 0.045);
-
-    --btn: #edeff2;
-    --btn-text: #12161b;
-
-    --danger: #f5b5ae;
-    --danger-bg: rgba(74, 30, 27, 0.6);
-    --warn: #f0c993;
-    --ok: #82d2ab;
-    --ring: rgba(237, 239, 242, 0.34);
   }
 }
 
+/* pinned dark beats a light OS */
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --panel: #0e1116;
-  --panel-2: #14181f;
-  --panel-ink: #f0f1f3;
-  --panel-ink-2: #98a1ad;
-  --weave: 198, 166, 104;
+  --paper: #0d0f13;
+  --field: #14171c;
+  --field-2: #1a1e24;
+  --raise: #22272e;
+  --line: #252a32;
+  --line-hover: #353b45;
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+
+  --ink: #ecebe6;
+  --ink-2: #a0a3ab;
+  --ink-3: #6f737c;
+
+  --accent: #cfa962;
+  --accent-soft: rgba(207, 169, 98, 0.13);
+
+  --ok: #86bf92;
+  --ok-soft: rgba(134, 191, 146, 0.12);
+  --warn: #e2c16b;
+  --warn-soft: rgba(226, 193, 107, 0.12);
+  --danger: #e8876d;
+  --danger-bg: rgba(232, 135, 109, 0.12);
+
+  --btn: #ecebe6;
+  --btn-text: #121418;
+  --ring: rgba(236, 235, 230, 0.32);
+
+  --panel: #0d0f13;
+  --panel-2: #14171c;
+  --panel-ink: #ecebe6;
+  --panel-ink-2: #a0a3ab;
+  --weave: 207, 169, 98;
   --weave-alpha: 0.3;
   --logo-filter: invert(1) brightness(1.22) hue-rotate(180deg);
-
-  --paper: #101319;
-  --ink: #edeff2;
-  --ink-2: #99a2ac;
-  --ink-3: #6d757f;
-  --line: rgba(255, 255, 255, 0.12);
-  --line-hover: rgba(255, 255, 255, 0.24);
-  --field: rgba(255, 255, 255, 0.045);
-
-  --btn: #edeff2;
-  --btn-text: #12161b;
-
-  --danger: #f5b5ae;
-  --danger-bg: rgba(74, 30, 27, 0.6);
-  --warn: #f0c993;
-  --ok: #82d2ab;
-  --ring: rgba(237, 239, 242, 0.34);
 }
 
 @theme inline {
