@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NEST
 
-## Getting Started
+**Nurturing Education & Student Tracking** — attendance, marks and mentorship for a
+college department that currently runs on spreadsheets.
 
-First, run the development server:
+Three roles in one app:
 
-```bash
+| Role | What they do |
+| --- | --- |
+| **Student** | Their attendance against the 75% rule, published marks, timetable |
+| **Faculty** | Mark attendance from their timetable, enter and publish marks, track mentees |
+| **HOD / DOE** | Create accounts, set up sections, subjects, assignments and the timetable |
+
+## Running it
+
+```
+npm install
+cp .env.example .env.local      # then fill in the Supabase values
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Supabase setup, including which migrations to apply, is in
+[`docs/supabase-setup.md`](docs/supabase-setup.md). Test logins are in
+[`docs/dev-accounts.md`](docs/dev-accounts.md).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How it is put together
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Next.js App Router**, TypeScript, CSS modules. Pages render on the server and
+  query Supabase through the caller's own session.
+- **Row-level security is the access control.** Pages do not filter by user id —
+  Postgres decides what a query returns. A page that forgot to filter still cannot
+  leak another student's marks.
+- **Faculty scope flows from one table**, `faculty_assignments`, which pairs a
+  teacher with a subject and a section. Every faculty policy traces back to it.
+- **Percentages are views, not columns.** Store a percentage and a corrected
+  absence leaves a stale number on someone's screen.
+- **Students sign in with a USN**, staff with an email. The lookup happens in a
+  route handler so nobody can walk the USN range and collect addresses.
 
-## Learn More
+## Layout
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/app/(student|faculty|admin)   one route group per role
+src/app/profile                   shared, currently linked for faculty
+src/lib/supabase                  server, middleware and admin clients
+src/lib/session.ts                requireUser / requireRole
+supabase/migrations               schema and policies, applied in order
+scripts                           seed the dev accounts and a demo section
+mockups                           static design references, not shipped
+```

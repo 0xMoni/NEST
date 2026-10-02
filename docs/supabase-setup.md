@@ -53,10 +53,18 @@ Our dev accounts use addresses that cannot receive mail. Leave
 confirmation on and every seeded account is locked out of itself. Turn it back
 on before this is ever used with real addresses.
 
-## 4. Apply the schema
+## 4. Apply the migrations
 
-Either paste `supabase/migrations/20260930000000_profiles_and_roles.sql` into the
-dashboard's **SQL Editor** and run it, or link the CLI and push:
+In the dashboard's **SQL Editor**, run each file in `supabase/migrations/` in
+filename order. They depend on each other, so the order matters:
+
+| File | What it adds |
+| --- | --- |
+| `20260930000000_profiles_and_roles.sql` | `profiles`, the role enum, RLS, the signup trigger |
+| `20261001000000_login_by_usn.sql` | `profiles.email`, so a USN can be resolved to an account |
+| `20261002000000_academic_spine.sql` | Sections, subjects, timetable, attendance, marks, mentorships, and the two calculated views |
+
+Or link the CLI and push them all:
 
 ```
 npx supabase link --project-ref <your-project-ref>
@@ -65,13 +73,16 @@ npx supabase db push
 
 The project ref is the subdomain of your project URL.
 
-## 5. Create the dev accounts
+## 5. Seed something to work against
 
 ```
-node scripts/seed-dev-users.mjs
+node scripts/seed-dev-users.mjs      # one account per role
+node scripts/seed-demo-section.mjs   # CSE-5A: 6 subjects, 6 faculty, 24 students, a timetable
 ```
 
-Creates the three logins in `dev-accounts.md`. Safe to re-run.
+Both are safe to re-run. The demo section is invented people on a real structure —
+the college's own student list is 514 actual people and never goes near this.
+
 
 ## 6. Check it worked
 
@@ -79,9 +90,9 @@ Creates the three logins in `dev-accounts.md`. Safe to re-run.
 npm run dev
 ```
 
-Sign in at `/login` as `dev.student@eastpoint.ac.in` with `123456`. You should be
-redirected away from the login page. Visiting `/login` while signed in should
-bounce you too — that's the middleware doing its job.
+Sign in at `/login` as `1EP23CS001` with `123456` — a USN, not an email. You should
+land on the student dashboard. Visiting `/login` while signed in should bounce you
+away, which is the middleware doing its job.
 
 ## The check that actually matters
 
