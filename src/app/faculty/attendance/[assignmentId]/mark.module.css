@@ -72,7 +72,8 @@
   cursor: pointer;
   transition: border-color 0.12s, background 0.12s, color 0.12s;
 }
-.chip:hover { border-color: var(--line-hover); }
+.chip { border-color: color-mix(in srgb, var(--ok) 32%, var(--line)); }
+.chip:hover { border-color: var(--ok); }
 .chip:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .usnBig {
   display: block;
@@ -80,9 +81,12 @@
   font-weight: 500;
   letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums;
+  color: var(--ok);
 }
-/* the half every student shares reads as context, not information */
-.usnBig i { font-style: normal; color: var(--ink-3); font-weight: 400; }
+/* The half every student shares is context, not information — so it is dimmed
+   but kept in the same hue. Greying it dropped it to roughly the background
+   and the USN stopped being readable at all. */
+.usnBig i { font-style: normal; font-weight: 400; opacity: 0.62; }
 
 /* ---- USN and name: full width, several columns ---- */
 .gridFull {
@@ -109,9 +113,10 @@
   cursor: pointer;
   transition: border-color 0.12s, background 0.12s;
 }
-.card:hover { border-color: var(--line-hover); }
+.card { border-color: color-mix(in srgb, var(--ok) 26%, var(--line)); }
+.card:hover { border-color: var(--ok); }
 .card:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.usnSmall { font-size: 0.8125rem; color: var(--ink-2); letter-spacing: 0.03em; font-variant-numeric: tabular-nums; }
+.usnSmall { font-size: 0.8125rem; color: var(--ok); letter-spacing: 0.03em; font-variant-numeric: tabular-nums; }
 .name { font-size: 0.9375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .state {
   font-size: 0.625rem;
@@ -126,8 +131,7 @@
 /* ---- absent, in either view ---- */
 .absent { background: var(--danger-bg); border-color: var(--danger); }
 .absent .usnBig, .absent .name { color: var(--danger); }
-.absent .usnBig i { color: var(--danger); opacity: 0.55; }
-.absent .name { text-decoration: line-through; }
+.absent .usnBig i { opacity: 0.62; }
 .absent .usnSmall { color: var(--danger); opacity: 0.8; }
 .absent .state { color: var(--danger); }
 
