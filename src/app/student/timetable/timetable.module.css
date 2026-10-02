@@ -1,41 +1,154 @@
+/* Six subjects get six hues, assigned by position so a subject keeps the same
+   colour all week. Mixed into the surface rather than used neat, so they tint
+   rather than shout — and so one set works on both themes. */
+.grid { --h1: 210; --h2: 150; --h3: 35; --h4: 280; --h5: 0; --h6: 180; }
+
+.status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin-bottom: 26px;
+}
+.now, .next {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 18px;
+  background: var(--field);
+}
+.now { border-color: var(--accent); background: var(--accent-soft); }
+.statLabel {
+  display: block;
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+.now .statLabel { color: var(--accent); }
+.statSubject { display: block; font-size: 1.05rem; line-height: 1.2; }
+.statMeta { display: block; font-size: 0.8125rem; color: var(--ink-2); margin-top: 5px; }
+
+/* ---------- the week ---------- */
+
+.wrap { overflow-x: auto; padding-bottom: 4px; }
+
 .grid {
   width: 100%;
-  min-width: 720px;
+  min-width: 860px;
   border-collapse: separate;
-  border-spacing: 6px;
+  border-spacing: 0;
 }
-.grid th {
+
+.grid thead th {
+  padding: 0 0 10px;
+  text-align: left;
+  font-weight: 400;
+  vertical-align: bottom;
+}
+.pNum {
+  display: block;
   font-size: 0.6875rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink-3);
-  font-weight: 500;
-  padding: 4px;
-  text-align: left;
 }
-.grid tbody th { width: 46px; }
-.grid td {
-  background: var(--field);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 10px 11px;
-  vertical-align: top;
-  min-width: 108px;
-}
-.grid td b {
+.pTime {
   display: block;
   font-size: 0.75rem;
-  letter-spacing: 0.04em;
   color: var(--ink-2);
-  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
 }
-.grid td span {
-  display: block;
-  font-size: 0.8125rem;
-  line-height: 1.35;
-  margin-top: 3px;
+.gap { width: 16px; }
+.gapLabel {
+  writing-mode: vertical-rl;
+  font-size: 0.5625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
 }
-/* today's row gets the emphasis, since that is the row anyone is looking for */
-.grid tr[data-today="true"] td { border-color: var(--ink-3); }
-.grid tr[data-today="true"] th { color: var(--ink); }
-.free { color: var(--ink-3); font-style: normal; }
+
+.dayCell {
+  width: 78px;
+  padding: 0 12px 0 0;
+  vertical-align: middle;
+  text-align: left;
+}
+.dayName { display: block; font-size: 0.875rem; font-weight: 500; }
+.dayCount { display: block; font-size: 0.6875rem; color: var(--ink-3); margin-top: 2px; }
+
+.grid td { padding: 0 6px 6px 0; vertical-align: top; }
+
+.slot {
+  position: relative;
+  min-height: 72px;
+  border-radius: 11px;
+  padding: 10px 11px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, hsl(var(--h) 60% 50%) 7%, var(--field));
+  border-left: 3px solid hsl(var(--h) 45% 50%);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.code {
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.name { font-size: 0.8125rem; line-height: 1.3; }
+.who { font-size: 0.6875rem; color: var(--ink-2); margin-top: auto; }
+
+.free {
+  min-height: 72px;
+  border-radius: 11px;
+  border: 1px dashed var(--line);
+  display: grid;
+  place-items: center;
+  font-size: 0.6875rem;
+  color: var(--ink-3);
+}
+
+/* today, and the period running right now */
+.today .dayName { color: var(--accent); }
+.today .slot { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+.current {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.nowTag {
+  position: absolute;
+  top: -7px;
+  right: 8px;
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: var(--paper);
+  border-radius: 999px;
+  padding: 2px 7px;
+}
+
+/* ---------- legend ---------- */
+
+.legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+  margin-top: 28px;
+}
+.legendItem {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  border-left: 3px solid hsl(var(--h) 45% 50%);
+  background: var(--field);
+}
+.legendItem b { font-size: 0.8125rem; font-weight: 500; }
+.legendItem span { font-size: 0.75rem; color: var(--ink-2); }
+.legendCount { margin-left: auto; font-size: 0.75rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
