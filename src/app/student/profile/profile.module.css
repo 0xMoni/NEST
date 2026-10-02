@@ -4,7 +4,6 @@
   border-radius: 16px;
   padding: 22px;
   margin-bottom: 16px;
-  max-width: 820px;
   position: relative;
 }
 /* the state reads from the edge before you read a word of it */

@@ -36,6 +36,7 @@ export default async function StudentProfile() {
       me={me}
       title="Profile"
       sub="Most of this is locked. Your mentor can open a section when something needs changing."
+      wide
     >
       {SECTIONS.map((s) => (
         <SectionCard
