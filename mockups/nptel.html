@@ -9,91 +9,94 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Carlito:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="nest.css">
 <style>
-/* SPOC sync strip */
-.sync {
-  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-  padding: 14px 18px; margin-bottom: 24px; border-radius: 14px;
-  background: var(--surface); border: 1px solid var(--border); font-size: 14.5px;
-}
-.sync .ic { width: 36px; height: 36px; flex: none; border-radius: 10px; display: grid; place-items: center; background: var(--gold-soft); color: var(--gold); }
-.sync .ic svg { width: 17px; height: 17px; }
-.sync .txt { flex: 1; min-width: 220px; }
-.sync .txt small { display: block; color: var(--muted); font-size: 13px; }
-.sync .when { font-family: var(--head); font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--muted); }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
 
-/* course cards */
-.course-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px 20px; flex-wrap: wrap; margin-bottom: 20px; }
-.course-head h2 { margin: 0; font-family: var(--head); font-weight: 600; font-size: 18px; }
-.course-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
-.metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 22px; }
-.metric { padding: 14px 16px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); }
-.metric .v { font-family: var(--head); font-weight: 600; font-size: 22px; line-height: 1.1; margin-top: 8px; font-variant-numeric: tabular-nums; }
-.metric .v small { font-size: 13px; font-weight: 500; color: var(--muted); }
-.metric .s { font-size: 13px; color: var(--muted); margin-top: 2px; }
-.metric .meter { margin-top: 10px; }
+/* course tabs */
+.tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); margin-bottom: 20px; width: fit-content; max-width: 100%; overflow-x: auto; }
+.tab {
+  min-height: 40px; padding: 0 16px; border: 0; border-radius: 9px; background: none; cursor: pointer; white-space: nowrap;
+  font-family: var(--head); font-size: 13px; font-weight: 600; color: var(--muted); transition: background .15s, color .15s;
+}
+.tab:hover { color: var(--text); }
+.tab[aria-selected="true"] { background: var(--text); color: var(--bg); }
+
+.course-meta { font-size: 14.5px; color: var(--muted); margin: 0 0 20px; }
+
+.nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 26px; }
+.num-box { padding: 16px 18px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); }
+.num-box .v { font-family: var(--head); font-weight: 600; font-size: 26px; line-height: 1.1; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.num-box .v small { font-size: 14px; font-weight: 500; color: var(--muted); }
+.num-box .meter { margin-top: 10px; }
 
 /* week strip */
-.weeks-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
-.key { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
-.key span { display: inline-flex; align-items: center; gap: 6px; }
-.key i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; border: 1px solid var(--border-strong); }
-.key i.k-miss { background: var(--risk-soft); border-color: var(--risk); }
-.key i.k-open { border-color: var(--gold); background: var(--gold-soft); }
-.key i.k-up { border-style: dashed; }
-.weeks { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px; }
+.weeks-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+.weeks-head .hint { font-size: 13px; color: var(--faint); }
+.weeks { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
 .wk {
-  position: relative; padding: 10px 8px 9px; border-radius: 10px; text-align: center;
+  position: relative; padding: 12px 10px 11px; border-radius: 12px; text-align: center;
   background: var(--surface-2); border: 1px solid var(--border); cursor: default;
   transition: border-color .15s, transform .15s;
 }
 .wk:hover, .wk:focus-visible { border-color: var(--border-strong); transform: translateY(-2px); z-index: 4; }
 .wk .n { font-family: var(--head); font-size: 10px; font-weight: 600; letter-spacing: .1em; color: var(--muted); }
-.wk .sc { font-family: var(--head); font-weight: 600; font-size: 17px; margin: 6px 0 8px; font-variant-numeric: tabular-nums; }
+.wk .sc { font-family: var(--head); font-weight: 600; font-size: 19px; margin: 6px 0 10px; font-variant-numeric: tabular-nums; }
 .wk .vbar { height: 3px; border-radius: 3px; background: var(--surface-3); overflow: hidden; }
 .wk .vbar i { display: block; height: 100%; background: var(--gold); }
 .wk.miss { background: var(--risk-soft); border-color: color-mix(in srgb, var(--risk) 55%, transparent); }
 .wk.miss .sc { color: var(--risk); }
 .wk.open { border-color: var(--gold); background: var(--gold-soft); }
-.wk.open .sc { font-size: 12px; color: var(--gold); margin: 9px 0 11px; }
+.wk.open .sc, .wk.up .sc { font-size: 13px; margin: 10px 0 13px; }
+.wk.open .sc { color: var(--gold); }
 .wk.up { background: transparent; border-style: dashed; }
-.wk.up .sc { font-size: 12px; color: var(--faint); margin: 9px 0 11px; }
+.wk.up .sc { color: var(--faint); }
 .wk .tip {
-  position: absolute; left: 50%; bottom: calc(100% + 8px); width: 210px; transform: translate(-50%, 4px);
+  position: absolute; left: 50%; bottom: calc(100% + 8px); width: 200px; transform: translate(-50%, 4px);
   padding: 12px 14px; border-radius: 12px; text-align: left;
   background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow);
-  font-size: 13.5px; color: var(--muted); line-height: 1.4;
+  font-size: 13.5px; color: var(--muted); line-height: 1.45;
   opacity: 0; visibility: hidden; transition: opacity .15s, transform .15s, visibility .15s; pointer-events: none;
 }
 .wk .tip b { display: block; color: var(--text); font-weight: 700; margin-bottom: 4px; }
 .wk:hover .tip, .wk:focus-visible .tip { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
-.weeks .wk:nth-child(-n+2) .tip { left: 0; transform: translate(0, 4px); }
-.weeks .wk:nth-child(-n+2):hover .tip, .weeks .wk:nth-child(-n+2):focus-visible .tip { transform: none; }
-.weeks .wk:nth-last-child(-n+2) .tip { left: auto; right: 0; transform: translate(0, 4px); }
-.weeks .wk:nth-last-child(-n+2):hover .tip, .weeks .wk:nth-last-child(-n+2):focus-visible .tip { transform: none; }
+.weeks .wk:nth-child(6n+1) .tip { left: 0; transform: translate(0, 4px); }
+.weeks .wk:nth-child(6n) .tip { left: auto; right: 0; transform: translate(0, 4px); }
+.weeks .wk:nth-child(6n+1):hover .tip, .weeks .wk:nth-child(6n):hover .tip,
+.weeks .wk:nth-child(6n+1):focus-visible .tip, .weeks .wk:nth-child(6n):focus-visible .tip { transform: none; }
 
-/* exam needed */
-.needs { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px 18px; flex-wrap: wrap; }
-.needs .lbl { font-size: 14px; color: var(--muted); margin-right: 4px; }
-.tier { display: inline-flex; align-items: baseline; gap: 8px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 13.5px; }
-.tier b { font-family: var(--head); font-weight: 600; font-size: 14px; }
-.tier.off { color: var(--faint); border-style: dashed; }
-.needs .elig { margin-left: auto; font-size: 13.5px; }
-.elig.ok { color: var(--ok); }
-.elig.risk { color: var(--risk); }
+/* details panel */
+.panel { position: sticky; top: 24px; }
+.person { display: flex; gap: 14px; align-items: center; margin-bottom: 20px; }
+.person .ini { width: 48px; height: 48px; border-radius: 50%; flex: none; display: grid; place-items: center; font-family: var(--head); font-weight: 600; font-size: 15px; background: var(--gold-soft); color: var(--gold); }
+.person .nm { font-family: var(--head); font-weight: 600; font-size: 16px; }
+.person .sm { font-size: 13.5px; color: var(--muted); }
+.facts { margin: 0; display: grid; gap: 14px; }
+.facts div { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.facts div:last-child { border-bottom: 0; padding-bottom: 0; }
+.facts dt { font-size: 14px; color: var(--muted); }
+.facts dd { margin: 0; font-family: var(--head); font-weight: 600; font-size: 13.5px; text-align: right; word-break: break-all; }
+.copy { border: 0; background: none; padding: 0; cursor: pointer; color: inherit; font: inherit; display: inline-flex; gap: 6px; align-items: center; }
+.copy svg { width: 13px; height: 13px; color: var(--faint); }
+.copy:hover svg { color: var(--gold); }
 
-@media (max-width: 1180px) {
-  .weeks { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .weeks .wk:nth-child(-n+2) .tip, .weeks .wk:nth-last-child(-n+2) .tip { left: 50%; right: auto; transform: translate(-50%, 4px); }
-  .weeks .wk:nth-child(6n+1) .tip { left: 0; transform: translate(0, 4px); }
-  .weeks .wk:nth-child(6n) .tip { left: auto; right: 0; transform: translate(0, 4px); }
-  .weeks .wk:hover .tip, .weeks .wk:focus-visible .tip { transform: translate(-50%, 0); }
-  .weeks .wk:nth-child(6n+1):hover .tip, .weeks .wk:nth-child(6n):hover .tip,
-  .weeks .wk:nth-child(6n+1):focus-visible .tip, .weeks .wk:nth-child(6n):focus-visible .tip { transform: none; }
-  .needs .elig { margin-left: 0; width: 100%; }
+.exam { margin-top: 20px; padding: 16px; border-radius: 12px; display: flex; gap: 12px; align-items: flex-start; }
+.exam .mark { width: 26px; height: 26px; border-radius: 50%; flex: none; display: grid; place-items: center; }
+.exam .mark svg { width: 15px; height: 15px; }
+.exam .t { font-family: var(--head); font-weight: 600; font-size: 14px; }
+.exam .s { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+.exam.yes { background: var(--ok-soft); border: 1px solid color-mix(in srgb, var(--ok) 40%, transparent); }
+.exam.yes .mark { background: var(--ok); color: var(--bg); }
+.exam.yes .t { color: var(--ok); }
+.exam.no { background: var(--risk-soft); border: 1px solid color-mix(in srgb, var(--risk) 40%, transparent); }
+.exam.no .mark { border: 2px solid var(--risk); }
+.exam.no .t { color: var(--risk); }
+
+@media (max-width: 1100px) {
+  .layout { grid-template-columns: 1fr; }
+  .panel { position: static; order: -1; }
 }
 @media (max-width: 640px) {
-  .metrics { grid-template-columns: 1fr; }
-  .weeks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .nums { grid-template-columns: 1fr; }
+  .weeks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .wk .tip { display: none; }
 }
 </style>
@@ -135,9 +138,7 @@
 
   <main class="main">
     <header class="head">
-      <div>
-        <h1>NPTEL</h1>
-      </div>
+      <h1>NPTEL</h1>
       <div class="head-actions">
         <button class="btn" type="button" id="exportBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
@@ -148,11 +149,14 @@
       </div>
     </header>
 
-    <div class="sync" id="sync"></div>
-    <section class="stats" aria-label="Summary" id="stats"></section>
-    <div id="courses"></div>
+    <div class="layout">
+      <section aria-label="Course">
+        <div class="tabs" role="tablist" aria-label="Your NPTEL courses" id="tabs"></div>
+        <div class="card" role="tabpanel" id="coursePanel"></div>
+      </section>
 
-    <p class="foot-note">Final NPTEL score = 25% of your assignment average (best weeks only) + 75% of the proctored exam. To pass you need at least 10/25 in assignments and 30/75 in the exam.</p>
+      <aside class="card panel" aria-label="Your NPTEL details" id="details"></aside>
+    </div>
   </main>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -162,14 +166,13 @@
 (function () {
   var esc = NEST.esc;
 
-  // What the admin's SPOC sheet upload gives us. The backend will fill this in; shape only for now.
-  var sheet = { uploadedOn: 'Sun 4 Oct', uploadedBy: 'the admin office', spoc: 'Prof. Divya K', upToWeek: 10 };
+  // Filled from the admin's SPOC sheet upload by the backend; shape only for now.
+  var student = { name: 'Aarav Sharma', roll: '23AD014', usn: '1CR23AD014', branch: 'B.Tech AI & DS · Sem 5 · A' };
 
-  // score: number = submitted (out of 100), null = deadline passed without submission,
-  // 'open' = this week's assignment, 'up' = not released yet
+  // score: number = submitted (out of 100), null = missed, 'open' = this week, 'up' = not released yet
   var courses = [
-    { id: 'cc', title: 'Cloud Computing', inst: 'IIT Kharagpur', run: 'Jul–Oct 2026', weeksTotal: 12, bestOf: 8,
-      exam: { registered: true, date: 'Sun 25 Oct', slot: 'Forenoon', centre: 'Bengaluru' },
+    { id: 'cc', title: 'Cloud Computing', inst: 'IIT Kharagpur', run: 'Jul–Oct 2026', bestOf: 8, nptelId: 'NPTEL26CS43S5523014',
+      exam: { applied: true, date: 'Sun 25 Oct', slot: 'Forenoon', centre: 'Bengaluru' },
       weeks: [
         { t: 'Introduction to cloud computing', due: '30 Jul', v: [5, 5], s: 80 },
         { t: 'Cloud computing architecture',    due: '6 Aug',  v: [6, 6], s: 90 },
@@ -184,8 +187,8 @@
         { t: 'Serverless computing',            due: '8 Oct',  v: [5, 1], s: 'open' },
         { t: 'Case studies',                    due: '15 Oct', v: [4, 0], s: 'up' }
       ] },
-    { id: 'dse', title: 'Data Science for Engineers', inst: 'IIT Madras', run: 'Aug–Oct 2026', weeksTotal: 8, bestOf: 6,
-      exam: { registered: false, closes: '10 Oct' },
+    { id: 'dse', title: 'Data Science for Engineers', inst: 'IIT Madras', run: 'Aug–Oct 2026', bestOf: 6, nptelId: 'NPTEL26CS71S5523014',
+      exam: { applied: false, closes: '10 Oct' },
       weeks: [
         { t: 'Course intro and R basics', due: '26 Aug', v: [7, 7], s: 100 },
         { t: 'Linear algebra',            due: '2 Sep',  v: [8, 8], s: 80 },
@@ -198,107 +201,109 @@
       ] }
   ];
 
-  var TIERS = [['Pass', 40], ['Elite', 60], ['Elite + Silver', 75], ['Elite + Gold', 90]];
-
   function closed(c) { return c.weeks.filter(function (w) { return typeof w.s === 'number' || w.s === null; }); }
-  function released(c) { return c.weeks.filter(function (w) { return w.s !== 'up'; }); }
-
-  // Assignment score out of 25 counting only closed weeks (missed = 0). Future weeks can only raise it.
+  // Assignment score out of 25 from closed weeks (missed = 0), best `bestOf` weeks. Future weeks can only raise it.
   function assignScore(c) {
-    var scores = closed(c).map(function (w) { return w.s || 0; }).sort(function (a, b) { return b - a; }).slice(0, c.bestOf);
-    var sum = scores.reduce(function (a, b) { return a + b; }, 0);
-    return Math.round(sum / (c.bestOf * 100) * 25 * 10) / 10;
+    var top = closed(c).map(function (w) { return w.s || 0; }).sort(function (a, b) { return b - a; }).slice(0, c.bestOf);
+    return Math.round(top.reduce(function (a, b) { return a + b; }, 0) / (c.bestOf * 100) * 25 * 10) / 10;
   }
-  // Exam mark (out of 100) needed for a final score of `target`; the exam alone must also be ≥ 40/100 (30/75).
-  function examNeeded(a, target) { return Math.max(40, Math.ceil((target - a) / 0.75)); }
   function videos(c) {
-    return released(c).reduce(function (acc, w) { acc[0] += w.v[1]; acc[1] += w.v[0]; return acc; }, [0, 0]);
+    return c.weeks.filter(function (w) { return w.s !== 'up'; })
+      .reduce(function (acc, w) { acc[0] += w.v[1]; acc[1] += w.v[0]; return acc; }, [0, 0]);
   }
 
-  /* ---- SPOC strip ---- */
-  document.getElementById('sync').innerHTML =
-    '<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span>' +
-    '<div class="txt">From the SPOC sheet uploaded by ' + esc(sheet.uploadedBy) + '<small>Covers up to week ' + sheet.upToWeek + '. Something looks off? Your NPTEL SPOC is ' + esc(sheet.spoc) + '.</small></div>' +
-    '<span class="when">UPDATED ' + esc(sheet.uploadedOn).toUpperCase() + '</span>';
+  var sel = NEST.store.get('nptelCourse', courses[0].id);
+  if (!courses.some(function (c) { return c.id === sel; })) sel = courses[0].id;
+  function current() { return courses.filter(function (c) { return c.id === sel; })[0]; }
 
-  /* ---- Summary ---- */
-  var sub = 0, due = 0, vw = 0, vt = 0, nextDue = null;
-  courses.forEach(function (c) {
-    var cl = closed(c); due += cl.length; sub += cl.filter(function (w) { return w.s !== null; }).length;
-    var v = videos(c); vw += v[0]; vt += v[1];
-    c.weeks.forEach(function (w, i) { if (w.s === 'open' && (!nextDue || parseInt(w.due) < parseInt(nextDue.w.due))) nextDue = { c: c, w: w, i: i }; });
-  });
-  var unregistered = courses.filter(function (c) { return !c.exam.registered; });
-  document.getElementById('stats').innerHTML =
-    '<div class="stat"><div class="eyebrow">Courses</div><div class="stat-value">' + courses.length + ' <small>enrolled</small></div>' +
-      '<div class="stat-note">' + courses.map(function (c) { return esc(c.title); }).join(' · ') + '</div></div>' +
-    '<div class="stat"><div class="eyebrow">Assignments</div><div class="stat-value">' + sub + ' <small>/ ' + due + '</small></div>' +
-      '<div class="stat-note">' + (due - sub) + ' missed so far</div></div>' +
-    '<div class="stat"><div class="eyebrow">Videos watched</div><div class="stat-value">' + Math.round(vw / vt * 100) + '<small>%</small></div>' +
-      '<div class="meter"><i style="width:' + (vw / vt * 100) + '%"></i></div></div>' +
-    (unregistered.length
-      ? '<div class="stat is-risk"><div class="eyebrow">Exam registration</div><div class="stat-value">' + unregistered.length + ' <small>pending</small></div>' +
-        '<div class="stat-note">' + unregistered.map(function (c) { return esc(c.title) + ' · closes ' + c.exam.closes; }).join('<br>') + '</div></div>'
-      : '<div class="stat"><div class="eyebrow">Next due</div><div class="stat-value">' + nextDue.w.due + '</div>' +
-        '<div class="stat-note">' + esc(nextDue.c.title) + ' · week ' + (nextDue.i + 1) + '</div></div>');
+  function renderTabs() {
+    document.getElementById('tabs').innerHTML = courses.map(function (c) {
+      return '<button class="tab" role="tab" type="button" id="tab-' + c.id + '" data-id="' + c.id + '" aria-selected="' + (c.id === sel) + '"' +
+        ' aria-controls="coursePanel" tabindex="' + (c.id === sel ? 0 : -1) + '">' + esc(c.title) + '</button>';
+    }).join('');
+  }
 
-  /* ---- Course cards ---- */
   function weekTile(w, i) {
     var cls = 'wk', score, state;
     if (w.s === null) { cls += ' miss'; score = '—'; state = 'Not submitted'; }
     else if (w.s === 'open') { cls += ' open'; score = 'Open'; state = 'Open · due ' + w.due; }
-    else if (w.s === 'up') { cls += ' up'; score = 'Soon'; state = 'Opens next week'; }
+    else if (w.s === 'up') { cls += ' up'; score = 'Soon'; state = 'Not out yet'; }
     else { score = w.s; state = 'Scored ' + w.s + ' / 100'; }
-    var vpct = w.v[0] ? w.v[1] / w.v[0] * 100 : 0;
-    var label = 'Week ' + (i + 1) + ', ' + w.t + '. ' + state + '. Videos ' + w.v[1] + ' of ' + w.v[0] + '. Due ' + w.due + '.';
+    var label = 'Week ' + (i + 1) + ', ' + w.t + '. ' + state + '. Videos ' + w.v[1] + ' of ' + w.v[0] + '.';
     return '<div class="' + cls + '" tabindex="0" aria-label="' + esc(label) + '">' +
-      '<div class="n">W' + (i + 1) + '</div><div class="sc">' + score + '</div>' +
-      '<div class="vbar"><i style="width:' + vpct + '%"></i></div>' +
-      '<div class="tip" aria-hidden="true"><b>' + esc(w.t) + '</b>' + state + '<br>Videos ' + w.v[1] + ' / ' + w.v[0] + '<br>Due ' + w.due + '</div>' +
+      '<div class="n">WEEK ' + (i + 1) + '</div><div class="sc">' + score + '</div>' +
+      '<div class="vbar"><i style="width:' + (w.v[0] ? w.v[1] / w.v[0] * 100 : 0) + '%"></i></div>' +
+      '<div class="tip" aria-hidden="true"><b>' + esc(w.t) + '</b>' + state + '<br>Videos watched ' + w.v[1] + ' / ' + w.v[0] + (w.s === 'up' ? '' : '<br>Due ' + w.due) + '</div>' +
       '</div>';
   }
 
-  document.getElementById('courses').innerHTML = courses.map(function (c) {
-    var a = assignScore(c), cl = closed(c), done = cl.filter(function (w) { return w.s !== null; }).length, v = videos(c);
-    var examPill = c.exam.registered
-      ? '<span class="pill ok">Exam registered · ' + c.exam.date + ', ' + c.exam.slot + '</span>'
-      : '<span class="pill risk">Exam not registered · closes ' + c.exam.closes + '</span>';
-    var tiers = TIERS.map(function (t) {
-      var need = examNeeded(a, t[1]);
-      return need > 100 ? '<span class="tier off">' + t[0] + ' <b>out of reach</b></span>' : '<span class="tier">' + t[0] + ' <b>' + need + '</b></span>';
-    }).join('');
-    var elig = a >= 10 ? '<span class="elig ok">Assignments clear the 10/25 minimum</span>' : '<span class="elig risk">Below the 10/25 assignment minimum</span>';
-    return '<section class="card" aria-labelledby="h-' + c.id + '">' +
-      '<div class="course-head"><div><h2 id="h-' + c.id + '">' + esc(c.title) + '</h2>' +
-        '<div class="course-meta">' + c.inst + ' · ' + c.weeksTotal + ' weeks · ' + c.run + '</div></div>' + examPill + '</div>' +
-      '<div class="metrics">' +
-        '<div class="metric"><div class="eyebrow">Assignment score</div><div class="v">' + a.toFixed(1) + ' <small>/ 25</small></div>' +
-          '<div class="s">Best ' + c.bestOf + ' of ' + c.weeksTotal + ' weeks, so far</div></div>' +
-        '<div class="metric"><div class="eyebrow">Submitted</div><div class="v">' + done + ' <small>/ ' + cl.length + '</small></div>' +
-          '<div class="s">' + (cl.length - done ? (cl.length - done) + ' missed' : 'None missed') + '</div></div>' +
-        '<div class="metric"><div class="eyebrow">Videos watched</div><div class="v">' + v[0] + ' <small>/ ' + v[1] + '</small></div>' +
+  function renderCourse() {
+    var c = current(), cl = closed(c), done = cl.filter(function (w) { return w.s !== null; }).length, v = videos(c);
+    var panel = document.getElementById('coursePanel');
+    panel.setAttribute('aria-labelledby', 'tab-' + c.id);
+    panel.innerHTML =
+      '<div class="course-meta">' + esc(c.inst) + ' · ' + c.weeks.length + ' weeks · ' + c.run + '</div>' +
+      '<div class="nums">' +
+        '<div class="num-box"><div class="eyebrow">Assignment score</div><div class="v">' + assignScore(c).toFixed(1) + ' <small>/ 25</small></div></div>' +
+        '<div class="num-box"><div class="eyebrow">Assignments done</div><div class="v">' + done + ' <small>/ ' + cl.length + '</small></div></div>' +
+        '<div class="num-box"><div class="eyebrow">Videos watched</div><div class="v">' + v[0] + ' <small>/ ' + v[1] + '</small></div>' +
           '<div class="meter"><i style="width:' + (v[0] / v[1] * 100) + '%"></i></div></div>' +
       '</div>' +
-      '<div class="weeks-head"><span class="eyebrow">Week by week</span>' +
-        '<span class="key"><span><i class="k-miss"></i>Missed</span><span><i class="k-open"></i>Open now</span><span><i class="k-up"></i>Not out yet</span><span>Bar = videos watched</span></span></div>' +
-      '<div class="weeks">' + c.weeks.map(weekTile).join('') + '</div>' +
-      '<div class="needs"><span class="lbl">Exam marks needed (out of 100)</span>' + tiers + elig + '</div>' +
-      '</section>';
-  }).join('');
+      '<div class="weeks-head"><span class="eyebrow">Week by week</span><span class="hint">Hover a week for details</span></div>' +
+      '<div class="weeks">' + c.weeks.map(weekTile).join('') + '</div>';
+  }
 
-  /* ---- PDF ---- */
+  function renderDetails() {
+    var c = current(), e = c.exam;
+    var exam = e.applied
+      ? '<div class="exam yes"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>' +
+          '<div><div class="t">Applied for exam</div><div class="s">' + e.date + ' · ' + e.slot + ' · ' + esc(e.centre) + '</div></div></div>'
+      : '<div class="exam no"><span class="mark" aria-hidden="true"></span>' +
+          '<div><div class="t">Not applied for exam</div><div class="s">Registration closes ' + e.closes + '</div></div></div>';
+    document.getElementById('details').innerHTML =
+      '<div class="person"><span class="ini" aria-hidden="true">AS</span><div><div class="nm">' + esc(student.name) + '</div><div class="sm">' + esc(student.branch) + '</div></div></div>' +
+      '<dl class="facts">' +
+        '<div><dt>Roll number</dt><dd>' + student.roll + '</dd></div>' +
+        '<div><dt>USN</dt><dd>' + student.usn + '</dd></div>' +
+        '<div><dt>NPTEL ID</dt><dd><button class="copy" type="button" data-copy="' + c.nptelId + '" aria-label="Copy NPTEL ID ' + c.nptelId + '">' + c.nptelId +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></dd></div>' +
+      '</dl>' + exam;
+  }
+
+  function select(id, focus) {
+    sel = id; NEST.store.set('nptelCourse', id);
+    renderTabs(); renderCourse(); renderDetails();
+    if (focus) document.getElementById('tab-' + id).focus();
+  }
+
+  document.getElementById('tabs').addEventListener('click', function (e) {
+    var b = e.target.closest('.tab'); if (b) select(b.dataset.id);
+  });
+  document.getElementById('tabs').addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    var i = courses.findIndex(function (c) { return c.id === sel; });
+    var n = (i + (e.key === 'ArrowRight' ? 1 : -1) + courses.length) % courses.length;
+    e.preventDefault(); select(courses[n].id, true);
+  });
+  document.getElementById('details').addEventListener('click', function (e) {
+    var b = e.target.closest('.copy'); if (!b) return;
+    var id = b.dataset.copy;
+    (navigator.clipboard ? navigator.clipboard.writeText(id) : Promise.reject())
+      .then(function () { NEST.toast('NPTEL ID copied'); }, function () { NEST.toast(id); });
+  });
+  select(sel);
+
+  /* ---- PDF: every course, plus the student's details ---- */
   document.getElementById('exportBtn').addEventListener('click', function () {
+    var applied = courses.filter(function (c) { return c.exam.applied; }).length;
     NEST.exportPDF({
       filename: 'NEST-nptel.pdf',
       title: 'NPTEL',
-      subtitle: 'Aarav Sharma - 23AD014 - B.Tech AI & DS - Semester 5, Section A',
+      subtitle: student.name + ' - Roll no. ' + student.roll + ' - USN ' + student.usn + ' - ' + student.branch,
       stats: [
-        { label: 'Courses', value: String(courses.length), note: 'Updated ' + sheet.uploadedOn },
-        { label: 'Assignments', value: sub + ' / ' + due, note: (due - sub) + ' missed so far' },
-        { label: 'Videos watched', value: Math.round(vw / vt * 100) + '%' },
-        unregistered.length
-          ? { label: 'Exam registration', value: unregistered.map(function (c) { return c.title; }).join(', '), small: true, tone: 'risk', note: 'Not registered yet' }
-          : { label: 'Exams', value: 'All registered', small: true, tone: 'ok' }
+        { label: 'Courses', value: String(courses.length) },
+        { label: 'Exam applied', value: applied + ' / ' + courses.length, tone: applied < courses.length ? 'risk' : 'ok',
+          note: applied < courses.length ? 'Some not applied yet' : 'All applied' }
       ],
       sections: courses.map(function (c) {
         var tones = [];
@@ -307,9 +312,9 @@
           var st = w.s === null ? 'Not submitted' : w.s === 'open' ? 'Open' : w.s === 'up' ? 'Not out yet' : w.s + ' / 100';
           return ['W' + (i + 1), w.t, w.v[1] + ' / ' + w.v[0], st, w.due];
         });
-        var a = assignScore(c);
         return { heading: c.title + ' (' + c.inst + ')',
-          note: 'Assignments ' + a.toFixed(1) + ' / 25 - ' + (c.exam.registered ? 'exam ' + c.exam.date : 'exam not registered'),
+          note: 'NPTEL ID ' + c.nptelId + ' - assignments ' + assignScore(c).toFixed(1) + ' / 25 - ' +
+            (c.exam.applied ? 'exam ' + c.exam.date : 'exam not applied'),
           head: ['Week', 'Topic', 'Videos', 'Assignment', 'Due'], body: body, tones: tones, toneCols: [3],
           widths: { 0: 44, 2: 60, 3: 90, 4: 60 } };
       })
