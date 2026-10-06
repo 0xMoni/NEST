@@ -129,9 +129,6 @@
       <a href="news.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v10a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5M8 17h3"/></svg>
         News &amp; events</a>
-      <a href="roadmap.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h7"/></svg>
-        Roadmap &amp; practice</a>
     </nav>
     <div class="side-foot">
       <a class="me" href="dashboard.html#profile">
@@ -146,9 +143,6 @@
     <header class="head">
       <h1>NPTEL</h1>
       <div class="head-actions">
-        <button class="btn" type="button" id="exportBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
-          Export PDF</button>
         <button class="icon-btn" type="button" id="themeBtn" aria-label="Switch to light theme">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
         </button>
@@ -168,55 +162,18 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="nest.js"></script>
+<script src="data.js"></script>
 <script>
 (function () {
   var esc = NEST.esc;
 
   // Filled from the admin's SPOC sheet upload by the backend; shape only for now.
-  var student = { name: 'Aarav Sharma', roll: '23AD014', usn: '1CR23AD014', branch: 'B.Tech AI & DS · Sem 5 · A' };
+  var student = NEST_DATA.student;
 
   // score: number = submitted (out of 100), null = missed, 'open' = this week, 'up' = not released yet
-  var courses = [
-    { id: 'cc', title: 'Cloud Computing', inst: 'IIT Kharagpur', run: 'Jul–Oct 2026', bestOf: 8, nptelId: 'NPTEL26CS43S5523014',
-      exam: { applied: true, date: 'Sun 25 Oct', slot: 'Forenoon', centre: 'Bengaluru' },
-      weeks: [
-        { t: 'Introduction to cloud computing', due: '30 Jul', v: [5, 5], s: 80 },
-        { t: 'Cloud computing architecture',    due: '6 Aug',  v: [6, 6], s: 90 },
-        { t: 'Service models: IaaS, PaaS, SaaS', due: '13 Aug', v: [5, 5], s: 70 },
-        { t: 'Virtualization',                  due: '20 Aug', v: [6, 6], s: 100 },
-        { t: 'SLAs and cloud economics',        due: '27 Aug', v: [5, 2], s: null },
-        { t: 'Resource management',             due: '3 Sep',  v: [6, 6], s: 85 },
-        { t: 'Cloud security I',                due: '10 Sep', v: [5, 5], s: 60 },
-        { t: 'Cloud security II',               due: '17 Sep', v: [5, 5], s: 90 },
-        { t: 'Fog and edge computing',          due: '24 Sep', v: [6, 6], s: 75 },
-        { t: 'Containers and Kubernetes',       due: '1 Oct',  v: [5, 4], s: 80 },
-        { t: 'Serverless computing',            due: '8 Oct',  v: [5, 1], s: 'open' },
-        { t: 'Case studies',                    due: '15 Oct', v: [4, 0], s: 'up' }
-      ] },
-    { id: 'dse', title: 'Data Science for Engineers', inst: 'IIT Madras', run: 'Aug–Oct 2026', bestOf: 6, nptelId: 'NPTEL26CS71S5523014',
-      exam: { applied: false, closes: '10 Oct' },
-      weeks: [
-        { t: 'Course intro and R basics', due: '26 Aug', v: [7, 7], s: 100 },
-        { t: 'Linear algebra',            due: '2 Sep',  v: [8, 8], s: 80 },
-        { t: 'Statistics',                due: '9 Sep',  v: [6, 2], s: null },
-        { t: 'Optimization',              due: '16 Sep', v: [7, 7], s: 70 },
-        { t: 'Regression',                due: '23 Sep', v: [6, 6], s: 90 },
-        { t: 'Classification',            due: '30 Sep', v: [7, 5], s: 60 },
-        { t: 'Clustering',                due: '7 Oct',  v: [6, 3], s: 'open' },
-        { t: 'Capstone case study',       due: '14 Oct', v: [5, 0], s: 'up' }
-      ] }
-  ];
+  var courses = NEST_DATA.nptel;
 
-  function closed(c) { return c.weeks.filter(function (w) { return typeof w.s === 'number' || w.s === null; }); }
-  // Assignment score out of 25 from closed weeks (missed = 0), best `bestOf` weeks. Future weeks can only raise it.
-  function assignScore(c) {
-    var top = closed(c).map(function (w) { return w.s || 0; }).sort(function (a, b) { return b - a; }).slice(0, c.bestOf);
-    return Math.round(top.reduce(function (a, b) { return a + b; }, 0) / (c.bestOf * 100) * 25 * 10) / 10;
-  }
-  function videos(c) {
-    return c.weeks.filter(function (w) { return w.s !== 'up'; })
-      .reduce(function (acc, w) { acc[0] += w.v[1]; acc[1] += w.v[0]; return acc; }, [0, 0]);
-  }
+  var closed = NEST_DATA.nptelClosed, assignScore = NEST_DATA.nptelScore, videos = NEST_DATA.nptelVideos;
 
   var sel = NEST.store.get('nptelCourse', courses[0].id);
   if (!courses.some(function (c) { return c.id === sel; })) sel = courses[0].id;
@@ -299,33 +256,6 @@
   });
   select(sel);
 
-  /* ---- PDF: every course, plus the student's details ---- */
-  document.getElementById('exportBtn').addEventListener('click', function () {
-    var applied = courses.filter(function (c) { return c.exam.applied; }).length;
-    NEST.exportPDF({
-      filename: 'NEST-nptel.pdf',
-      title: 'NPTEL',
-      subtitle: student.name + ' - Roll no. ' + student.roll + ' - USN ' + student.usn + ' - ' + student.branch,
-      stats: [
-        { label: 'Courses', value: String(courses.length) },
-        { label: 'Exam applied', value: applied + ' / ' + courses.length, tone: applied < courses.length ? 'risk' : 'ok',
-          note: applied < courses.length ? 'Some not applied yet' : 'All applied' }
-      ],
-      sections: courses.map(function (c) {
-        var tones = [];
-        var body = c.weeks.map(function (w, i) {
-          tones.push(w.s === null ? 'risk' : w.s === 'up' ? 'muted' : null);
-          var st = w.s === null ? 'Not submitted' : w.s === 'open' ? 'Open' : w.s === 'up' ? 'Not out yet' : w.s + ' / 100';
-          return ['W' + (i + 1), w.t, w.v[1] + ' / ' + w.v[0], st, w.due];
-        });
-        return { heading: c.title + ' (' + c.inst + ')',
-          note: 'NPTEL ID ' + c.nptelId + ' - assignments ' + assignScore(c).toFixed(1) + ' / 25 - ' +
-            (c.exam.applied ? 'exam ' + c.exam.date : 'exam not applied'),
-          head: ['Week', 'Topic', 'Videos', 'Assignment', 'Due'], body: body, tones: tones, toneCols: [3],
-          widths: { 0: 44, 2: 60, 3: 90, 4: 60 } };
-      })
-    });
-  });
 })();
 </script>
 </body>

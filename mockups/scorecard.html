@@ -56,9 +56,6 @@
       <a href="news.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v10a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5M8 17h3"/></svg>
         News &amp; events</a>
-      <a href="roadmap.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h7"/></svg>
-        Roadmap &amp; practice</a>
     </nav>
     <div class="side-foot">
       <a class="me" href="dashboard.html#profile">
@@ -76,9 +73,6 @@
         <h1>Scorecard</h1>
       </div>
       <div class="head-actions">
-        <button class="btn" type="button" id="exportBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
-          Export PDF</button>
         <button class="icon-btn" type="button" id="themeBtn" aria-label="Switch to light theme">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
         </button>
@@ -184,39 +178,6 @@
   renderIAT(iats[0], false);
   renderIAT(iats[1], true);
 
-  document.getElementById('exportBtn').addEventListener('click', function () {
-    var st = stats;
-    function section(iat, withDelta) {
-      var body = [], tones = [], got = 0, pub = 0;
-      iat.rows.forEach(function (r) {
-        var s = subjects[r.code];
-        if (r.marks === null) {
-          body.push([r.code, s.name, s.fac, 'Not published', ''].concat(withDelta ? [''] : []));
-          tones.push('muted'); return;
-        }
-        got += r.marks; pub++;
-        var row = [r.code, s.name, s.fac, r.marks + ' / ' + OUT_OF];
-        if (withDelta) { var d = r.marks - iat1Marks(r.code); row.push(d > 0 ? '+' + d : d < 0 ? String(d) : '0'); }
-        row.push(r.on);
-        body.push(row); tones.push(null);
-      });
-      var head = ['Code', 'Subject', 'Faculty', 'Marks'].concat(withDelta ? ['vs IAT 1'] : []).concat(['Published']);
-      return { heading: iat.title, note: iat.held + ' - ' + got + ' / ' + pub * OUT_OF + ' so far', head: head, body: body, tones: tones,
-        widths: { 0: 42, 3: 70 } };
-    }
-    NEST.exportPDF({
-      filename: 'NEST-scorecard-sem5.pdf',
-      title: 'Scorecard',
-      subtitle: 'Aarav Sharma - 23AD014 - B.Tech AI & DS - Semester 5, Section A - Internal assessment',
-      stats: [
-        { label: 'IAT 1 total', value: st.t1 + ' / ' + st.max1 },
-        { label: 'IAT 2 so far', value: st.t2 + ' / ' + st.max2, note: st.n2 + ' of ' + iats[1].rows.length + ' subjects published' },
-        { label: 'Strongest', value: subjects[st.best].name, small: true, note: st.pctBest + '% across published IATs' },
-        { label: 'Needs work', value: subjects[st.worst].name, small: true, tone: 'risk', note: st.pctWorst + '% across published IATs' }
-      ],
-      sections: [section(iats[0], false), section(iats[1], true)]
-    });
-  });
 })();
 </script>
 </body>

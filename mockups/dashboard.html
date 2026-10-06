@@ -221,17 +221,17 @@ button, input, select { font: inherit; color: inherit; }
 .task.done .t { text-decoration: line-through; color: var(--faint); }
 .task.done .due { opacity: .5; }
 
-.roadrow { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; font-size: 14.5px; }
-.roadrow .n { width: 22px; height: 22px; border-radius: 50%; flex: none; display: grid; place-items: center; font-family: var(--head); font-weight: 600; font-size: 10px; border: 1px solid var(--border-strong); color: var(--muted); }
-.roadrow.done .n { background: var(--gold); color: var(--bg); border-color: var(--gold); }
-.roadrow.now .n { border-color: var(--gold); color: var(--gold); }
-.roadrow .s { font-size: 13px; color: var(--muted); }
-
-.thread { border-left: 2px solid var(--border-strong); padding: 2px 0 2px 12px; font-size: 14px; }
-.thread + .thread { margin-top: 10px; }
-.thread.reply { border-color: var(--gold); }
-.thread .by { font-size: 12.5px; color: var(--muted); margin-bottom: 2px; }
-.thread .by b { color: var(--text); }
+.np-row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding: 8px 0; font-size: 14.5px; }
+.np-row + .np-row { border-top: 1px dashed var(--border); }
+.np-row .s { display: block; font-size: 13px; color: var(--muted); }
+.np-row .ex { font-family: var(--head); font-size: 11px; font-weight: 600; white-space: nowrap; }
+.np-row .ex.ok { color: var(--ok); }
+.np-row .ex.no { color: var(--risk); }
+.al-when { font-size: 12.5px; color: var(--faint); }
+.al-ttl { font-weight: 700; font-size: 15px; margin: 2px 0 4px; }
+.al-msg { font-size: 14px; color: var(--muted); }
+.al-due { display: inline-block; margin-top: 8px; font-family: var(--head); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; background: var(--surface-3); color: var(--muted); }
+.al-due.urgent { background: var(--risk-soft); color: var(--risk); }
 
 /* ---------- Lower sections ---------- */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px 26px; }
@@ -494,9 +494,6 @@ button, input, select { font: inherit; color: inherit; }
       <a href="news.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v10a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5M8 17h3"/></svg>
         News &amp; events</a>
-      <a href="roadmap.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h7"/></svg>
-        Roadmap &amp; practice</a>
     </nav>
     <div class="side-foot">
       <button class="me" type="button" data-open-profile aria-haspopup="dialog">
@@ -573,43 +570,33 @@ button, input, select { font: inherit; color: inherit; }
         </div>
       </div>
 
-      <!-- Roadmap -->
-      <div class="stat" data-pop>
-        <a class="stat-hit" href="roadmap.html" aria-describedby="pop-road">
-          <div class="stat-top"><span class="eyebrow">Roadmap</span>
+      <!-- NPTEL -->
+      <div class="stat" data-pop id="npCard">
+        <a class="stat-hit" href="nptel.html" aria-describedby="pop-np">
+          <div class="stat-top"><span class="eyebrow">NPTEL</span>
             <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
-          <div class="stat-value">6<small> / 14</small></div>
-          <div class="stat-note">ML Engineer track</div>
-          <div class="meter"><i style="width:43%"></i></div>
+          <div class="stat-value" id="npValue"></div>
+          <div class="stat-note" id="npNote"></div>
+          <div class="meter"><i id="npMeter"></i></div>
         </a>
-        <div class="pop" id="pop-road" role="tooltip">
-          <h3>ML Engineer track</h3>
-          <div class="roadrow done"><span class="n">6</span><div>Model evaluation &amp; metrics<div class="s">Completed 24 Sep</div></div></div>
-          <div class="roadrow now"><span class="n">7</span><div>Feature engineering in practice<div class="s">In progress · 2 of 5 problems</div></div></div>
-          <div class="roadrow"><span class="n">8</span><div>Intro to MLOps<div class="s">Up next</div></div></div>
-          <a class="pop-link" href="roadmap.html">See all your roadmaps →</a>
+        <div class="pop" id="pop-np" role="tooltip">
+          <h3>Your courses</h3>
+          <div id="npPop"></div>
+          <a class="pop-link" href="nptel.html">Open NPTEL →</a>
         </div>
       </div>
 
-      <!-- Help requests -->
-      <div class="stat" data-pop>
-        <a class="stat-hit" href="help.html" aria-describedby="pop-help">
-          <div class="stat-top"><span class="eyebrow">Help requests</span>
+      <!-- Mentor alerts -->
+      <div class="stat" data-pop id="alCard">
+        <a class="stat-hit" href="mentor.html" aria-describedby="pop-al">
+          <div class="stat-top"><span class="eyebrow">Mentor alerts</span>
             <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
-          <div class="stat-value">1 <small>open</small></div>
-          <div class="stat-note">New reply from <b>Dr. Meera Rao</b></div>
+          <div class="stat-value" id="alValue"></div>
+          <div class="stat-note" id="alNote"></div>
         </a>
-        <div class="pop" id="pop-help" role="tooltip">
-          <h3>To your mentor · 2 days ago</h3>
-          <div class="thread">
-            <div class="by"><b>You</b> · 27 Sep</div>
-            Struggling with the backprop derivation for DL Assignment 3. Could we go through it?
-          </div>
-          <div class="thread reply">
-            <div class="by"><b>Dr. Meera Rao</b> · today, 4:10 PM</div>
-            Sure. Come by my cabin Wednesday 3:30 PM, and bring your working so far.
-          </div>
-          <a class="pop-link" href="help.html">Open conversation →</a>
+        <div class="pop" id="pop-al" role="tooltip">
+          <div id="alPop"></div>
+          <a class="pop-link" href="mentor.html">See all alerts →</a>
         </div>
       </div>
     </section>
@@ -1056,11 +1043,41 @@ button, input, select { font: inherit; color: inherit; }
 
   $('.signout').addEventListener('click', function () { toast('Signed out (mockup)'); });
 
-  // Mentor tab badge: pending alerts, kept up to date by mentor.html
-  var pendingAlerts = store.get('mentorPending', 3);
+  /* ---- NPTEL card ---- */
+  var np = NEST_DATA.nptel, npDone = 0, npDue = 0, notApplied = [];
+  np.forEach(function (c) {
+    var cl = NEST_DATA.nptelClosed(c);
+    npDue += cl.length; npDone += cl.filter(function (w) { return w.s !== null; }).length;
+    if (!c.exam.applied) notApplied.push(c);
+  });
+  $('#npValue').innerHTML = npDone + '<small> / ' + npDue + ' assignments</small>';
+  $('#npNote').innerHTML = notApplied.length
+    ? '<b>' + notApplied.length + ' exam' + (notApplied.length > 1 ? 's' : '') + ' not applied</b> · ' + np.length + ' courses'
+    : np.length + ' courses · all exams applied';
+  $('#npMeter').style.width = (npDone / npDue * 100) + '%';
+  $('#npCard').classList.toggle('is-risk', notApplied.length > 0);
+  $('#npPop').innerHTML = np.map(function (c) {
+    return '<div class="np-row"><span>' + esc(c.title) + '<span class="s">Assignments ' + NEST_DATA.nptelScore(c).toFixed(1) + ' / 25</span></span>' +
+      (c.exam.applied ? '<span class="ex ok">Exam applied ✓</span>' : '<span class="ex no">Exam not applied · closes ' + c.exam.closes + '</span>') + '</div>';
+  }).join('');
+
+  /* ---- Mentor alerts card: the latest alert, and how many are still unacknowledged ---- */
+  var acks = store.get('mentorAcks', {});
+  var alerts = NEST_DATA.mentorAlerts, latest = alerts[0];
+  var fresh = alerts.filter(function (a) { return !acks[a.id]; }).length;
+  $('#alValue').innerHTML = fresh ? fresh + ' <small>new</small>' : alerts.length + ' <small>seen</small>';
+  $('#alNote').innerHTML = latest ? 'Latest: <b>' + esc(latest.t) + '</b>' : 'No alerts';
+  $('#alCard').classList.toggle('is-risk', !!(latest && latest.urgent && !acks[latest.id]));
+  $('#alPop').innerHTML = latest
+    ? '<div class="al-when">' + esc(NEST_DATA.mentor) + ' · ' + esc(latest.when) + '</div>' +
+      '<div class="al-ttl">' + esc(latest.t) + '</div><div class="al-msg">' + esc(latest.m) + '</div>' +
+      (latest.due ? '<span class="al-due' + (latest.urgent ? ' urgent' : '') + '">' + esc(latest.due) + '</span>' : '')
+    : '<div class="al-msg">Nothing from your mentor yet.</div>';
+
+  // Mentor tab badge in the sidebar
   $$('[data-mentor-badge]').forEach(function (b) {
-    b.textContent = pendingAlerts; b.hidden = !pendingAlerts;
-    b.setAttribute('aria-label', pendingAlerts + ' pending alert' + (pendingAlerts === 1 ? '' : 's'));
+    b.textContent = fresh; b.hidden = !fresh;
+    b.setAttribute('aria-label', fresh + ' new alert' + (fresh === 1 ? '' : 's'));
   });
 })();
 </script>

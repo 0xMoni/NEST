@@ -67,6 +67,7 @@
 .copy:hover { background: var(--surface-2); color: var(--gold); }
 .copy svg { width: 14px; height: 14px; margin: 0; color: inherit; }
 .ways { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+.ways .btn:first-child { grid-column: 1 / -1; }
 .ways .btn { padding: 0 10px; }
 .btn.wa { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
 .btn.wa:hover { border-color: var(--ok); }
@@ -111,9 +112,6 @@
       <a href="news.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v10a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5M8 17h3"/></svg>
         News &amp; events</a>
-      <a href="roadmap.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h7"/></svg>
-        Roadmap &amp; practice</a>
     </nav>
     <div class="side-foot">
       <a class="me" href="dashboard.html#profile">
@@ -172,7 +170,6 @@
         </dl>
         <div class="ways">
           <a class="btn primary" href="mailto:meera.rao@college.edu?subject=%5BNEST%5D%2023AD014%20-%20"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Email</a>
-          <a class="btn" href="help.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Message</a>
           <a class="btn" href="tel:+919876543210"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>Call</a>
           <a class="btn wa" href="https://wa.me/919876543210" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 1a5 5 0 0 1-3-3l1-1-1-2z"/></svg>WhatsApp</a>
         </div>
@@ -199,6 +196,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="nest.js"></script>
+<script src="data.js"></script>
 <script>
 (function () {
   var esc = NEST.esc;
@@ -206,17 +204,7 @@
 
   // Requests the mentor has sent this student. The backend will supply these; shape only for now.
   // kind: 'task' (something to do), 'meet' (a meeting), 'note' (heads-up)
-  var alerts = [
-    { id: 'a1', kind: 'task', urgent: true, t: 'Register for your NPTEL exam',
-      m: 'You haven’t registered for the Data Science for Engineers exam yet. Register and send me the receipt.',
-      when: 'Today, 9:40 AM', due: 'Due 10 Oct' },
-    { id: 'a2', kind: 'meet', t: 'Meet me about the backprop doubts',
-      m: 'Come by my cabin on Wednesday at 3:30 PM and bring your working for DL Assignment 3.',
-      when: 'Yesterday', due: 'Wed 7 Oct · 3:30 PM' },
-    { id: 'a3', kind: 'task', t: 'SEPM attendance is below 75%',
-      m: 'Attend every SEPM class this week. If you need a condonation form, collect it from me.',
-      when: '5 Oct' }
-  ];
+  var alerts = NEST_DATA.mentorAlerts;
 
   var ICONS = {
     task: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1z"/><path d="M16 5h2a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h2"/><path d="M9 13l2 2 4-4"/></svg>',
