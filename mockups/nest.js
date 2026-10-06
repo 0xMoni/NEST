@@ -156,7 +156,17 @@ var NEST = (function () {
     });
   }
 
+  // Pending mentor alerts, written by mentor.html (3 until the student has opened it).
+  function updateMentorBadge(n) {
+    if (n === undefined) n = store.get('mentorPending', 3);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-mentor-badge]'), function (b) {
+      b.textContent = n; b.hidden = !n;
+      b.setAttribute('aria-label', n + ' pending alert' + (n === 1 ? '' : 's'));
+    });
+  }
+
   initTheme();
   drawSwirl();
-  return { store: store, esc: esc, toast: toast, exportPDF: exportPDF };
+  updateMentorBadge();
+  return { store: store, esc: esc, toast: toast, exportPDF: exportPDF, updateMentorBadge: updateMentorBadge };
 })();

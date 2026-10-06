@@ -109,6 +109,8 @@ button, input, select { font: inherit; color: inherit; }
 .nav a:hover { background: rgba(255, 255, 255, .05); color: #f3f1ea; }
 .nav a[aria-current="page"] { background: rgba(207, 169, 98, .13); color: #f3f1ea; box-shadow: inset 2px 0 0 #cfa962; }
 .nav a[aria-current="page"] svg { color: #cfa962; opacity: 1; }
+.nav .nav-badge { margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; display: grid; place-items: center; font-family: var(--head); font-size: 10.5px; font-weight: 700; background: #e8876d; color: #121418; }
+.nav .nav-badge[hidden] { display: none; }
 
 .side-foot { margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, .08); color: #f3f1ea; }
 .me {
@@ -517,6 +519,9 @@ button, input, select { font: inherit; color: inherit; }
       <a href="nptel.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M10 8.5v5l4-2.5z"/><path d="M8 21h8"/></svg>
         NPTEL</a>
+      <a href="mentor.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5h5.5v4.5H18l-2 1.8z"/></svg>
+        Mentor<span class="nav-badge" data-mentor-badge hidden></span></a>
       <a href="roadmap.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h7"/></svg>
         Roadmap &amp; practice</a>
@@ -1151,6 +1156,13 @@ button, input, select { font: inherit; color: inherit; }
   });
 
   $('.signout').addEventListener('click', function () { toast('Signed out (mockup)'); });
+
+  // Mentor tab badge: pending alerts, kept up to date by mentor.html
+  var pendingAlerts = store.get('mentorPending', 3);
+  $$('[data-mentor-badge]').forEach(function (b) {
+    b.textContent = pendingAlerts; b.hidden = !pendingAlerts;
+    b.setAttribute('aria-label', pendingAlerts + ' pending alert' + (pendingAlerts === 1 ? '' : 's'));
+  });
 })();
 </script>
 </body>
