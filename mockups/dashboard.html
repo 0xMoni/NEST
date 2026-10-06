@@ -281,51 +281,21 @@ button, input, select { font: inherit; color: inherit; }
 .badge.now { background: var(--gold); color: var(--bg); }
 .badge.next { background: var(--gold-soft); color: var(--gold); }
 
-/* opportunities & news */
-.feed-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
-.feed-head h2 { margin: 0; font-family: var(--head); font-weight: 600; font-size: 20px; }
-.feed-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 24px; align-items: start; }
-.card-sub { margin: 0; font-family: var(--head); font-weight: 600; font-size: 15px; }
-.chips { display: flex; gap: 6px; flex-wrap: wrap; }
-.chip {
-  min-height: 30px; padding: 0 12px; border-radius: 999px; font-family: var(--head); font-size: 11px; font-weight: 600;
-  border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all .15s;
-}
-.chip:hover { color: var(--text); border-color: var(--border-strong); }
-.chip[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
-.events { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.ev {
-  display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 12px;
+/* upcoming preview */
+.up-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.up-list a {
+  display: flex; gap: 14px; align-items: center; padding: 14px; border-radius: 12px; text-decoration: none;
   background: var(--surface-2); border: 1px solid var(--border); transition: border-color .15s, transform .15s;
 }
-.ev:hover { border-color: var(--border-strong); transform: translateY(-2px); }
-.ev[hidden] { display: none; }
-.ev-top { display: flex; justify-content: space-between; align-items: center; }
-.ev .kind { font-family: var(--head); font-size: 9.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
-.ev .when { font-family: var(--head); font-size: 11px; font-weight: 600; color: var(--muted); }
-.ev .ttl { font-size: 16px; font-weight: 700; line-height: 1.25; }
-.ev .sub { font-size: 13.5px; color: var(--muted); }
-.ev-foot { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 6px; }
-.closing { font-size: 13px; color: var(--risk); }
-.save { width: 36px; height: 36px; margin: -6px -8px -6px auto; border-radius: 10px; border: 1px solid transparent; background: none; display: grid; place-items: center; cursor: pointer; color: var(--faint); transition: all .15s; }
-.save:hover { border-color: var(--border); color: var(--text); }
-.save svg { width: 17px; height: 17px; }
-.save[aria-pressed="true"] { color: var(--gold); }
-.save[aria-pressed="true"] svg { fill: currentColor; }
-.empty-note { grid-column: 1 / -1; font-size: 14px; color: var(--muted); padding: 12px 0; }
-.news { list-style: none; margin: 0; padding: 0; }
-.news li + li { border-top: 1px solid var(--border); }
-.news a { display: grid; grid-template-columns: 8px 1fr; gap: 12px; padding: 14px 0; text-decoration: none; }
-.news a:hover .ttl { text-decoration: underline; }
-.news .dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 7px; background: var(--gold); }
-.news .read .dot { background: transparent; }
-.news .src { font-family: var(--head); font-size: 9.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.news .ttl { font-size: 15px; font-weight: 700; line-height: 1.3; margin: 2px 0; }
-.news .read .ttl { font-weight: 400; color: var(--muted); }
-.news .sub { font-size: 13px; color: var(--faint); }
+.up-list a:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+.up-date { width: 46px; flex: none; text-align: center; padding: 5px 0; border-radius: 9px; background: var(--surface); border: 1px solid var(--border); }
+.up-date .d { font-family: var(--head); font-weight: 600; font-size: 17px; line-height: 1.1; }
+.up-date .m { font-family: var(--head); font-size: 9px; font-weight: 600; letter-spacing: .14em; color: var(--muted); }
+.up-kind { font-family: var(--head); font-size: 9.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+.up-ttl { font-size: 15px; font-weight: 700; line-height: 1.25; }
+.up-empty { font-size: 14px; color: var(--muted); }
 .more { font-size: 14px; color: var(--gold); text-decoration: none; font-weight: 700; }
 .more:hover { text-decoration: underline; }
-.aside { font-size: 13.5px; color: var(--muted); }
 
 /* mentor pop-in */
 .mentor-pop { position: fixed; right: 24px; bottom: 24px; z-index: 30; display: flex; flex-direction: column; align-items: flex-end; }
@@ -462,7 +432,6 @@ button, input, select { font: inherit; color: inherit; }
   .stat:nth-child(even) .pop { left: auto; right: 0; }
   .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .tile.span2 { grid-column: span 1; }
-  .feed-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 860px) {
   .shell { grid-template-columns: 1fr; }
@@ -657,34 +626,13 @@ button, input, select { font: inherit; color: inherit; }
       <div class="tiles" id="tiles"></div>
     </section>
 
-    <!-- Opportunities & news -->
-    <section class="feed" aria-labelledby="feedTitle">
-      <div class="feed-head">
-        <h2 id="feedTitle">Opportunities &amp; news</h2>
-        <a class="more" href="news.html#events">See all →</a>
+    <!-- Upcoming: a preview, the full list lives on news.html -->
+    <section class="card upcoming" aria-labelledby="upTitle">
+      <div class="card-head">
+        <h2 id="upTitle">Upcoming</h2>
+        <a class="more" href="news.html">See all →</a>
       </div>
-      <div class="feed-grid">
-        <div class="card">
-          <div class="card-head">
-            <h3 class="card-sub">Upcoming events</h3>
-            <div class="chips" role="group" aria-label="Filter events">
-              <button class="chip" type="button" data-f="all" aria-pressed="true">All</button>
-              <button class="chip" type="button" data-f="workshop" aria-pressed="false">Workshops</button>
-              <button class="chip" type="button" data-f="hackathon" aria-pressed="false">Hackathons</button>
-              <button class="chip" type="button" data-f="talk" aria-pressed="false">Talks</button>
-              <button class="chip" type="button" data-f="saved" aria-pressed="false">Saved</button>
-            </div>
-          </div>
-          <ul class="events" id="opps"></ul>
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <h3 class="card-sub">Newsletters &amp; notices</h3>
-            <span class="aside" id="newsUnread"></span>
-          </div>
-          <ul class="news" id="news"></ul>
-        </div>
-      </div>
+      <ul class="up-list" id="upcoming"></ul>
     </section>
   </main>
 </div>
@@ -741,6 +689,7 @@ button, input, select { font: inherit; color: inherit; }
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="data.js"></script>
 <script>
 (function () {
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -906,67 +855,14 @@ button, input, select { font: inherit; color: inherit; }
   });
   renderDays(); renderTiles(); setInterval(renderTiles, 60000);
 
-  /* ---- Opportunities ---- */
-  var opps = [
-    { id: 'o1', k: 'hackathon', dd: '02', mm: 'OCT', t: 'Inter-college AI hackathon', s: 'Team of 4 · 36 hrs · Main auditorium', close: 'Registrations close Fri' },
-    { id: 'o2', k: 'workshop', dd: '06', mm: 'OCT', t: 'MLOps with Docker & FastAPI', s: 'Seminar Hall 2 · 2:00–5:00 PM' },
-    { id: 'o3', k: 'talk', dd: '09', mm: 'OCT', t: 'LLMs in production: alumni talk', s: 'Auditorium · 11:10 AM · Sem 5+' },
-    { id: 'o4', k: 'workshop', dd: '14', mm: 'OCT', t: 'Power BI for data storytelling', s: 'Lab 3 · 2 sessions', close: '12 seats left' },
-    { id: 'o5', k: 'hackathon', dd: '18', mm: 'OCT', t: 'Campus Build-a-thon: internal round', s: 'Block B · teams of 2–6' }
-  ];
-  var saved = store.get('saved', { o1: true }), filter = 'all';
-  function renderOpps() {
-    var shown = 0;
-    var html = opps.map(function (o) {
-      var vis = filter === 'all' || (filter === 'saved' ? !!saved[o.id] : o.k === filter);
-      if (vis) shown++;
-      return '<li class="ev"' + (vis ? '' : ' hidden') + '>' +
-        '<div class="ev-top"><span class="kind">' + o.k + '</span><span class="when">' + o.dd + ' ' + o.mm + '</span></div>' +
-        '<div class="ttl">' + esc(o.t) + '</div>' +
-        '<div class="sub">' + esc(o.s) + '</div>' +
-        '<div class="ev-foot"><span class="closing">' + (o.close || '') + '</span>' +
-        '<button class="save" type="button" data-id="' + o.id + '" aria-pressed="' + !!saved[o.id] + '" aria-label="' + (saved[o.id] ? 'Unsave ' : 'Save ') + esc(o.t) + '">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg></button></div></li>';
-    }).join('');
-    if (!shown) html += '<li class="empty-note">' + (filter === 'saved' ? 'Nothing saved yet. Tap the bookmark on an event to keep it here.' : 'Nothing coming up in this category.') + '</li>';
-    $('#opps').innerHTML = html;
-  }
-  $('.chips').addEventListener('click', function (e) {
-    var b = e.target.closest('.chip'); if (!b) return;
-    filter = b.dataset.f;
-    $$('.chip').forEach(function (c) { c.setAttribute('aria-pressed', c === b ? 'true' : 'false'); });
-    renderOpps();
-  });
-  $('#opps').addEventListener('click', function (e) {
-    var b = e.target.closest('.save'); if (!b) return;
-    var id = b.dataset.id; saved[id] = !saved[id]; store.set('saved', saved);
-    renderOpps(); var nb = $('.save[data-id="' + id + '"]'); if (nb) nb.focus();
-    toast(saved[id] ? 'Saved to your list' : 'Removed from saved');
-  });
-  renderOpps();
-
-  /* ---- Newsletters & notices ---- */
-  var news = [
-    { id: 'n1', src: 'Exam cell', t: 'Lab internals timetable released', s: 'Runs 12–16 Oct · check your lab batch', when: 'Today' },
-    { id: 'n2', src: 'Placement cell', t: 'Infosys campus drive on 12 Oct', s: 'Eligibility: CGPA 7.0+ · register by 5 Oct', when: 'Yesterday' },
-    { id: 'n3', src: 'AI & DS newsletter', t: 'September issue: student projects & a faculty Q&A', s: '6 min read', when: '27 Sep' },
-    { id: 'n4', src: 'Library', t: 'IEEE Xplore access now on campus Wi-Fi', s: 'Sign in with your college email', when: '24 Sep' }
-  ];
-  var readMap = store.get('newsRead', { n4: true });
-  function renderNews() {
-    $('#news').innerHTML = news.map(function (n) {
-      return '<li class="' + (readMap[n.id] ? 'read' : '') + '"><a href="news.html#' + n.id + '" data-id="' + n.id + '">' +
-        '<span class="dot" aria-hidden="true"></span><span><span class="src">' + esc(n.src) + ' · ' + n.when + '</span>' +
-        '<span class="ttl" style="display:block">' + esc(n.t) + '</span><span class="sub">' + esc(n.s) + '</span></span></a></li>';
-    }).join('');
-    var unread = news.filter(function (n) { return !readMap[n.id]; }).length;
-    $('#newsUnread').textContent = unread ? unread + ' unread' : 'All read';
-  }
-  $('#news').addEventListener('click', function (e) {
-    var a = e.target.closest('a'); if (!a) return;
-    readMap[a.dataset.id] = true; store.set('newsRead', readMap); renderNews();
-  });
-  renderNews();
+  /* ---- Upcoming preview (next 3 events; clicking opens it on the News page) ---- */
+  var next = NEST_DATA.upcoming().slice(0, 3);
+  $('#upcoming').innerHTML = next.length ? next.map(function (e) {
+    var dm = NEST_DATA.dayMonth(e.date);
+    return '<li><a href="news.html#' + e.id + '">' +
+      '<span class="up-date"><span class="d" style="display:block">' + dm.d + '</span><span class="m">' + dm.m + '</span></span>' +
+      '<span><span class="up-kind">' + e.k + '</span><span class="up-ttl" style="display:block">' + esc(e.t) + '</span></span></a></li>';
+  }).join('') : '<li class="up-empty">Nothing coming up right now.</li>';
 
   /* ---- Mentor pop-in ---- */
   var mp = $('#mentorPop');

@@ -47,13 +47,11 @@
 .alert .due { display: inline-block; margin-top: 8px; font-family: var(--head); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; background: var(--surface-3); color: var(--muted); }
 .alert.urgent .due { background: color-mix(in srgb, var(--risk) 18%, transparent); color: var(--risk); }
 .alert .acts { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-.alert .replied { margin-top: 10px; font-size: 13.5px; color: var(--ok); }
-.reply { margin-top: 12px; display: flex; gap: 8px; }
-.reply input {
-  flex: 1; min-width: 0; height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--border-strong);
-  background: var(--surface); color: var(--text); font: inherit; font-size: 15px;
-}
-.reply input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+.alert .acked { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-family: var(--head); font-size: 12px; font-weight: 600; color: var(--ok); }
+.alert .acked svg { width: 14px; height: 14px; }
+.alert.is-acked { background: var(--surface); }
+.alert.is-acked.urgent { border-color: var(--border); }
+.alert.is-acked .ic { background: var(--ok-soft); color: var(--ok); }
 .empty { padding: 18px; border-radius: 12px; border: 1px dashed var(--border-strong); text-align: center; color: var(--muted); font-size: 14.5px; }
 
 .btn.sm { min-height: 36px; padding: 0 14px; font-size: 12px; }
@@ -225,62 +223,48 @@
     meet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
   };
 
-  var state = NEST.store.get('mentorAlerts', {});   // id -> { reply: string }
-  alerts.forEach(function (a) { if (!state[a.id]) state[a.id] = {}; });
-  var replyOpen = null;
+  // Acknowledged alerts: id -> time the student acknowledged it. An alert is "new" until acknowledged.
+  var acks = NEST.store.get('mentorAcks', {});
+  var TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>';
 
-  // An alert counts as new until the student replies to it.
   function save() {
-    NEST.store.set('mentorAlerts', state);
-    var fresh = alerts.filter(function (a) { return !state[a.id].reply; }).length;
+    NEST.store.set('mentorAcks', acks);
+    var fresh = alerts.filter(function (a) { return !acks[a.id]; }).length;
     NEST.store.set('mentorPending', fresh);
     NEST.updateMentorBadge(fresh);
     return fresh;
   }
 
   function alertHTML(a) {
-    var st = state[a.id];
-    var reply = replyOpen === a.id
-      ? '<form class="reply" data-id="' + a.id + '"><label class="sr" for="r-' + a.id + '">Reply to ' + MENTOR + '</label>' +
-          '<input id="r-' + a.id + '" type="text" placeholder="Write a reply to ' + MENTOR + '" autocomplete="off">' +
-          '<button class="btn sm primary" type="submit">Send</button>' +
-          '<button class="btn sm" type="button" data-act="cancel">Cancel</button></form>'
-      : '<div class="acts"><button class="btn sm" type="button" data-act="reply" data-id="' + a.id + '">' + (st.reply ? 'Reply again' : 'Reply') + '</button></div>';
-    return '<li class="alert' + (a.urgent ? ' urgent' : '') + '">' +
-      '<span class="ic" aria-hidden="true">' + (ICONS[a.kind] || ICONS.task) + '</span>' +
+    var ack = acks[a.id];
+    return '<li class="alert' + (a.urgent ? ' urgent' : '') + (ack ? ' is-acked' : '') + '">' +
+      '<span class="ic" aria-hidden="true">' + (ack ? TICK : ICONS[a.kind] || ICONS.task) + '</span>' +
       '<div><div class="top"><span class="ttl">' + esc(a.t) + '</span><span class="when">' + esc(a.when) + '</span></div>' +
         '<div class="msg">' + esc(a.m) + '</div>' +
         (a.due ? '<span class="due">' + esc(a.due) + '</span>' : '') +
-        (st.reply ? '<div class="replied">You replied: “' + esc(st.reply) + '”</div>' : '') +
-        reply +
+        (ack
+          ? '<div><span class="acked">' + TICK + 'Acknowledged · ' + esc(ack) + '</span></div>'
+          : '<div class="acts"><button class="btn sm primary" type="button" data-ack="' + a.id + '">Acknowledge</button></div>') +
       '</div></li>';
   }
 
   function render() {
     var fresh = save();
     var countEl = document.getElementById('alertCount');
-    countEl.textContent = fresh ? fresh + ' new' : alerts.length + ' alert' + (alerts.length === 1 ? '' : 's');
+    countEl.textContent = fresh ? fresh + ' new' : 'All acknowledged';
     countEl.className = 'count' + (fresh ? '' : ' zero');
     document.getElementById('alerts').innerHTML = alerts.length
       ? alerts.map(alertHTML).join('')
       : '<li class="empty">No alerts. When your mentor asks you for something, it shows up here.</li>';
   }
 
-  var section = document.getElementById('alertsTitle').closest('section');
-  section.addEventListener('click', function (e) {
-    var b = e.target.closest('[data-act]'); if (!b) return;
-    var id = b.dataset.id, act = b.dataset.act;
-    if (act === 'reply') replyOpen = id;
-    if (act === 'cancel') replyOpen = null;
+  document.getElementById('alerts').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-ack]'); if (!b) return;
+    var now = new Date();
+    acks[b.dataset.ack] = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ', ' +
+      now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     render();
-    if (act === 'reply') document.getElementById('r-' + id).focus();
-  });
-  section.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var f = e.target, id = f.dataset.id, txt = f.querySelector('input').value.trim();
-    if (!txt) { f.querySelector('input').focus(); return; }
-    state[id].reply = txt; replyOpen = null; render();
-    NEST.toast('Reply sent to ' + MENTOR);
+    NEST.toast(MENTOR + ' will see that you’ve acknowledged this');
   });
 
   document.querySelector('.profile').addEventListener('click', function (e) {

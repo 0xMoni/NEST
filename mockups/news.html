@@ -51,10 +51,12 @@
 /* events */
 .events { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
 .ev {
-  display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 14px;
-  background: var(--surface); border: 1px solid var(--border); transition: border-color .15s, transform .15s;
+  display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 14px; height: 100%;
+  background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit;
+  transition: border-color .15s, transform .15s, box-shadow .2s;
 }
 .ev:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+.ev.flash { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
 .ev-top { display: flex; gap: 14px; align-items: center; }
 .date { width: 52px; flex: none; text-align: center; padding: 6px 0; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border); }
 .date .d { font-family: var(--head); font-weight: 600; font-size: 20px; line-height: 1.1; }
@@ -66,16 +68,9 @@
 .ev .facts li { display: flex; gap: 8px; align-items: center; }
 .ev .facts svg { width: 14px; height: 14px; color: var(--faint); flex: none; }
 .ev .closing { color: var(--risk); font-weight: 700; }
-.ev-foot { display: flex; gap: 8px; align-items: center; margin-top: auto; padding-top: 6px; }
-.btn.primary { background: var(--btn-bg); color: var(--btn-text); border-color: var(--btn-bg); }
-.btn.primary:hover { opacity: .9; }
-.btn.sm { min-height: 38px; padding: 0 14px; font-size: 12px; }
-.btn.done { border-color: color-mix(in srgb, var(--ok) 45%, transparent); color: var(--ok); }
-.save { width: 40px; height: 40px; margin-left: auto; border-radius: 10px; border: 1px solid var(--border); background: none; display: grid; place-items: center; cursor: pointer; color: var(--faint); transition: all .15s; }
-.save:hover { color: var(--text); border-color: var(--border-strong); }
-.save svg { width: 17px; height: 17px; }
-.save[aria-pressed="true"] { color: var(--gold); border-color: var(--gold); }
-.save[aria-pressed="true"] svg { fill: currentColor; }
+.ev .go { margin-top: auto; padding-top: 6px; display: inline-flex; align-items: center; gap: 6px; font-family: var(--head); font-size: 12px; font-weight: 600; color: var(--gold); }
+.ev .go svg { width: 14px; height: 14px; }
+.ev:hover .go { text-decoration: underline; }
 .empty { padding: 28px; border-radius: 14px; border: 1px dashed var(--border-strong); text-align: center; color: var(--muted); font-size: 15px; }
 
 @media (max-width: 560px) {
@@ -146,70 +141,40 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="nest.js"></script>
+<script src="data.js"></script>
 <script>
 (function () {
   var esc = NEST.esc;
 
-  /* Data. Ids match the dashboard so read/saved state is shared.
-     Later these can come from the student's college inbox: each item keeps where it came from (`src`). */
-  var news = [
-    { id: 'n1', src: 'Exam cell', when: 'Today', t: 'Lab internals timetable released',
-      sum: 'Runs 12–16 Oct · check your lab batch',
-      body: ['Lab internal assessments for Semester 5 run from 12 to 16 October. Check the timetable for your batch and slot.', 'Bring your lab record, signed up to the latest experiment. Students without a record will not be allowed to take the test.'] },
-    { id: 'n2', src: 'Placement cell', when: 'Yesterday', t: 'Infosys campus drive on 12 Oct',
-      sum: 'Eligibility: CGPA 7.0+ · register by 5 Oct',
-      body: ['Infosys is hiring for Systems Engineer and Specialist Programmer roles. Eligible: CGPA 7.0 and above, no active backlogs.', 'Pre-placement talk on 12 Oct at 9:30 AM in the main auditorium, followed by the online test.'] },
-    { id: 'n3', src: 'AI & DS newsletter', when: '27 Sep', t: 'September issue: student projects and a faculty Q&A',
-      sum: '6 min read',
-      body: ['This month: three student projects from the Sem 7 capstone, a Q&A with Dr. Rahul Menon on getting started with research, and the results of the department coding contest.', 'Want your project featured next month? Send a short write-up to the newsletter team.'] },
-    { id: 'n4', src: 'Library', when: '24 Sep', t: 'IEEE Xplore access now on campus Wi-Fi',
-      sum: 'Sign in with your college email',
-      body: ['Full-text IEEE Xplore papers are now available on the campus network. Off campus, sign in with your college email through the library portal.'] },
-    { id: 'n5', src: 'Sports council', when: '20 Sep', t: 'Sports week registrations are open',
-      sum: 'Cricket, football, chess and more · closes 15 Oct',
-      body: ['Register as a team or individually for sports week, 26–31 October. Team captains register on behalf of their teams.'] }
-  ];
-
-  var events = [
-    { id: 'o1', k: 'hackathon', dd: '02', mm: 'OCT', t: 'Inter-college AI hackathon', desc: 'Build an AI tool for a campus problem in 36 hours. Mentors on site.', where: 'Main auditorium', time: '36 hours, from 9:00 AM', team: 'Teams of 4', close: 'Registrations close Fri' },
-    { id: 'o2', k: 'workshop', dd: '06', mm: 'OCT', t: 'MLOps with Docker & FastAPI', desc: 'Package and serve a model, then deploy it. Hands-on, bring a laptop.', where: 'Seminar Hall 2', time: '2:00–5:00 PM', team: 'Individual' },
-    { id: 'o3', k: 'talk', dd: '09', mm: 'OCT', t: 'LLMs in production: alumni talk', desc: 'An alumnus on what it takes to ship and run LLM features at scale.', where: 'Auditorium', time: '11:10 AM', team: 'Open to Sem 5+' },
-    { id: 'o4', k: 'workshop', dd: '14', mm: 'OCT', t: 'Power BI for data storytelling', desc: 'From raw data to a dashboard people actually read. Two sessions.', where: 'Lab 3', time: '2 sessions, 2:00 PM', team: 'Individual', close: '12 seats left' },
-    { id: 'o5', k: 'hackathon', dd: '18', mm: 'OCT', t: 'Campus Build-a-thon: internal round', desc: 'Internal round to pick teams for the national hackathon.', where: 'Block B', time: '9:00 AM–6:00 PM', team: 'Teams of 2–6' },
-    { id: 'o6', k: 'talk', dd: '21', mm: 'OCT', t: 'Women in tech: panel discussion', desc: 'Engineers and founders on careers, research and building teams.', where: 'Seminar Hall 1', time: '3:00 PM', team: 'Open to all' },
-    { id: 'o7', k: 'workshop', dd: '23', mm: 'OCT', t: 'Git and GitHub for team projects', desc: 'Branches, pull requests and reviews, the way real teams work.', where: 'Lab 1', time: '10:00 AM–1:00 PM', team: 'Individual' }
-  ];
+  var news = NEST_DATA.news, events = NEST_DATA.upcoming();
 
   var VIEWS = [
     { id: 'newsletter', label: 'Newsletter' },
     { id: 'hackathon', label: 'Hackathons' },
     { id: 'workshop', label: 'Workshops' },
-    { id: 'talk', label: 'Talks' },
-    { id: 'saved', label: 'Saved' }
+    { id: 'talk', label: 'Talks' }
   ];
 
   var readMap = NEST.store.get('newsRead', { n4: true });
-  var saved = NEST.store.get('saved', { o1: true });
-  var registered = NEST.store.get('registered', {});
-  var view = 'newsletter', openItem = null;
+  var view = 'newsletter', openItem = null, flashId = null;
 
-  // dashboard links: news.html#n2 opens that item, news.html#events opens hackathons
+  // links from the dashboard: news.html#n2 opens that newsletter, news.html#o3 jumps to that event
   var h = location.hash.slice(1);
+  var ev = events.filter(function (e) { return e.id === h; })[0];
   if (news.some(function (n) { return n.id === h; })) { openItem = h; readMap[h] = true; NEST.store.set('newsRead', readMap); }
-  else if (h === 'events') view = 'hackathon';
+  else if (ev) { view = ev.k; flashId = ev.id; }
   else if (VIEWS.some(function (v) { return v.id === h; })) view = h;
 
   var ICON = {
     pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
     clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
     team: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 4a3 3 0 0 1 0 6M21 20a6 6 0 0 0-4-5.6"/></svg>',
-    bookmark: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>',
+    out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
     chev: '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>'
   };
 
   function count(id) {
     if (id === 'newsletter') return news.filter(function (n) { return !readMap[n.id]; }).length;
-    if (id === 'saved') return events.filter(function (e) { return saved[e.id]; }).length;
     return events.filter(function (e) { return e.k === id; }).length;
   }
 
@@ -230,19 +195,19 @@
       return '<li class="' + (readMap[n.id] ? 'read' : '') + '">' +
         '<button class="item" type="button" data-n="' + n.id + '" aria-expanded="' + open + '" aria-controls="b-' + n.id + '">' +
           '<span class="dot" aria-hidden="true"></span>' +
-          '<span><span class="src">' + esc(n.src) + ' · ' + esc(n.when) + '</span>' +
+          '<span><span class="src">' + esc(n.by) + ' · ' + esc(n.when) + '</span>' +
           '<span class="ttl">' + esc(n.t) + (readMap[n.id] ? '' : '<span class="sr"> (unread)</span>') + '</span><span class="sum">' + esc(n.sum) + '</span></span>' +
           ICON.chev + '</button>' +
         '<div class="body" id="b-' + n.id + '"' + (open ? '' : ' hidden') + '>' +
           n.body.map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('') +
-          '<div class="from">From ' + esc(n.src) + '</div></div></li>';
+          '<div class="from">' + esc(n.by) + ' · ' + esc(n.subject) + '</div></div></li>';
     }).join('') + '</ul>';
   }
 
   function eventHTML(e) {
-    var reg = !!registered[e.id];
-    return '<li class="ev">' +
-      '<div class="ev-top"><div class="date"><div class="d">' + e.dd + '</div><div class="m">' + e.mm + '</div></div>' +
+    var dm = NEST_DATA.dayMonth(e.date);
+    return '<li><a class="ev' + (flashId === e.id ? ' flash' : '') + '" id="ev-' + e.id + '" href="' + esc(e.link) + '" target="_blank" rel="noopener">' +
+      '<div class="ev-top"><div class="date"><div class="d">' + dm.d + '</div><div class="m">' + dm.m + '</div></div>' +
         '<div><div class="kind">' + e.k + '</div><div class="ttl">' + esc(e.t) + '</div></div></div>' +
       '<div class="desc">' + esc(e.desc) + '</div>' +
       '<ul class="facts">' +
@@ -251,20 +216,24 @@
         '<li>' + ICON.team + esc(e.team) + '</li>' +
         (e.close ? '<li class="closing">' + esc(e.close) + '</li>' : '') +
       '</ul>' +
-      '<div class="ev-foot">' +
-        '<button class="btn sm ' + (reg ? 'done' : 'primary') + '" type="button" data-reg="' + e.id + '" aria-pressed="' + reg + '">' + (reg ? 'Registered ✓' : 'Register') + '</button>' +
-        '<button class="save" type="button" data-save="' + e.id + '" aria-pressed="' + !!saved[e.id] + '" aria-label="' + (saved[e.id] ? 'Unsave ' : 'Save ') + esc(e.t) + '">' + ICON.bookmark + '</button>' +
-      '</div></li>';
+      '<span class="go">Open event page' + ICON.out + '<span class="sr"> (opens in a new tab)</span></span>' +
+      '</a></li>';
   }
 
   function renderView() {
     var el = document.getElementById('view');
     el.setAttribute('aria-labelledby', 'chip-' + view);
     if (view === 'newsletter') { el.innerHTML = newsHTML(); return; }
-    var list = events.filter(function (e) { return view === 'saved' ? saved[e.id] : e.k === view; });
+    var list = events.filter(function (e) { return e.k === view; });
     el.innerHTML = list.length
       ? '<ul class="events">' + list.map(eventHTML).join('') + '</ul>'
-      : '<div class="empty">' + (view === 'saved' ? 'Nothing saved yet. Tap the bookmark on any event to keep it here.' : 'Nothing coming up here yet.') + '</div>';
+      : '<div class="empty">Nothing coming up here yet.</div>';
+    if (flashId) {
+      var f = document.getElementById('ev-' + flashId);
+      if (f) { f.scrollIntoView({ block: 'center' }); f.focus({ preventScroll: true }); }
+      setTimeout(function (id) { var x = document.getElementById('ev-' + id); if (x) x.classList.remove('flash'); }.bind(null, flashId), 2200);
+      flashId = null;
+    }
   }
 
   function render() { renderChips(); renderView(); }
@@ -294,19 +263,6 @@
       if (!readMap[id]) { readMap[id] = true; NEST.store.set('newsRead', readMap); }
       render(); document.querySelector('.item[data-n="' + id + '"]').focus();
       return;
-    }
-    var sv = e.target.closest('[data-save]');
-    if (sv) {
-      var sid = sv.dataset.save; saved[sid] = !saved[sid]; NEST.store.set('saved', saved);
-      render(); var again = document.querySelector('[data-save="' + sid + '"]'); if (again) again.focus();
-      NEST.toast(saved[sid] ? 'Saved' : 'Removed from saved');
-      return;
-    }
-    var rg = e.target.closest('[data-reg]');
-    if (rg) {
-      var rid = rg.dataset.reg; registered[rid] = !registered[rid]; NEST.store.set('registered', registered);
-      render(); document.querySelector('[data-reg="' + rid + '"]').focus();
-      NEST.toast(registered[rid] ? 'Registered. Details will reach your college email.' : 'Registration cancelled');
     }
   });
 
