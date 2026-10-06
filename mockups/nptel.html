@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEST NPTEL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Carlito:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="nest.css">
+<style>
+/* SPOC sync strip */
+.sync {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 14px 18px; margin-bottom: 24px; border-radius: 14px;
+  background: var(--surface); border: 1px solid var(--border); font-size: 14.5px;
+}
+.sync .ic { width: 36px; height: 36px; flex: none; border-radius: 10px; display: grid; place-items: center; background: var(--gold-soft); color: var(--gold); }
+.sync .ic svg { width: 17px; height: 17px; }
+.sync .txt { flex: 1; min-width: 220px; }
+.sync .txt small { display: block; color: var(--muted); font-size: 13px; }
+.sync .when { font-family: var(--head); font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--muted); }
+
+/* course cards */
+.course-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px 20px; flex-wrap: wrap; margin-bottom: 20px; }
+.course-head h2 { margin: 0; font-family: var(--head); font-weight: 600; font-size: 18px; }
+.course-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+.metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 22px; }
+.metric { padding: 14px 16px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); }
+.metric .v { font-family: var(--head); font-weight: 600; font-size: 22px; line-height: 1.1; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.metric .v small { font-size: 13px; font-weight: 500; color: var(--muted); }
+.metric .s { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.metric .meter { margin-top: 10px; }
+
+/* week strip */
+.weeks-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.key { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+.key span { display: inline-flex; align-items: center; gap: 6px; }
+.key i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; border: 1px solid var(--border-strong); }
+.key i.k-miss { background: var(--risk-soft); border-color: var(--risk); }
+.key i.k-open { border-color: var(--gold); background: var(--gold-soft); }
+.key i.k-up { border-style: dashed; }
+.weeks { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px; }
+.wk {
+  position: relative; padding: 10px 8px 9px; border-radius: 10px; text-align: center;
+  background: var(--surface-2); border: 1px solid var(--border); cursor: default;
+  transition: border-color .15s, transform .15s;
+}
+.wk:hover, .wk:focus-visible { border-color: var(--border-strong); transform: translateY(-2px); z-index: 4; }
+.wk .n { font-family: var(--head); font-size: 10px; font-weight: 600; letter-spacing: .1em; color: var(--muted); }
+.wk .sc { font-family: var(--head); font-weight: 600; font-size: 17px; margin: 6px 0 8px; font-variant-numeric: tabular-nums; }
+.wk .vbar { height: 3px; border-radius: 3px; background: var(--surface-3); overflow: hidden; }
+.wk .vbar i { display: block; height: 100%; background: var(--gold); }
+.wk.miss { background: var(--risk-soft); border-color: color-mix(in srgb, var(--risk) 55%, transparent); }
+.wk.miss .sc { color: var(--risk); }
+.wk.open { border-color: var(--gold); background: var(--gold-soft); }
+.wk.open .sc { font-size: 12px; color: var(--gold); margin: 9px 0 11px; }
+.wk.up { background: transparent; border-style: dashed; }
+.wk.up .sc { font-size: 12px; color: var(--faint); margin: 9px 0 11px; }
+.wk .tip {
+  position: absolute; left: 50%; bottom: calc(100% + 8px); width: 210px; transform: translate(-50%, 4px);
+  padding: 12px 14px; border-radius: 12px; text-align: left;
+  background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow);
+  font-size: 13.5px; color: var(--muted); line-height: 1.4;
+  opacity: 0; visibility: hidden; transition: opacity .15s, transform .15s, visibility .15s; pointer-events: none;
+}
+.wk .tip b { display: block; color: var(--text); font-weight: 700; margin-bottom: 4px; }
+.wk:hover .tip, .wk:focus-visible .tip { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+.weeks .wk:nth-child(-n+2) .tip { left: 0; transform: translate(0, 4px); }
+.weeks .wk:nth-child(-n+2):hover .tip, .weeks .wk:nth-child(-n+2):focus-visible .tip { transform: none; }
+.weeks .wk:nth-last-child(-n+2) .tip { left: auto; right: 0; transform: translate(0, 4px); }
+.weeks .wk:nth-last-child(-n+2):hover .tip, .weeks .wk:nth-last-child(-n+2):focus-visible .tip { transform: none; }
+
+/* exam needed */
+.needs { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px 18px; flex-wrap: wrap; }
+.needs .lbl { font-size: 14px; color: var(--muted); margin-right: 4px; }
+.tier { display: inline-flex; align-items: baseline; gap: 8px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 13.5px; }
+.tier b { font-family: var(--head); font-weight: 600; font-size: 14px; }
+.tier.off { color: var(--faint); border-style: dashed; }
+.needs .elig { margin-left: auto; font-size: 13.5px; }
+.elig.ok { color: var(--ok); }
+.elig.risk { color: var(--risk); }
+
+@media (max-width: 1180px) {
+  .weeks { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .weeks .wk:nth-child(-n+2) .tip, .weeks .wk:nth-last-child(-n+2) .tip { left: 50%; right: auto; transform: translate(-50%, 4px); }
+  .weeks .wk:nth-child(6n+1) .tip { left: 0; transform: translate(0, 4px); }
+  .weeks .wk:nth-child(6n) .tip { left: auto; right: 0; transform: translate(0, 4px); }
+  .weeks .wk:hover .tip, .weeks .wk:focus-visible .tip { transform: translate(-50%, 0); }
+  .weeks .wk:nth-child(6n+1):hover .tip, .weeks .wk:nth-child(6n):hover .tip,
+  .weeks .wk:nth-child(6n+1):focus-visible .tip, .weeks .wk:nth-child(6n):focus-visible .tip { transform: none; }
+  .needs .elig { margin-left: 0; width: 100%; }
+}
+@media (max-width: 640px) {
+  .metrics { grid-template-columns: 1fr; }
+  .weeks { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .wk .tip { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <svg class="side-swirl" id="swirl" aria-hidden="true"></svg>
+    <a class="brand" href="dashboard.html">
+      <div class="brand-word">NEST</div>
+      <div class="brand-sub">NURTURING EDUCATION &amp; STUDENT TRACKING</div>
+      <div class="brand-role">STUDENT</div>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Dashboard</a>
+      <a href="attendance.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg>
+        Attendance</a>
+      <a href="scorecard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        Scorecard</a>
+      <a href="nptel.html" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M10 8.5v5l4-2.5z"/><path d="M8 21h8"/></svg>
+        NPTEL</a>
+      <a href="roadmap.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h7"/></svg>
+        Roadmap &amp; practice</a>
+    </nav>
+    <div class="side-foot">
+      <a class="me" href="dashboard.html#profile">
+        <span class="ini" aria-hidden="true">AS</span>
+        <span><span class="who">Aarav Sharma</span><span class="meta">23AD014 · Sem 5 · A</span></span>
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="head">
+      <div>
+        <h1>NPTEL</h1>
+      </div>
+      <div class="head-actions">
+        <button class="btn" type="button" id="exportBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+          Export PDF</button>
+        <button class="icon-btn" type="button" id="themeBtn" aria-label="Switch to light theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="sync" id="sync"></div>
+    <section class="stats" aria-label="Summary" id="stats"></section>
+    <div id="courses"></div>
+
+    <p class="foot-note">Final NPTEL score = 25% of your assignment average (best weeks only) + 75% of the proctored exam. To pass you need at least 10/25 in assignments and 30/75 in the exam.</p>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="nest.js"></script>
+<script>
+(function () {
+  var esc = NEST.esc;
+
+  // What the admin's SPOC sheet upload gives us. The backend will fill this in; shape only for now.
+  var sheet = { uploadedOn: 'Sun 4 Oct', uploadedBy: 'the admin office', spoc: 'Prof. Divya K', upToWeek: 10 };
+
+  // score: number = submitted (out of 100), null = deadline passed without submission,
+  // 'open' = this week's assignment, 'up' = not released yet
+  var courses = [
+    { id: 'cc', title: 'Cloud Computing', inst: 'IIT Kharagpur', run: 'Jul–Oct 2026', weeksTotal: 12, bestOf: 8,
+      exam: { registered: true, date: 'Sun 25 Oct', slot: 'Forenoon', centre: 'Bengaluru' },
+      weeks: [
+        { t: 'Introduction to cloud computing', due: '30 Jul', v: [5, 5], s: 80 },
+        { t: 'Cloud computing architecture',    due: '6 Aug',  v: [6, 6], s: 90 },
+        { t: 'Service models: IaaS, PaaS, SaaS', due: '13 Aug', v: [5, 5], s: 70 },
+        { t: 'Virtualization',                  due: '20 Aug', v: [6, 6], s: 100 },
+        { t: 'SLAs and cloud economics',        due: '27 Aug', v: [5, 2], s: null },
+        { t: 'Resource management',             due: '3 Sep',  v: [6, 6], s: 85 },
+        { t: 'Cloud security I',                due: '10 Sep', v: [5, 5], s: 60 },
+        { t: 'Cloud security II',               due: '17 Sep', v: [5, 5], s: 90 },
+        { t: 'Fog and edge computing',          due: '24 Sep', v: [6, 6], s: 75 },
+        { t: 'Containers and Kubernetes',       due: '1 Oct',  v: [5, 4], s: 80 },
+        { t: 'Serverless computing',            due: '8 Oct',  v: [5, 1], s: 'open' },
+        { t: 'Case studies',                    due: '15 Oct', v: [4, 0], s: 'up' }
+      ] },
+    { id: 'dse', title: 'Data Science for Engineers', inst: 'IIT Madras', run: 'Aug–Oct 2026', weeksTotal: 8, bestOf: 6,
+      exam: { registered: false, closes: '10 Oct' },
+      weeks: [
+        { t: 'Course intro and R basics', due: '26 Aug', v: [7, 7], s: 100 },
+        { t: 'Linear algebra',            due: '2 Sep',  v: [8, 8], s: 80 },
+        { t: 'Statistics',                due: '9 Sep',  v: [6, 2], s: null },
+        { t: 'Optimization',              due: '16 Sep', v: [7, 7], s: 70 },
+        { t: 'Regression',                due: '23 Sep', v: [6, 6], s: 90 },
+        { t: 'Classification',            due: '30 Sep', v: [7, 5], s: 60 },
+        { t: 'Clustering',                due: '7 Oct',  v: [6, 3], s: 'open' },
+        { t: 'Capstone case study',       due: '14 Oct', v: [5, 0], s: 'up' }
+      ] }
+  ];
+
+  var TIERS = [['Pass', 40], ['Elite', 60], ['Elite + Silver', 75], ['Elite + Gold', 90]];
+
+  function closed(c) { return c.weeks.filter(function (w) { return typeof w.s === 'number' || w.s === null; }); }
+  function released(c) { return c.weeks.filter(function (w) { return w.s !== 'up'; }); }
+
+  // Assignment score out of 25 counting only closed weeks (missed = 0). Future weeks can only raise it.
+  function assignScore(c) {
+    var scores = closed(c).map(function (w) { return w.s || 0; }).sort(function (a, b) { return b - a; }).slice(0, c.bestOf);
+    var sum = scores.reduce(function (a, b) { return a + b; }, 0);
+    return Math.round(sum / (c.bestOf * 100) * 25 * 10) / 10;
+  }
+  // Exam mark (out of 100) needed for a final score of `target`; the exam alone must also be ≥ 40/100 (30/75).
+  function examNeeded(a, target) { return Math.max(40, Math.ceil((target - a) / 0.75)); }
+  function videos(c) {
+    return released(c).reduce(function (acc, w) { acc[0] += w.v[1]; acc[1] += w.v[0]; return acc; }, [0, 0]);
+  }
+
+  /* ---- SPOC strip ---- */
+  document.getElementById('sync').innerHTML =
+    '<span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span>' +
+    '<div class="txt">From the SPOC sheet uploaded by ' + esc(sheet.uploadedBy) + '<small>Covers up to week ' + sheet.upToWeek + '. Something looks off? Your NPTEL SPOC is ' + esc(sheet.spoc) + '.</small></div>' +
+    '<span class="when">UPDATED ' + esc(sheet.uploadedOn).toUpperCase() + '</span>';
+
+  /* ---- Summary ---- */
+  var sub = 0, due = 0, vw = 0, vt = 0, nextDue = null;
+  courses.forEach(function (c) {
+    var cl = closed(c); due += cl.length; sub += cl.filter(function (w) { return w.s !== null; }).length;
+    var v = videos(c); vw += v[0]; vt += v[1];
+    c.weeks.forEach(function (w, i) { if (w.s === 'open' && (!nextDue || parseInt(w.due) < parseInt(nextDue.w.due))) nextDue = { c: c, w: w, i: i }; });
+  });
+  var unregistered = courses.filter(function (c) { return !c.exam.registered; });
+  document.getElementById('stats').innerHTML =
+    '<div class="stat"><div class="eyebrow">Courses</div><div class="stat-value">' + courses.length + ' <small>enrolled</small></div>' +
+      '<div class="stat-note">' + courses.map(function (c) { return esc(c.title); }).join(' · ') + '</div></div>' +
+    '<div class="stat"><div class="eyebrow">Assignments</div><div class="stat-value">' + sub + ' <small>/ ' + due + '</small></div>' +
+      '<div class="stat-note">' + (due - sub) + ' missed so far</div></div>' +
+    '<div class="stat"><div class="eyebrow">Videos watched</div><div class="stat-value">' + Math.round(vw / vt * 100) + '<small>%</small></div>' +
+      '<div class="meter"><i style="width:' + (vw / vt * 100) + '%"></i></div></div>' +
+    (unregistered.length
+      ? '<div class="stat is-risk"><div class="eyebrow">Exam registration</div><div class="stat-value">' + unregistered.length + ' <small>pending</small></div>' +
+        '<div class="stat-note">' + unregistered.map(function (c) { return esc(c.title) + ' · closes ' + c.exam.closes; }).join('<br>') + '</div></div>'
+      : '<div class="stat"><div class="eyebrow">Next due</div><div class="stat-value">' + nextDue.w.due + '</div>' +
+        '<div class="stat-note">' + esc(nextDue.c.title) + ' · week ' + (nextDue.i + 1) + '</div></div>');
+
+  /* ---- Course cards ---- */
+  function weekTile(w, i) {
+    var cls = 'wk', score, state;
+    if (w.s === null) { cls += ' miss'; score = '—'; state = 'Not submitted'; }
+    else if (w.s === 'open') { cls += ' open'; score = 'Open'; state = 'Open · due ' + w.due; }
+    else if (w.s === 'up') { cls += ' up'; score = 'Soon'; state = 'Opens next week'; }
+    else { score = w.s; state = 'Scored ' + w.s + ' / 100'; }
+    var vpct = w.v[0] ? w.v[1] / w.v[0] * 100 : 0;
+    var label = 'Week ' + (i + 1) + ', ' + w.t + '. ' + state + '. Videos ' + w.v[1] + ' of ' + w.v[0] + '. Due ' + w.due + '.';
+    return '<div class="' + cls + '" tabindex="0" aria-label="' + esc(label) + '">' +
+      '<div class="n">W' + (i + 1) + '</div><div class="sc">' + score + '</div>' +
+      '<div class="vbar"><i style="width:' + vpct + '%"></i></div>' +
+      '<div class="tip" aria-hidden="true"><b>' + esc(w.t) + '</b>' + state + '<br>Videos ' + w.v[1] + ' / ' + w.v[0] + '<br>Due ' + w.due + '</div>' +
+      '</div>';
+  }
+
+  document.getElementById('courses').innerHTML = courses.map(function (c) {
+    var a = assignScore(c), cl = closed(c), done = cl.filter(function (w) { return w.s !== null; }).length, v = videos(c);
+    var examPill = c.exam.registered
+      ? '<span class="pill ok">Exam registered · ' + c.exam.date + ', ' + c.exam.slot + '</span>'
+      : '<span class="pill risk">Exam not registered · closes ' + c.exam.closes + '</span>';
+    var tiers = TIERS.map(function (t) {
+      var need = examNeeded(a, t[1]);
+      return need > 100 ? '<span class="tier off">' + t[0] + ' <b>out of reach</b></span>' : '<span class="tier">' + t[0] + ' <b>' + need + '</b></span>';
+    }).join('');
+    var elig = a >= 10 ? '<span class="elig ok">Assignments clear the 10/25 minimum</span>' : '<span class="elig risk">Below the 10/25 assignment minimum</span>';
+    return '<section class="card" aria-labelledby="h-' + c.id + '">' +
+      '<div class="course-head"><div><h2 id="h-' + c.id + '">' + esc(c.title) + '</h2>' +
+        '<div class="course-meta">' + c.inst + ' · ' + c.weeksTotal + ' weeks · ' + c.run + '</div></div>' + examPill + '</div>' +
+      '<div class="metrics">' +
+        '<div class="metric"><div class="eyebrow">Assignment score</div><div class="v">' + a.toFixed(1) + ' <small>/ 25</small></div>' +
+          '<div class="s">Best ' + c.bestOf + ' of ' + c.weeksTotal + ' weeks, so far</div></div>' +
+        '<div class="metric"><div class="eyebrow">Submitted</div><div class="v">' + done + ' <small>/ ' + cl.length + '</small></div>' +
+          '<div class="s">' + (cl.length - done ? (cl.length - done) + ' missed' : 'None missed') + '</div></div>' +
+        '<div class="metric"><div class="eyebrow">Videos watched</div><div class="v">' + v[0] + ' <small>/ ' + v[1] + '</small></div>' +
+          '<div class="meter"><i style="width:' + (v[0] / v[1] * 100) + '%"></i></div></div>' +
+      '</div>' +
+      '<div class="weeks-head"><span class="eyebrow">Week by week</span>' +
+        '<span class="key"><span><i class="k-miss"></i>Missed</span><span><i class="k-open"></i>Open now</span><span><i class="k-up"></i>Not out yet</span><span>Bar = videos watched</span></span></div>' +
+      '<div class="weeks">' + c.weeks.map(weekTile).join('') + '</div>' +
+      '<div class="needs"><span class="lbl">Exam marks needed (out of 100)</span>' + tiers + elig + '</div>' +
+      '</section>';
+  }).join('');
+
+  /* ---- PDF ---- */
+  document.getElementById('exportBtn').addEventListener('click', function () {
+    NEST.exportPDF({
+      filename: 'NEST-nptel.pdf',
+      title: 'NPTEL',
+      subtitle: 'Aarav Sharma - 23AD014 - B.Tech AI & DS - Semester 5, Section A',
+      stats: [
+        { label: 'Courses', value: String(courses.length), note: 'Updated ' + sheet.uploadedOn },
+        { label: 'Assignments', value: sub + ' / ' + due, note: (due - sub) + ' missed so far' },
+        { label: 'Videos watched', value: Math.round(vw / vt * 100) + '%' },
+        unregistered.length
+          ? { label: 'Exam registration', value: unregistered.map(function (c) { return c.title; }).join(', '), small: true, tone: 'risk', note: 'Not registered yet' }
+          : { label: 'Exams', value: 'All registered', small: true, tone: 'ok' }
+      ],
+      sections: courses.map(function (c) {
+        var tones = [];
+        var body = c.weeks.map(function (w, i) {
+          tones.push(w.s === null ? 'risk' : w.s === 'up' ? 'muted' : null);
+          var st = w.s === null ? 'Not submitted' : w.s === 'open' ? 'Open' : w.s === 'up' ? 'Not out yet' : w.s + ' / 100';
+          return ['W' + (i + 1), w.t, w.v[1] + ' / ' + w.v[0], st, w.due];
+        });
+        var a = assignScore(c);
+        return { heading: c.title + ' (' + c.inst + ')',
+          note: 'Assignments ' + a.toFixed(1) + ' / 25 - ' + (c.exam.registered ? 'exam ' + c.exam.date : 'exam not registered'),
+          head: ['Week', 'Topic', 'Videos', 'Assignment', 'Due'], body: body, tones: tones, toneCols: [3],
+          widths: { 0: 44, 2: 60, 3: 90, 4: 60 } };
+      })
+    });
+  });
+})();
+</script>
+</body>
+</html>
