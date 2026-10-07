@@ -2,7 +2,7 @@ import { requireUser } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { Shell } from "@/components/Shell";
 import { ui, Badge } from "@/components/ui";
-import { ChangePassword } from "./ChangePassword";
+import { ChangePassword } from "@/components/ChangePassword";
 import styles from "./profile.module.css";
 
 const ROLE_LABEL = { student: "Student", faculty: "Faculty", admin: "HOD / DOE" } as const;

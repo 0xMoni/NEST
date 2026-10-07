@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { changePassword } from "./actions";
-import styles from "./profile.module.css";
+import { changePassword } from "@/lib/account";
+import styles from "./change-password.module.css";
 
 export function ChangePassword({ usingDefault }: { usingDefault: boolean }) {
   const [open, setOpen] = useState(usingDefault);

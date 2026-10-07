@@ -103,3 +103,5 @@
   justify-self: start;
 }
 .ghost:hover { color: var(--ink); border-color: var(--line-hover); }
+
+.pwNote { font-size: 0.875rem; color: var(--ink-2); max-width: 56ch; line-height: 1.55; margin: 0 0 16px; }
