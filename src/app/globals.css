@@ -1,5 +1,3 @@
-@import "tailwindcss";
-
 /* ============================================================
    NEST design tokens.
 
@@ -139,17 +137,46 @@
   --logo-filter: invert(1) brightness(1.22) hue-rotate(180deg);
 }
 
-@theme inline {
-  --color-paper: var(--paper);
-  --color-ink: var(--ink);
-  --color-line: var(--line);
-  --font-sans: var(--font-dm-sans);
-  --font-display: var(--font-newsreader);
+/* ============================================================
+   Reset.
+
+   Tailwind was installed for exactly three utility classes
+   (h-full, min-h-full, antialiased) that the rules below already
+   cover, so it has been removed. What it was quietly also doing
+   was its preflight reset — and the stylesheets here were written
+   on top of that. These are the parts they depend on: border-box
+   above all, since every control in the app sets width: 100%
+   alongside its own padding.
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 html,
 body {
   height: 100%;
+}
+
+body {
+  min-height: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-size: inherit;
+  font-weight: inherit;
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
 }
 
 body {

@@ -9,6 +9,7 @@ const NAV: Record<Me["role"], { href: string; label: string }[]> = {
     { href: "/student/attendance", label: "Attendance" },
     { href: "/student/scorecard", label: "Scorecard" },
     { href: "/student/timetable", label: "Timetable" },
+    { href: "/student/mentor", label: "Mentor" },
     { href: "/student/profile", label: "Profile" },
   ],
   faculty: [

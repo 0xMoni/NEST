@@ -1,6 +1,9 @@
 import { requireRole } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { Shell } from "@/components/Shell";
+import { ChangePassword } from "@/components/ChangePassword";
+import { ui } from "@/components/ui";
+import styles from "./profile.module.css";
 import { SECTIONS, ALL_FIELDS } from "@/lib/profile-sections";
 import { SectionCard, type Req } from "./SectionCard";
 
@@ -36,6 +39,7 @@ export default async function StudentProfile() {
       me={me}
       title="Profile"
       sub="Most of this is locked. Your mentor can open a section when something needs changing."
+      wide
     >
       {SECTIONS.map((s) => (
         <SectionCard
@@ -53,6 +57,13 @@ export default async function StudentProfile() {
           mentorName={mentor}
         />
       ))}
+
+      <h2 className={ui.h2}>Password</h2>
+      <p className={styles.pwNote}>
+        This one is yours alone — you do not need your mentor to open it. Every account starts on the
+        same password, so changing it is what makes it a password at all.
+      </p>
+      <ChangePassword usingDefault={false} />
     </Shell>
   );
 }

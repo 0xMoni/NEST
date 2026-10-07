@@ -34,13 +34,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${dmSans.variable} ${newsreader.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${newsreader.variable}`}
       suppressHydrationWarning
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-full">{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

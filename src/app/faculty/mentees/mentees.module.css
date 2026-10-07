@@ -49,3 +49,107 @@
   border-radius: 9px; padding: 9px 16px; cursor: pointer;
 }
 .approve:disabled, .deny:disabled { opacity: 0.6; cursor: default; }
+
+/* ---------- alerts ---------- */
+
+.alertsWrap {
+  border: 1px solid var(--line);
+  background: var(--field);
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin: 30px 0 0;
+  max-width: 900px;
+}
+.lede { font-size: 0.875rem; color: var(--ink-2); margin: -6px 0 18px; }
+
+/* Explicit tracks, not auto-fit: a long student name must not be allowed to
+   push the kind field into the next column and leave a hole. */
+.compose {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 14px 16px;
+  align-items: end;
+}
+.wide { grid-column: 1 / -1; }
+
+.f { display: grid; gap: 7px; min-width: 0; }
+.f > span { font-size: 0.8125rem; font-weight: 500; color: var(--ink-2); }
+.f > span i { font-style: normal; font-weight: 400; color: var(--ink-3); }
+.f input, .f select, .f textarea {
+  width: 100%;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--ink);
+  background: var(--field-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 13px;
+  outline: none;
+  resize: vertical;
+}
+/* room for the native arrow, so the caret never sits on the text */
+.f select { appearance: none; padding-right: 36px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink-3) 50%),
+                    linear-gradient(135deg, var(--ink-3) 50%, transparent 50%);
+  background-position: calc(100% - 19px) calc(50% + 1px), calc(100% - 13px) calc(50% + 1px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+.f input:focus-visible, .f select:focus-visible, .f textarea:focus-visible {
+  border-color: var(--ink); box-shadow: 0 0 0 3px var(--ring);
+}
+
+.check {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-size: 0.875rem; color: var(--ink-2); cursor: pointer; user-select: none;
+}
+.check { padding-bottom: 12px; }
+.check input { width: 15px; height: 15px; accent-color: var(--ink); cursor: pointer; }
+.send { grid-column: 1 / -1; justify-self: end; margin-top: 4px; }
+.error { grid-column: 1 / -1; margin: 0; font-size: 0.875rem; color: var(--danger); }
+
+.sent { list-style: none; margin: 22px 0 0; padding: 18px 0 0; border-top: 1px solid var(--line); }
+.sentRow {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.sentRow:first-child { border-top: 0; }
+.sentTo {
+  font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--ink-3); display: block; margin-bottom: 3px;
+}
+.sentTitle { font-size: 0.9375rem; }
+.seen { font-size: 0.8125rem; color: var(--ok); }
+.unseen { font-size: 0.8125rem; color: var(--ink-3); }
+
+.rowAlert {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 5px 11px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.rowAlert:hover { color: var(--ink); border-color: var(--line-hover); }
+
+/* ---------- contact ---------- */
+
+.contact {
+  border: 1px solid var(--line);
+  background: var(--field);
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin: 30px 0 0;
+  max-width: 900px;
+}
+.contactForm {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 16px;
+  align-items: end;
+}
+.contactForm .send { grid-column: 1 / -1; justify-self: end; }
+.note { grid-column: 1 / -1; margin: 0; font-size: 0.8125rem; color: var(--ink-2); }

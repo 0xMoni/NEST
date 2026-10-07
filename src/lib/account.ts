@@ -5,7 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 /** Change your own password.
  *
  *  Goes through the caller's session, so it can only ever change the password
- *  of whoever is signed in — there is no user id to get wrong. */
+ *  of whoever is signed in — there is no user id to get wrong. Every role gets
+ *  the same action; a student does not need anyone's permission for this. */
 export async function changePassword(formData: FormData) {
   const next = String(formData.get("password") ?? "");
   const confirm = String(formData.get("confirm") ?? "");
