@@ -120,3 +120,66 @@ export async function decideEditRequest(id: string, approve: boolean, hours = 48
   revalidatePath("/faculty/mentees");
   return { ok: true };
 }
+
+/** Send a mentee an alert. The mentor policy decides whether this lands, so
+ *  there is no mentee check here — a stranger's id simply fails. */
+export async function createAlert(formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
+
+  const title = String(formData.get("title") ?? "").trim();
+  if (!title) return { error: "Give the alert a title — it is what the student sees first." };
+
+  const { error } = await supabase.from("mentor_alerts").insert({
+    mentor_id: user.id,
+    student_id: String(formData.get("student_id")),
+    kind: String(formData.get("kind") ?? "task"),
+    urgent: formData.get("urgent") === "on",
+    title,
+    message: String(formData.get("message") ?? "").trim() || null,
+    due_text: String(formData.get("due_text") ?? "").trim() || null,
+  });
+
+  if (error) {
+    return {
+      error: error.code === "42501"
+        ? "You can only send alerts to your own mentees."
+        : error.message,
+    };
+  }
+  revalidatePath("/faculty/mentees");
+  revalidatePath("/student/mentor");
+  return { ok: true };
+}
+
+export async function deleteAlert(id: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("mentor_alerts").delete().eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/faculty/mentees");
+  return { ok: true };
+}
+
+// Cabin and office hours are free text on purpose: a cabin is "214, Block B"
+// at one college and "Staff Room 3" at the next, and nobody writes their
+// hours the same way twice.
+export async function saveContact(formData: FormData) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
+
+  const text = (k: string) => String(formData.get(k) ?? "").trim() || null;
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ cabin: text("cabin"), office_hours: text("office_hours"), phone: text("phone") })
+    .eq("id", user.id);
+
+  if (error) return { error: error.message };
+  revalidatePath("/faculty/mentees");
+  revalidatePath("/student/mentor");
+  return { ok: true };
+}

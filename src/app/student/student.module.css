@@ -153,3 +153,38 @@
   padding: 20px;
   font-size: 0.9375rem;
 }
+
+/* ---------- mentor alerts on the dashboard ---------- */
+
+.more {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 13px;
+  white-space: nowrap;
+}
+.more:hover { color: var(--ink); border-color: var(--line-hover); }
+
+.noteUrgent, .noteUrgent b { color: var(--danger); }
+
+.alertList { list-style: none; margin: 0; padding: 0; }
+.alertRow {
+  display: flex;
+  align-items: baseline;
+  gap: 11px;
+  flex-wrap: wrap;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.alertRow:first-child { border-top: 0; padding-top: 4px; }
+/* a 6px dot, not a tinted card: three rows of colour would shout louder
+   than the attendance numbers above them */
+.dot, .dotUrgent {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ink-3); flex: none; transform: translateY(-2px);
+}
+.dotUrgent { background: var(--danger); }
+.alertTitle { font-size: 0.9375rem; }
+.alertMeta { margin-left: auto; font-size: 0.8125rem; color: var(--ink-3); }

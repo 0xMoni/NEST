@@ -28,7 +28,7 @@ export default async function StudentHome() {
   const dow = now.getDay();
   const nowPeriod = Math.min(6, Math.max(1, now.getHours() - 8)); // rough: P1 starts around 09:00
 
-  const [{ data: attendance }, { data: slots }, { data: mentorRow }] = await Promise.all([
+  const [{ data: attendance }, { data: slots }, { data: mentorRow }, { data: alertRows }] = await Promise.all([
     supabase
       .from("v_student_attendance")
       .select("subject_code, subject_name, held, attended, percentage, short")
@@ -43,6 +43,12 @@ export default async function StudentHome() {
       .select("profiles!mentorships_mentor_id_fkey(full_name)")
       .eq("student_id", me.id)
       .maybeSingle(),
+    supabase
+      .from("mentor_alerts")
+      .select("id, kind, urgent, title, due_text")
+      .is("acknowledged_at", null)
+      .order("urgent", { ascending: false })
+      .order("created_at", { ascending: false }),
   ]);
 
   const rows = attendance ?? [];
@@ -52,6 +58,7 @@ export default async function StudentHome() {
   const short = rows.filter((r) => r.short);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mentor = (mentorRow as any)?.profiles?.full_name ?? null;
+  const alerts = alertRows ?? [];
 
   const periods = [1, 2, 3, 4, 5, 6];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -107,7 +114,7 @@ export default async function StudentHome() {
           <div className={styles.note}>published assessments only</div>
         </Link>
 
-        <Link href="/student/timetable" className={styles.stat}>
+        <Link href="/student/mentor" className={styles.stat}>
           <div className={styles.statTop}>
             <span className={styles.eyebrow}>Mentor</span>
             <Chevron />
@@ -115,7 +122,11 @@ export default async function StudentHome() {
           <div className={styles.value} style={{ fontSize: "1.25rem", marginTop: 18 }}>
             {mentor ?? "Not assigned"}
           </div>
-          <div className={styles.note}>{mentor ? "your mentor this semester" : "the HOD assigns this"}</div>
+          <div className={`${styles.note} ${alerts.some((a) => a.urgent) ? styles.noteUrgent : ""}`}>
+            {alerts.length
+              ? <b>{alerts.length} thing{alerts.length === 1 ? "" : "s"} waiting on you</b>
+              : mentor ? "nothing outstanding" : "the HOD assigns this"}
+          </div>
         </Link>
       </section>
 
@@ -160,6 +171,30 @@ export default async function StudentHome() {
           </div>
         )}
       </section>
+
+      {alerts.length > 0 && (
+        <section className={styles.card}>
+          <div className={styles.cardHead}>
+            <div>
+              <h2 className={styles.cardTitle}>From your mentor</h2>
+              <p className={styles.cardSub}>Open until you acknowledge it.</p>
+            </div>
+            <Link href="/student/mentor" className={styles.more}>Open</Link>
+          </div>
+
+          <ul className={styles.alertList}>
+            {alerts.slice(0, 3).map((a) => (
+              <li key={a.id} className={styles.alertRow}>
+                <span className={a.urgent ? styles.dotUrgent : styles.dot} aria-hidden="true" />
+                <span className={styles.alertTitle}>{a.title}</span>
+                <span className={styles.alertMeta}>
+                  {a.kind === "meet" ? "Meeting" : "To do"}{a.due_text ? ` · ${a.due_text}` : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </Shell>
   );
 }

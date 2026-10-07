@@ -3,10 +3,21 @@ import { createClient } from "@/lib/supabase/server";
 import { Shell } from "@/components/Shell";
 import { ui, Empty, Badge, Bar } from "@/components/ui";
 import { Requests, type PendingReq } from "./Requests";
+import { Alerts, type SentAlert } from "./Alerts";
+import { Contact } from "./Contact";
+import Link from "next/link";
+import styles from "./mentees.module.css";
 
-export default async function Mentees() {
+export default async function Mentees({ searchParams }: PageProps<"/faculty/mentees">) {
+  const to = (await searchParams).to;
   const me = await requireRole("faculty");
   const supabase = await createClient();
+
+  const { data: mine } = await supabase
+    .from("profiles")
+    .select("cabin, office_hours, phone")
+    .eq("id", me.id)
+    .maybeSingle();
 
   const { data: links } = await supabase
     .from("mentorships")
@@ -39,6 +50,15 @@ export default async function Mentees() {
     usn: (r as any).profiles?.usn ?? null,
   }));
 
+  // Alerts this mentor has sent. RLS already scopes it to their own mentees.
+  const { data: sentRows } = await supabase
+    .from("mentor_alerts")
+    .select("id, student_id, kind, urgent, title, due_text, created_at, acknowledged_at")
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  const sent = (sentRows ?? []) as SentAlert[];
+
   const summary = new Map<string, { held: number; attended: number; short: number }>();
   for (const r of att ?? []) {
     const s = summary.get(r.student_id) ?? { held: 0, attended: 0, short: 0 };
@@ -58,7 +78,7 @@ export default async function Mentees() {
         <div className={ui.scroll}>
           <table className={ui.table}>
             <thead>
-              <tr><th>USN</th><th>Name</th><th>Attendance</th><th></th><th>Subjects short</th><th>Status</th></tr>
+              <tr><th>USN</th><th>Name</th><th>Attendance</th><th></th><th>Subjects short</th><th>Status</th><th></th></tr>
             </thead>
             <tbody>
               {mentees
@@ -77,6 +97,9 @@ export default async function Mentees() {
                       <td>
                         {pct === null ? <Badge>No data</Badge> : <Badge tone={atRisk ? "bad" : "ok"}>{atRisk ? "Needs a word" : "Fine"}</Badge>}
                       </td>
+                      <td>
+                        <Link className={styles.rowAlert} href={`/faculty/mentees?to=${m.id}#alert`}>Alert</Link>
+                      </td>
                     </tr>
                   );
                 })}
@@ -84,6 +107,15 @@ export default async function Mentees() {
           </table>
         </div>
       )}
+
+      <Contact cabin={mine?.cabin ?? null} officeHours={mine?.office_hours ?? null} phone={mine?.phone ?? null} />
+
+      <div id="alert" />
+      <Alerts
+        mentees={mentees.map((m) => ({ id: m.id, full_name: m.full_name, usn: m.usn }))}
+        sent={sent}
+        preselect={typeof to === "string" ? to : undefined}
+      />
     </Shell>
   );
 }
