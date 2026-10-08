@@ -22,4 +22,27 @@ export const RoadmapResponseSchema = z.object({
   next_steps: z.array(z.string()),
 });
 
+
+
+// ... Keep existing RoadmapResponseSchema ...
+
+export const QuizQuestionSchema = z.object({
+  id: z.number(),
+  question: z.string(),
+  options: z.array(z.string()).min(2).max(4),
+  correct_answer_index: z.number().int().min(0).max(3),
+  explanation: z.string(),
+});
+
+export const QuizResponseSchema = z.object({
+  title: z.string(),
+  topic: z.string(),
+  difficulty: z.string(),
+  questions: z.array(QuizQuestionSchema).min(1),
+});
+
+
+export type QuizData = z.infer<typeof QuizResponseSchema>;
+export type QuizQuestion = z.infer<typeof QuizQuestionSchema>;
+
 export type RoadmapResponse = z.infer<typeof RoadmapResponseSchema>;
