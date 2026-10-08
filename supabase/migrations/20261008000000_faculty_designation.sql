@@ -7,9 +7,15 @@
 -- mentor is better served by "Associate Professor" than by
 -- nothing at all.
 --
--- Carried through handle_new_user for the same reason phone is:
--- enforce_profile_locks() refuses the UPDATE for the service key
--- the importer runs under, so it arrives with the account.
+-- Both designation and phone are carried through handle_new_user
+-- rather than written afterwards: enforce_profile_locks() refuses
+-- an UPDATE to either unless is_admin(), and is_admin() reads
+-- auth.uid(), which is null for the service key the importers run
+-- under. The insert happens before that trigger applies.
+--
+-- This supersedes 20261007010000, which added phone to the same
+-- function a day earlier and has been removed — running both only
+-- redefined the function twice.
 -- ============================================================
 
 alter table public.profiles
