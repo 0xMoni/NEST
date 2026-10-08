@@ -75,7 +75,15 @@ export async function POST(request: Request) {
       }
     `;
 
-    const chatCompletion = await aiClient.chat.completions.create({
+    const ai = aiClient();
+    if (!ai) {
+      return NextResponse.json(
+        { error: "The quiz service is not configured yet." },
+        { status: 503 },
+      );
+    }
+
+    const chatCompletion = await ai.chat.completions.create({
       messages: [
         { role: "system", content: SYSTEM_PROMPTS.QUIZ },
         { role: "user", content: prompt },
