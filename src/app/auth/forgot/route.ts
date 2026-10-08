@@ -35,11 +35,16 @@ export async function POST(request: Request) {
 
   const origin = new URL(request.url).origin;
   const supabase = await createClient();
-  await supabase.auth.resetPasswordForEmail(email, {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${origin}/auth/confirm?next=/reset-password`,
   });
 
-  // Errors are swallowed on purpose — a rate limit or a bounce is not the
-  // sender's business to know, and reporting it would leak the address.
+  // The reply stays the same either way — a rate limit or a bounce is not the
+  // sender's business to know, and reporting it would leak whether the account
+  // exists. But a silent failure is how you end up with a page that looks like
+  // it works for a week before anyone notices no mail arrives, so it goes to
+  // the server log where whoever set up SMTP can actually see it.
+  if (error) console.error("[forgot-password] Supabase refused to send:", error.message);
+
   return sent;
 }
