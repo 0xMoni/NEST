@@ -7,9 +7,12 @@
 -- already written.
 -- ============================================================
 
-create type public.user_role as enum ('student', 'faculty', 'admin');
+do $$ begin
+  create type public.user_role as enum ('student', 'faculty', 'admin');
+exception when duplicate_object then null;
+end $$;
 
-create table public.profiles (
+create table if not exists public.profiles (
   id          uuid primary key references auth.users on delete cascade,
   full_name   text not null default '',
   role        public.user_role not null default 'student',
@@ -50,28 +53,28 @@ $$;
 -- Policies
 -- ------------------------------------------------------------
 
-create policy "read own profile"
-  on public.profiles for select
+drop policy if exists "read own profile" on public.profiles;
+create policy "read own profile" on public.profiles for select
   using (auth.uid() = id);
 
-create policy "update own profile"
-  on public.profiles for update
+drop policy if exists "update own profile" on public.profiles;
+create policy "update own profile" on public.profiles for update
   using (auth.uid() = id)
   with check (auth.uid() = id);
 
 -- Faculty can see the students they teach or mentor. Narrowed in a later
 -- migration once section_students and faculty_assignments exist; for now
 -- faculty read all profiles, admin does everything.
-create policy "faculty read profiles"
-  on public.profiles for select
+drop policy if exists "faculty read profiles" on public.profiles;
+create policy "faculty read profiles" on public.profiles for select
   using (public.current_role_is('faculty'));
 
-create policy "admin reads every profile"
-  on public.profiles for select
+drop policy if exists "admin reads every profile" on public.profiles;
+create policy "admin reads every profile" on public.profiles for select
   using (public.current_role_is('admin'));
 
-create policy "admin writes every profile"
-  on public.profiles for all
+drop policy if exists "admin writes every profile" on public.profiles;
+create policy "admin writes every profile" on public.profiles for all
   using (public.current_role_is('admin'))
   with check (public.current_role_is('admin'));
 
@@ -100,6 +103,7 @@ begin
 end;
 $$;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();

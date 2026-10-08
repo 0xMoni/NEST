@@ -11,6 +11,7 @@
 -- every profile, and not each other's.
 -- ============================================================
 
+drop policy if exists "student reads their mentor" on public.profiles;
 create policy "student reads their mentor" on public.profiles
   for select using (
     exists (
@@ -19,6 +20,7 @@ create policy "student reads their mentor" on public.profiles
     )
   );
 
+drop policy if exists "student reads faculty who teach them" on public.profiles;
 create policy "student reads faculty who teach them" on public.profiles
   for select using (
     exists (
@@ -32,6 +34,7 @@ create policy "student reads faculty who teach them" on public.profiles
 -- The mirror of the first: a mentor needs their mentee's name to act on a
 -- request. "faculty read profiles" already covers it, but stating it keeps
 -- the pair legible side by side.
+drop policy if exists "mentor reads their mentees" on public.profiles;
 create policy "mentor reads their mentees" on public.profiles
   for select using (
     exists (

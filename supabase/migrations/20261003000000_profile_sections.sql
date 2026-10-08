@@ -13,7 +13,10 @@
 create type public.profile_section as enum
   ('student', 'parent', 'guardian', 'contact', 'academic', 'admission');
 
-create type public.edit_request_status as enum ('pending', 'approved', 'rejected');
+do $$ begin
+  create type public.edit_request_status as enum ('pending', 'approved', 'rejected');
+exception when duplicate_object then null;
+end $$;
 
 alter table public.profiles
   add column if not exists dob             date,
@@ -33,7 +36,7 @@ alter table public.profiles
   add column if not exists admission_date  date,
   add column if not exists admission_quota text;
 
-create table public.profile_edit_requests (
+create table if not exists public.profile_edit_requests (
   id           uuid primary key default gen_random_uuid(),
   student_id   uuid not null references public.profiles on delete cascade,
   section      public.profile_section not null,
@@ -46,10 +49,11 @@ create table public.profile_edit_requests (
   expires_at   timestamptz
 );
 
-create index on public.profile_edit_requests (student_id, section);
+create index if not exists profile_edit_requests_student_id_section_idx
+  on public.profile_edit_requests (student_id, section);
 
 -- one open request per section, so a student cannot queue twenty
-create unique index profile_edit_requests_one_open
+create unique index if not exists profile_edit_requests_one_open
   on public.profile_edit_requests (student_id, section)
   where status = 'pending';
 
@@ -122,6 +126,7 @@ end;
 $$;
 
 drop trigger if exists profiles_section_locks on public.profiles;
+drop trigger if exists profiles_section_locks on public.profiles;
 create trigger profiles_section_locks
   before update on public.profiles
   for each row execute function public.enforce_profile_locks();
@@ -130,21 +135,27 @@ create trigger profiles_section_locks
 
 alter table public.profile_edit_requests enable row level security;
 
+drop policy if exists "student reads own requests" on public.profile_edit_requests;
 create policy "student reads own requests" on public.profile_edit_requests
   for select using (student_id = auth.uid());
 
+drop policy if exists "student asks" on public.profile_edit_requests;
 create policy "student asks" on public.profile_edit_requests
   for insert with check (student_id = auth.uid() and status = 'pending');
 
 -- withdrawing is deleting your own pending request; a decided one stays as record
+drop policy if exists "student withdraws own pending" on public.profile_edit_requests;
 create policy "student withdraws own pending" on public.profile_edit_requests
   for delete using (student_id = auth.uid() and status = 'pending');
 
+drop policy if exists "mentor reads their mentees' requests" on public.profile_edit_requests;
 create policy "mentor reads their mentees' requests" on public.profile_edit_requests
   for select using (public.mentors(student_id));
 
+drop policy if exists "mentor decides" on public.profile_edit_requests;
 create policy "mentor decides" on public.profile_edit_requests
   for update using (public.mentors(student_id)) with check (public.mentors(student_id));
 
+drop policy if exists "admin sees every request" on public.profile_edit_requests;
 create policy "admin sees every request" on public.profile_edit_requests
   for all using (public.is_admin()) with check (public.is_admin());

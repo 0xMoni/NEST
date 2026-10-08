@@ -31,6 +31,7 @@ end;
 $$;
 
 drop trigger if exists mentor_alerts_acknowledge_only on public.mentor_alerts;
+drop trigger if exists mentor_alerts_acknowledge_only on public.mentor_alerts;
 create trigger mentor_alerts_acknowledge_only
   before update on public.mentor_alerts
   for each row execute function public.enforce_alert_acknowledge_only();
