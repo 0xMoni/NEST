@@ -13,6 +13,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const ai = aiClient();
+    if (!ai) {
+      return NextResponse.json(
+        { error: "The roadmap service is not configured yet." },
+        { status: 503 },
+      );
+    }
+
     const body = await request.json();
     const { career_goal, current_skills } = body;
 
@@ -50,7 +58,7 @@ export async function POST(request: Request) {
 
     // 1. Call Groq API
     // 1. Call Groq API
-const chatCompletion = await aiClient.chat.completions.create({
+const chatCompletion = await ai.chat.completions.create({
   messages: [
     { role: "system", content: SYSTEM_PROMPTS.ROADMAP },
     { role: "user", content: prompt },
@@ -84,8 +92,11 @@ const chatCompletion = await aiClient.chat.completions.create({
 
     return NextResponse.json({ success: true, data: validatedData });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    // The detail goes to the server log; the student gets a sentence. A raw
+    // Groq or Postgres message in the browser is noise at best and a hint
+    // about the inside of the app at worst.
     console.error("Roadmap Error:", error);
-    return NextResponse.json({ error: error.message || "Failed to generate roadmap" }, { status: 500 });
+    return NextResponse.json({ error: "Could not generate a roadmap just now." }, { status: 500 });
   }
 }

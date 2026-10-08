@@ -17,6 +17,7 @@ const NAV: Record<Me["role"], NavItem[]> = {
     { href: "/student/attendance", label: "Attendance" },
     { href: "/student/scorecard", label: "Scorecard" },
     { href: "/student/timetable", label: "Timetable" },
+    { href: "/student/mentor", label: "Mentor" },
     {
       label: "AI Zone",
       children: [
@@ -128,7 +129,7 @@ function NavGroupItem({
   const isAnyChildActive = item.children.some((child) =>
     currentPath.startsWith(child.href)
   );
-const [isOpen, setIsOpen] = useState<boolean>(isAnyChildActive);
+  const [isOpen, setIsOpen] = useState<boolean>(isAnyChildActive || true);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>

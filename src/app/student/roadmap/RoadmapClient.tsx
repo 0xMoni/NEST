@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Shell } from "@/components/Shell";
-import { ui, Empty, Tile, Badge } from "@/components/ui";
+import { ui, Tile, Badge } from "@/components/ui";
 import type { RoadmapResponse } from "@/app/api/ai/roadmap/schemas";
 import type { Me } from "@/lib/session";
 
@@ -30,8 +30,8 @@ export function RoadmapClient({ me }: { me: Me }) {
       if (!res.ok) throw new Error(data.error);
       
       setRoadmap(data.data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setLoading(false);
     }

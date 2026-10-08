@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ui, Badge, Bar } from "@/components/ui";
 import styles from "./attendance.module.css";
 
-export type Session = { held_on: string; period: number; missed: boolean };
+type Session = { held_on: string; period: number; missed: boolean };
 export type Subject = {
   code: string;
   name: string;

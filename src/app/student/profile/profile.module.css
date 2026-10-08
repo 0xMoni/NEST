@@ -4,7 +4,6 @@
   border-radius: 16px;
   padding: 22px;
   margin-bottom: 16px;
-  max-width: 820px;
   position: relative;
 }
 /* the state reads from the edge before you read a word of it */
@@ -104,3 +103,5 @@
   justify-self: start;
 }
 .ghost:hover { color: var(--ink); border-color: var(--line-hover); }
+
+.pwNote { font-size: 0.875rem; color: var(--ink-2); max-width: 56ch; line-height: 1.55; margin: 0 0 16px; }
