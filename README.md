@@ -9,7 +9,7 @@ Three roles in one app:
   and a profile whose sections stay locked until a mentor opens one
 - **Faculty** — mark attendance, enter marks, track mentees, send a mentee an
   alert, decide their edit requests
-- **HOD / DOE** — create accounts, and build the sections, subjects, faculty
+- **HOD** — create accounts, and build the sections, subjects, faculty
   assignments and timetable everything else hangs off
 
 Anyone signed in can change their own password.

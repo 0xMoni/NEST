@@ -18,5 +18,13 @@ export async function changePassword(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password: next });
   if (error) return { error: error.message };
+
+  // Clearing the flag is what opens the rest of the app, so it has to happen
+  // here and not on the page — and it runs on the same session, so nobody can
+  // clear anyone else's.
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    await supabase.from("profiles").update({ must_change_password: false }).eq("id", user.id);
+  }
   return { ok: true };
 }

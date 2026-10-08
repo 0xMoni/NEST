@@ -35,7 +35,11 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isPublic = path === "/login" || path.startsWith("/auth");
+  // Someone asking for a reset link is by definition not signed in, so these
+  // have to be reachable without a session. /reset-password is not on the
+  // list: the link in the email creates a session first, at /auth/confirm.
+  const isPublic =
+    path === "/login" || path === "/forgot-password" || path.startsWith("/auth");
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();

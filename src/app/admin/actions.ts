@@ -17,7 +17,7 @@ export async function createPerson(formData: FormData) {
   if (!user) return { error: "Not signed in." };
 
   const { data: me } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (me?.role !== "admin") return { error: "Only the HOD or DOE can create accounts." };
+  if (me?.role !== "admin") return { error: "Only the HOD can create accounts." };
 
   const role = String(formData.get("role"));
   const usn = String(formData.get("usn") ?? "").trim().toUpperCase();

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import styles from "./login.module.css";
@@ -341,7 +342,7 @@ export default function LoginPage() {
                 <input type="checkbox" name="remember" />
                 Keep me signed in
               </label>
-              <a href="#">Forgot password?</a>
+              <Link href="/forgot-password">Forgot password?</Link>
             </div>
 
             <button

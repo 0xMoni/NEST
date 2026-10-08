@@ -22,7 +22,7 @@ export default async function People() {
       <div className={ui.tiles}>
         <Tile label="Students" value={count("student")} />
         <Tile label="Faculty" value={count("faculty")} />
-        <Tile label="Admins" value={count("admin")} foot="HOD and DOE" />
+        <Tile label="Admins" value={count("admin")} foot="department head" />
       </div>
 
       <NewPerson />

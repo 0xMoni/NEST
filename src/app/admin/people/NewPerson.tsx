@@ -46,7 +46,7 @@ export function NewPerson() {
         <select name="role" value={role} onChange={(e) => setRole(e.target.value)}>
           <option value="student">Student</option>
           <option value="faculty">Faculty</option>
-          <option value="admin">HOD / DOE</option>
+          <option value="admin">HOD</option>
         </select>
       </label>
       <label>

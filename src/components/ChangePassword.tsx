@@ -1,10 +1,20 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { changePassword } from "@/lib/account";
 import styles from "./change-password.module.css";
 
-export function ChangePassword({ usingDefault }: { usingDefault: boolean }) {
+export function ChangePassword({
+  usingDefault,
+  redirectTo,
+}: {
+  usingDefault: boolean;
+  /** Where to go once it is set. Given only by the gate, where staying put
+   *  would leave someone on a page with no way out. */
+  redirectTo?: string;
+}) {
+  const router = useRouter();
   const [open, setOpen] = useState(usingDefault);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -30,6 +40,11 @@ export function ChangePassword({ usingDefault }: { usingDefault: boolean }) {
           setError(null);
           const res = await changePassword(fd);
           if (res.error) return setError(res.error);
+          if (redirectTo) {
+            router.replace(redirectTo);
+            router.refresh();
+            return;
+          }
           setDone(true);
         })
       }

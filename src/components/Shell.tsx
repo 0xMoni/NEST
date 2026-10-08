@@ -45,7 +45,7 @@ const NAV: Record<Me["role"], NavItem[]> = {
 const ROLE_LABEL: Record<Me["role"], string> = {
   student: "Student",
   faculty: "Faculty",
-  admin: "HOD / DOE",
+  admin: "HOD",
 };
 
 export function Shell({
