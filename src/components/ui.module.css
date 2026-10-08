@@ -103,3 +103,14 @@
 }
 .barFill { display: block; height: 100%; background: var(--ok); }
 .barFill[data-short="true"] { background: var(--danger); }
+
+/* The lede under a heading. RoadmapClient reached for ui.sub before it
+   existed; CSS Modules hand back undefined for a name that is not there,
+   so the line rendered unstyled and nothing complained. */
+.sub {
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+  line-height: 1.6;
+  max-width: 68ch;
+  margin: 0 0 22px;
+}

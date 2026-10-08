@@ -31,7 +31,7 @@ const NAV: Record<Me["role"], { href: string; label: string }[]> = {
 const ROLE_LABEL: Record<Me["role"], string> = {
   student: "Student",
   faculty: "Faculty",
-  admin: "HOD / DOE",
+  admin: "HOD",
 };
 
 export function Shell({

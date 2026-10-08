@@ -5,7 +5,7 @@ import { ui, Badge } from "@/components/ui";
 import { ChangePassword } from "@/components/ChangePassword";
 import styles from "./profile.module.css";
 
-const ROLE_LABEL = { student: "Student", faculty: "Faculty", admin: "HOD / DOE" } as const;
+const ROLE_LABEL = { student: "Student", faculty: "Faculty", admin: "HOD" } as const;
 
 export default async function Profile() {
   const me = await requireSettledUser();

@@ -29,7 +29,7 @@ faculty2.cse@eastpoint.ac.in   Prof. Arjun Nair   Computer Networks
 faculty6.cse@eastpoint.ac.in
 ```
 
-## HOD / DOE
+## HOD
 
 ```
 dev.admin@eastpoint.ac.in
