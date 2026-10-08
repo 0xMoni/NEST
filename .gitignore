@@ -50,3 +50,7 @@ next-env.d.ts
 *.xls
 *.csv
 private-data/
+
+# Python bytecode from scripts/
+__pycache__/
+*.pyc

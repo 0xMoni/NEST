@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/session";
+import { requireSettledUser } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { Shell } from "@/components/Shell";
 import { ui, Badge } from "@/components/ui";
@@ -8,7 +8,7 @@ import styles from "./profile.module.css";
 const ROLE_LABEL = { student: "Student", faculty: "Faculty", admin: "HOD / DOE" } as const;
 
 export default async function Profile() {
-  const me = await requireUser();
+  const me = await requireSettledUser();
   const supabase = await createClient();
 
   // Who mentors this student, or who this faculty member mentors.

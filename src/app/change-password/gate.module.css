@@ -1,0 +1,37 @@
+/* No shell and no nav on purpose: there is nowhere else to go until this
+   is done, and offering links that bounce straight back is worse than
+   offering none. */
+.page {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 40px 24px;
+}
+.card {
+  width: 100%;
+  max-width: 420px;
+}
+.logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 28px;
+  filter: var(--logo-filter);
+}
+.title {
+  font-family: var(--font-newsreader), ui-serif, Georgia, serif;
+  font-weight: 400;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px;
+}
+.lede {
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+  line-height: 1.6;
+  margin: 0 0 26px;
+}
+.who {
+  margin: 24px 0 0;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}

@@ -1,0 +1,40 @@
+.page { min-height: 100%; display: grid; place-items: center; padding: 40px 24px; }
+.card { width: 100%; max-width: 400px; }
+.logo { width: 110px; height: auto; margin-bottom: 26px; filter: var(--logo-filter); }
+
+.title {
+  font-family: var(--font-newsreader), ui-serif, Georgia, serif;
+  font-weight: 400; font-size: 1.9rem; letter-spacing: -0.02em; margin: 0 0 10px;
+}
+.lede { font-size: 0.9375rem; color: var(--ink-2); line-height: 1.6; margin: 0 0 24px; }
+
+.expired {
+  font-size: 0.875rem; color: var(--warn); line-height: 1.5;
+  border: 1px solid currentColor; border-radius: 10px;
+  padding: 11px 14px; margin: 0 0 20px;
+}
+
+.form { display: grid; gap: 16px; }
+.field { display: grid; gap: 7px; }
+.field span { font-size: 0.8125rem; font-weight: 500; color: var(--ink-2); }
+.field input {
+  width: 100%; font-family: inherit; font-size: 0.9375rem; color: var(--ink);
+  background: var(--field); border: 1px solid var(--line);
+  border-radius: 10px; padding: 13px 15px; outline: none;
+}
+.field input::placeholder { color: var(--ink-3); }
+.field input:focus-visible { border-color: var(--ink); box-shadow: 0 0 0 3px var(--ring); }
+
+.submit {
+  font-family: inherit; font-size: 0.9375rem; font-weight: 500;
+  color: var(--btn-text); background: var(--btn);
+  border: 0; border-radius: 10px; padding: 14px 20px; cursor: pointer;
+}
+.submit:disabled { opacity: 0.6; cursor: default; }
+
+/* Deliberately the same whether or not the account exists — see auth/forgot */
+.sent { font-size: 0.9375rem; color: var(--ink-2); line-height: 1.6; margin: 0; }
+.error { font-size: 0.875rem; color: var(--danger); margin: 0; }
+.back { margin: 26px 0 0; font-size: 0.875rem; }
+.back a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 3px; }
+.back a:hover { color: var(--ink); }
