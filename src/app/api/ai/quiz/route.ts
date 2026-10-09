@@ -103,10 +103,12 @@ export async function POST(request: Request) {
     const validatedQuiz = QuizResponseSchema.parse(parsedJson);
 
     return NextResponse.json(validatedQuiz);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    // Detail to the log, a sentence to the student — a raw Groq or Postgres
+    // message in the browser is noise at best.
     console.error("AI Quiz Route Error:", error);
     return NextResponse.json(
-      { error: error?.message || "Failed to process quiz request" },
+      { error: "Could not put a quiz together just now." },
       { status: 500 }
     );
   }
