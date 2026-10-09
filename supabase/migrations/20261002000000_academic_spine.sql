@@ -10,7 +10,7 @@
 
 -- ---------- structure ----------
 
-create table public.subjects (
+create table if not exists public.subjects (
   id         uuid primary key default gen_random_uuid(),
   code       text not null unique,
   name       text not null,
@@ -18,7 +18,7 @@ create table public.subjects (
   credits    smallint not null default 4
 );
 
-create table public.sections (
+create table if not exists public.sections (
   id         uuid primary key default gen_random_uuid(),
   dept       text not null,
   semester   smallint not null check (semester between 1 and 8),
@@ -26,22 +26,23 @@ create table public.sections (
   unique (dept, semester, name)
 );
 
-create table public.section_students (
+create table if not exists public.section_students (
   section_id uuid not null references public.sections on delete cascade,
   student_id uuid not null references public.profiles on delete cascade,
   primary key (section_id, student_id)
 );
 
-create table public.faculty_assignments (
+create table if not exists public.faculty_assignments (
   id         uuid primary key default gen_random_uuid(),
   section_id uuid not null references public.sections on delete cascade,
   subject_id uuid not null references public.subjects on delete restrict,
   faculty_id uuid not null references public.profiles on delete restrict,
   unique (section_id, subject_id)                 -- one teacher per subject per section
 );
-create index on public.faculty_assignments (faculty_id);
+create index if not exists faculty_assignments_faculty_id_idx
+  on public.faculty_assignments (faculty_id);
 
-create table public.timetable_slots (
+create table if not exists public.timetable_slots (
   id            uuid primary key default gen_random_uuid(),
   assignment_id uuid not null references public.faculty_assignments on delete cascade,
   day_of_week   smallint not null check (day_of_week between 1 and 6),
@@ -51,7 +52,7 @@ create table public.timetable_slots (
 
 -- ---------- attendance ----------
 
-create table public.attendance_sessions (
+create table if not exists public.attendance_sessions (
   id            uuid primary key default gen_random_uuid(),
   assignment_id uuid not null references public.faculty_assignments on delete cascade,
   held_on       date not null,
@@ -62,19 +63,23 @@ create table public.attendance_sessions (
   unique (assignment_id, held_on, period)
 );
 
-create type public.attendance_status as enum ('present', 'absent', 'late', 'excused');
+do $$ begin
+  create type public.attendance_status as enum ('present', 'absent', 'late', 'excused');
+exception when duplicate_object then null;
+end $$;
 
-create table public.attendance_records (
+create table if not exists public.attendance_records (
   session_id uuid not null references public.attendance_sessions on delete cascade,
   student_id uuid not null references public.profiles on delete cascade,
   status     public.attendance_status not null default 'present',
   primary key (session_id, student_id)
 );
-create index on public.attendance_records (student_id);
+create index if not exists attendance_records_student_id_idx
+  on public.attendance_records (student_id);
 
 -- ---------- marks ----------
 
-create table public.assessments (
+create table if not exists public.assessments (
   id            uuid primary key default gen_random_uuid(),
   assignment_id uuid not null references public.faculty_assignments on delete cascade,
   title         text not null,                    -- 'IAT 1', 'IAT 2'
@@ -84,21 +89,23 @@ create table public.assessments (
   created_at    timestamptz not null default now()
 );
 
-create table public.marks (
+create table if not exists public.marks (
   assessment_id uuid not null references public.assessments on delete cascade,
   student_id    uuid not null references public.profiles on delete cascade,
   scored        numeric(5,2) check (scored >= 0),
   primary key (assessment_id, student_id)
 );
-create index on public.marks (student_id);
+create index if not exists marks_student_id_idx
+  on public.marks (student_id);
 
 -- ---------- mentorship ----------
 
-create table public.mentorships (
+create table if not exists public.mentorships (
   mentor_id  uuid not null references public.profiles on delete cascade,
   student_id uuid not null references public.profiles on delete cascade primary key
 );
-create index on public.mentorships (mentor_id);
+create index if not exists mentorships_mentor_id_idx
+  on public.mentorships (mentor_id);
 
 -- ---------- helpers ----------
 -- Defined after the tables on purpose: a `language sql` body is parsed when
@@ -152,28 +159,39 @@ alter table public.marks               enable row level security;
 alter table public.mentorships         enable row level security;
 
 -- reference data: readable by anyone signed in, written only by admin
+drop policy if exists "read subjects" on public.subjects;
 create policy "read subjects" on public.subjects for select using (auth.uid() is not null);
+drop policy if exists "admin writes subjects" on public.subjects;
 create policy "admin writes subjects" on public.subjects for all using (public.is_admin()) with check (public.is_admin());
+drop policy if exists "read sections" on public.sections;
 create policy "read sections" on public.sections for select using (auth.uid() is not null);
+drop policy if exists "admin writes sections" on public.sections;
 create policy "admin writes sections" on public.sections for all using (public.is_admin()) with check (public.is_admin());
 
 -- enrolment
+drop policy if exists "student reads own enrolment" on public.section_students;
 create policy "student reads own enrolment" on public.section_students for select
   using (student_id = auth.uid());
+drop policy if exists "faculty reads their sections" on public.section_students;
 create policy "faculty reads their sections" on public.section_students for select
   using (public.teaches_section(section_id));
+drop policy if exists "admin writes enrolment" on public.section_students;
 create policy "admin writes enrolment" on public.section_students for all
   using (public.is_admin()) with check (public.is_admin());
 
 -- assignments
+drop policy if exists "faculty reads own assignments" on public.faculty_assignments;
 create policy "faculty reads own assignments" on public.faculty_assignments for select
   using (faculty_id = auth.uid());
+drop policy if exists "student reads their section's assignments" on public.faculty_assignments;
 create policy "student reads their section's assignments" on public.faculty_assignments for select
   using (public.studies_in_section(section_id));
+drop policy if exists "admin writes assignments" on public.faculty_assignments;
 create policy "admin writes assignments" on public.faculty_assignments for all
   using (public.is_admin()) with check (public.is_admin());
 
 -- timetable
+drop policy if exists "read timetable for your own classes" on public.timetable_slots;
 create policy "read timetable for your own classes" on public.timetable_slots for select
   using (
     public.teaches_assignment(assignment_id)
@@ -182,22 +200,28 @@ create policy "read timetable for your own classes" on public.timetable_slots fo
       where fa.id = assignment_id and public.studies_in_section(fa.section_id)
     )
   );
+drop policy if exists "admin writes timetable" on public.timetable_slots;
 create policy "admin writes timetable" on public.timetable_slots for all
   using (public.is_admin()) with check (public.is_admin());
 
 -- attendance: faculty own the classes they teach, students read their own record
+drop policy if exists "faculty manages own sessions" on public.attendance_sessions;
 create policy "faculty manages own sessions" on public.attendance_sessions for all
   using (public.teaches_assignment(assignment_id))
   with check (public.teaches_assignment(assignment_id));
+drop policy if exists "student reads sessions of their section" on public.attendance_sessions;
 create policy "student reads sessions of their section" on public.attendance_sessions for select
   using (exists (
     select 1 from public.faculty_assignments fa
     where fa.id = assignment_id and public.studies_in_section(fa.section_id)
   ));
+drop policy if exists "admin reads sessions" on public.attendance_sessions;
 create policy "admin reads sessions" on public.attendance_sessions for select using (public.is_admin());
 
+drop policy if exists "student reads own attendance" on public.attendance_records;
 create policy "student reads own attendance" on public.attendance_records for select
   using (student_id = auth.uid());
+drop policy if exists "faculty manages attendance for own classes" on public.attendance_records;
 create policy "faculty manages attendance for own classes" on public.attendance_records for all
   using (exists (
     select 1 from public.attendance_sessions s
@@ -207,23 +231,29 @@ create policy "faculty manages attendance for own classes" on public.attendance_
     select 1 from public.attendance_sessions s
     where s.id = session_id and public.teaches_assignment(s.assignment_id)
   ));
+drop policy if exists "admin reads attendance" on public.attendance_records;
 create policy "admin reads attendance" on public.attendance_records for select using (public.is_admin());
 
 -- marks: students see nothing until the assessment is published
+drop policy if exists "faculty manages own assessments" on public.assessments;
 create policy "faculty manages own assessments" on public.assessments for all
   using (public.teaches_assignment(assignment_id))
   with check (public.teaches_assignment(assignment_id));
+drop policy if exists "student reads published assessments" on public.assessments;
 create policy "student reads published assessments" on public.assessments for select
   using (published and exists (
     select 1 from public.faculty_assignments fa
     where fa.id = assignment_id and public.studies_in_section(fa.section_id)
   ));
+drop policy if exists "admin reads assessments" on public.assessments;
 create policy "admin reads assessments" on public.assessments for select using (public.is_admin());
 
+drop policy if exists "student reads own published marks" on public.marks;
 create policy "student reads own published marks" on public.marks for select
   using (student_id = auth.uid() and exists (
     select 1 from public.assessments a where a.id = assessment_id and a.published
   ));
+drop policy if exists "faculty manages marks for own assessments" on public.marks;
 create policy "faculty manages marks for own assessments" on public.marks for all
   using (exists (
     select 1 from public.assessments a
@@ -233,13 +263,17 @@ create policy "faculty manages marks for own assessments" on public.marks for al
     select 1 from public.assessments a
     where a.id = assessment_id and public.teaches_assignment(a.assignment_id)
   ));
+drop policy if exists "admin reads marks" on public.marks;
 create policy "admin reads marks" on public.marks for select using (public.is_admin());
 
 -- mentorship
+drop policy if exists "student reads own mentor" on public.mentorships;
 create policy "student reads own mentor" on public.mentorships for select
   using (student_id = auth.uid());
+drop policy if exists "mentor reads own mentees" on public.mentorships;
 create policy "mentor reads own mentees" on public.mentorships for select
   using (mentor_id = auth.uid());
+drop policy if exists "admin writes mentorships" on public.mentorships;
 create policy "admin writes mentorships" on public.mentorships for all
   using (public.is_admin()) with check (public.is_admin());
 
@@ -252,7 +286,7 @@ create policy "admin writes mentorships" on public.mentorships for all
 -- so a view cannot become a way around the policies above.
 -- ============================================================
 
-create view public.v_student_attendance with (security_invoker = on) as
+create or replace view public.v_student_attendance with (security_invoker = on) as
 select
   r.student_id,
   fa.subject_id,
@@ -269,7 +303,7 @@ join public.faculty_assignments fa   on fa.id = sess.assignment_id
 join public.subjects s               on s.id = fa.subject_id
 group by r.student_id, fa.subject_id, s.code, s.name, fa.section_id;
 
-create view public.v_student_scorecard with (security_invoker = on) as
+create or replace view public.v_student_scorecard with (security_invoker = on) as
 select
   m.student_id,
   fa.subject_id,

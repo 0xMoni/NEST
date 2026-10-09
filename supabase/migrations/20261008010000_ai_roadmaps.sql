@@ -8,7 +8,7 @@
 -- The date now matches when it was actually written.
 -- ============================================================
 
-create table public.ai_roadmaps (
+create table if not exists public.ai_roadmaps (
   id uuid primary key default gen_random_uuid(),
   student_id uuid not null references public.profiles on delete cascade,
   career_goal text not null,
@@ -18,11 +18,11 @@ create table public.ai_roadmaps (
 
 alter table public.ai_roadmaps enable row level security;
 
-create policy "student manages own roadmaps" 
-  on public.ai_roadmaps for all 
+drop policy if exists "student manages own roadmaps" on public.ai_roadmaps;
+create policy "student manages own roadmaps" on public.ai_roadmaps for all 
   using (student_id = auth.uid()) 
   with check (student_id = auth.uid());
 
-create policy "admin/faculty reads ai data" 
-  on public.ai_roadmaps for select 
+drop policy if exists "admin/faculty reads ai data" on public.ai_roadmaps;
+create policy "admin/faculty reads ai data" on public.ai_roadmaps for select 
   using (public.is_admin() or public.current_role_is('faculty'));
