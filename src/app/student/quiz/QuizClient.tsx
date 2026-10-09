@@ -10,6 +10,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { QuizData } from "@/app/api/ai/roadmap/schemas";
+import styles from "./quiz.module.css";
 
 const SUGGESTED_TOPICS = [
   "PYTHON ADVANCED FEATURES",
@@ -169,32 +170,29 @@ export function QuizClient() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* 1. ASSESSMENT CONFIGURATION */}
+    <div className={styles.wrap}>
+      {/* configure */}
       {!quiz && (
-        <div className="bg-white rounded-lg border border-stone-200 p-6 sm:p-8 space-y-6">
-          <div>
-            <h2 className="text-xl font-serif text-stone-900">Configure Examination</h2>
-            <p className="text-xs text-stone-500 mt-1">
-              Select or specify a subject domain to generate an adaptive benchmark test.
+        <section className={styles.card}>
+          <div className={styles.cardHead}>
+            <h2 className={styles.h2}>Set up a quiz</h2>
+            <p className={styles.hint}>
+              Pick a subject and how hard it should be. Five questions, thirty seconds each.
             </p>
           </div>
 
-          {/* Preset Topics styled like NEST pills */}
-          <div className="space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400">
-              Suggested Curricula
-            </span>
-            <div className="flex flex-wrap gap-2">
+          <div>
+            <span className={styles.label}>Suggested</span>
+            <div className={styles.pills}>
               {SUGGESTED_TOPICS.map((t) => (
                 <button
                   key={t}
                   type="button"
+                  className={styles.pill}
                   onClick={() => {
                     setTopic(t);
                     handleGenerateQuiz(t);
                   }}
-                  className="px-3 py-1 rounded-full text-xs font-mono tracking-wider border border-stone-200 bg-stone-50 hover:bg-stone-100 hover:border-stone-400 text-stone-700 transition"
                 >
                   {t}
                 </button>
@@ -203,269 +201,199 @@ export function QuizClient() {
           </div>
 
           <form
+            className={styles.form}
             onSubmit={(e) => {
               e.preventDefault();
               handleGenerateQuiz();
             }}
-            className="space-y-6 pt-2"
           >
-            <div>
-              <label className="block text-[11px] font-mono uppercase tracking-wider text-stone-600 mb-2">
-                Subject or Topic Domain
-              </label>
+            <div className={styles.field}>
+              <span className={styles.label}>Subject</span>
               <input
                 type="text"
-                placeholder="e.g. Distributed Systems, Calculus III, Next.js App Router"
+                placeholder="Distributed systems, Calculus III, the Next.js App Router…"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 required
-                className="w-full px-3.5 py-2.5 rounded-md border border-stone-300 focus:outline-none focus:border-stone-900 text-sm font-sans text-stone-900 placeholder:text-stone-400"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono uppercase tracking-wider text-stone-600 mb-2">
-                Proficiency Level
-              </label>
-              <div className="grid grid-cols-3 gap-3">
+              <span className={styles.label}>How hard</span>
+              <div className={styles.tiers}>
                 {[
-                  { id: "Beginner", label: "Fundamental", desc: "Core terms & syntax" },
+                  { id: "Beginner", label: "Fundamentals", desc: "Core terms and syntax" },
                   { id: "Intermediate", label: "Standard", desc: "Applied problem solving" },
-                  { id: "Advanced", label: "Advanced", desc: "Edge cases & architecture" },
+                  { id: "Advanced", label: "Advanced", desc: "Edge cases and architecture" },
                 ].map((tier) => (
                   <button
                     key={tier.id}
                     type="button"
                     onClick={() => setDifficulty(tier.id)}
-                    className={`py-3 px-3 rounded-md border text-left transition-all ${
-                      difficulty === tier.id
-                        ? "border-stone-900 bg-stone-900 text-white"
-                        : "border-stone-200 bg-white hover:bg-stone-50 text-stone-700"
-                    }`}
+                    className={`${styles.tier} ${difficulty === tier.id ? styles.tierOn : ""}`}
                   >
-                    <div className="text-xs font-semibold">{tier.label}</div>
-                    <div className={`text-[10px] mt-0.5 ${difficulty === tier.id ? "text-stone-300" : "text-stone-400"}`}>
-                      {tier.desc}
-                    </div>
+                    <b>{tier.label}</b>
+                    <span>{tier.desc}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading || !topic.trim()}
-              className="w-full py-2.5 bg-stone-900 text-white text-xs font-medium uppercase tracking-wider rounded-md hover:bg-stone-800 disabled:opacity-50 transition"
-            >
-              {loading ? "Generating Examination..." : "Begin Diagnostic Assessment"}
+            <button type="submit" className={styles.go} disabled={loading || !topic.trim()}>
+              {loading ? "Writing your questions…" : "Start"}
             </button>
           </form>
 
-          {error && (
-            <div className="text-xs text-rose-700 bg-rose-50 border border-rose-200 p-3 rounded-md">
-              {error}
-            </div>
-          )}
-        </div>
+          {error && <p className={styles.error}>{error}</p>}
+        </section>
       )}
 
-      {/* 2. ACTIVE DIAGNOSTIC TEST */}
+      {/* in progress */}
       {quiz && !completed && (
-        <div className="bg-white rounded-lg border border-stone-200 p-6 sm:p-8 space-y-6">
-          {/* Diagnostic Top Status Bar */}
-          <div className="flex items-center justify-between border-b border-stone-100 pb-4">
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-xs font-semibold text-stone-900">
-                QUESTION {String(currentIndex + 1).padStart(2, "0")} / {String(quiz.questions.length).padStart(2, "0")}
-              </span>
-              <span className="text-stone-300">|</span>
-              <span className="text-xs text-stone-500 font-mono uppercase">
-                {quiz.topic}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 font-mono text-xs text-stone-600 bg-stone-50 px-2.5 py-1 rounded border border-stone-200">
-              <Clock className="w-3.5 h-3.5 text-stone-400" />
-              <span>{timeLeft}s</span>
-            </div>
+        <section className={styles.card}>
+          <div className={styles.bar}>
+            <span className={styles.count}>
+              Question {currentIndex + 1} of {quiz.questions.length}
+              <span className={styles.subject}>  ·  {quiz.topic}</span>
+            </span>
+            <span className={`${styles.clock} ${timeLeft <= 10 ? styles.clockLow : ""}`}>
+              <Clock size={14} aria-hidden="true" />
+              {timeLeft}s
+            </span>
           </div>
 
-          {/* Thin Progress Rule */}
-          <div className="w-full bg-stone-100 h-1 rounded-full overflow-hidden">
-            <div
-              className="bg-stone-900 h-full transition-all duration-300"
-              style={{
-                width: `${((currentIndex + 1) / quiz.questions.length) * 100}%`,
-              }}
-            />
+          <div className={styles.meter} aria-hidden="true">
+            <i style={{ width: `${((currentIndex + 1) / quiz.questions.length) * 100}%` }} />
           </div>
 
-          {/* Question Statement */}
-          <div className="py-2">
-            <h3 className="text-xl sm:text-2xl font-serif text-stone-900 leading-snug">
-              {quiz.questions[currentIndex].question}
-            </h3>
-          </div>
+          <h3 className={styles.question}>{quiz.questions[currentIndex].question}</h3>
 
-          {/* Structured Multiple Choice Options */}
-          <div className="space-y-2.5 pt-1">
+          <div className={styles.options}>
             {quiz.questions[currentIndex].options.map((opt, idx) => {
-              const letter = String.fromCharCode(65 + idx); // A, B, C, D
+              const letter = String.fromCharCode(65 + idx);
               const isSelected = selectedOption === idx;
-              const isCorrectAnswer = idx === quiz.questions[currentIndex].correct_answer_index;
+              const isCorrect = idx === quiz.questions[currentIndex].correct_answer_index;
 
-              let cardStyle = "group w-full flex items-start gap-3.5 p-4 rounded-md border text-left transition-all font-sans text-sm ";
-
-              if (!showResult) {
-                cardStyle += "border-stone-200 bg-white hover:border-stone-900 hover:bg-stone-50/60 text-stone-800 cursor-pointer";
-              } else if (isCorrectAnswer) {
-                cardStyle += "border-emerald-700 bg-emerald-50/70 text-emerald-950 font-medium";
-              } else if (isSelected && !isCorrectAnswer) {
-                cardStyle += "border-rose-700 bg-rose-50/70 text-rose-950";
-              } else {
-                cardStyle += "border-stone-100 bg-stone-50 text-stone-400 opacity-50 pointer-events-none";
+              let tone = "";
+              let letterTone = "";
+              if (showResult) {
+                if (isCorrect) {
+                  tone = styles.right;
+                  letterTone = styles.letterRight;
+                } else if (isSelected) {
+                  tone = styles.wrong;
+                  letterTone = styles.letterWrong;
+                } else {
+                  tone = styles.muted;
+                }
               }
 
               return (
                 <button
                   key={idx}
+                  className={`${styles.option} ${tone}`}
                   onClick={() => handleSelectOption(idx)}
                   disabled={showResult}
-                  className={cardStyle}
                 >
-                  <span
-                    className={`w-6 h-6 flex items-center justify-center rounded text-xs font-mono shrink-0 transition-colors ${
-                      showResult && isCorrectAnswer
-                        ? "bg-emerald-700 text-white"
-                        : showResult && isSelected && !isCorrectAnswer
-                        ? "bg-rose-700 text-white"
-                        : "border border-stone-300 text-stone-600 group-hover:border-stone-900 group-hover:text-stone-900"
-                    }`}
-                  >
-                    {letter}
-                  </span>
-                  <span className="flex-1 pt-0.5 leading-relaxed">{opt}</span>
+                  <span className={`${styles.letter} ${letterTone}`}>{letter}</span>
+                  <span>{opt}</span>
                 </button>
               );
             })}
           </div>
 
-          {/* Instructive Post-Answer Analysis */}
           {showResult && (
-            <div className="p-4 rounded-md border border-stone-200 bg-stone-50/70 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {selectedOption === quiz.questions[currentIndex].correct_answer_index ? (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold uppercase text-emerald-800">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Correct Assessment
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold uppercase text-rose-800">
-                      <XCircle className="w-4 h-4 text-rose-600" />
-                      {selectedOption === null ? "Time Expired" : "Incorrect Response"}
-                    </span>
-                  )}
-                </div>
+            <div className={styles.verdict}>
+              <div className={styles.verdictHead}>
+                {selectedOption === quiz.questions[currentIndex].correct_answer_index ? (
+                  <span className={styles.tagOk}>
+                    <CheckCircle2 size={15} aria-hidden="true" /> Correct
+                  </span>
+                ) : (
+                  <span className={styles.tagBad}>
+                    <XCircle size={15} aria-hidden="true" />
+                    {selectedOption === null ? "Time up" : "Not quite"}
+                  </span>
+                )}
 
-                <button
-                  onClick={handleNext}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-stone-900 text-white text-xs font-medium uppercase tracking-wider rounded-md hover:bg-stone-800 transition"
-                >
-                  {currentIndex + 1 < quiz.questions.length ? "Proceed" : "View Assessment Report"}
-                  <ChevronRight className="w-3.5 h-3.5" />
+                <button className={styles.next} onClick={handleNext}>
+                  {currentIndex + 1 < quiz.questions.length ? "Next question" : "See how you did"}
+                  <ChevronRight size={14} aria-hidden="true" />
                 </button>
               </div>
 
-              <div className="pt-1 border-t border-stone-200/60">
-                <p className="text-xs text-stone-600 leading-relaxed">
-                  <span className="font-semibold text-stone-800">Rationale: </span>
-                  {quiz.questions[currentIndex].explanation}
-                </p>
-              </div>
+              <p className={styles.why}>
+                <b>Why: </b>
+                {quiz.questions[currentIndex].explanation}
+              </p>
             </div>
           )}
-        </div>
+        </section>
       )}
 
-      {/* 3. FINAL EVALUATION REPORT */}
+      {/* report */}
       {completed && quiz && (
-        <div className="bg-white rounded-lg border border-stone-200 p-6 sm:p-8 space-y-6">
-          <div className="border-b border-stone-100 pb-5">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-stone-400">
-              Evaluation Outcome
-            </span>
-            <h3 className="text-2xl font-serif text-stone-900 mt-1">Diagnostic Report</h3>
-            <p className="text-xs text-stone-500 mt-0.5">
-              Subject: <strong className="text-stone-800">{quiz.topic}</strong> • Tier: {quiz.difficulty}
-            </p>
+        <section className={styles.card}>
+          <div className={styles.cardHead}>
+            <span className={styles.label}>How you did</span>
+            <h2 className={styles.h2}>{quiz.topic}</h2>
+            <p className={styles.hint}>{quiz.difficulty}</p>
           </div>
 
-          {/* Quantitative Metrics */}
-          <div className="grid grid-cols-3 gap-4 border border-stone-200 rounded-md p-4 bg-stone-50/50">
-            <div>
-              <div className="text-[10px] font-mono uppercase text-stone-500">Score</div>
-              <div className="text-2xl font-serif text-stone-900 mt-0.5">
+          <div className={styles.scores}>
+            <div className={styles.score}>
+              <span className={styles.label}>Score</span>
+              <b>
                 {score} / {quiz.questions.length}
-              </div>
+              </b>
             </div>
-            <div>
-              <div className="text-[10px] font-mono uppercase text-stone-500">Accuracy</div>
-              <div className="text-2xl font-serif text-stone-900 mt-0.5">
-                {Math.round((score / quiz.questions.length) * 100)}%
-              </div>
+            <div className={styles.score}>
+              <span className={styles.label}>Accuracy</span>
+              <b>{Math.round((score / quiz.questions.length) * 100)}%</b>
             </div>
-            <div>
-              <div className="text-[10px] font-mono uppercase text-stone-500">Standing</div>
-              <div className="text-xs font-semibold text-stone-800 mt-2">
-                {score >= 4 ? "Proficient" : score >= 3 ? "Competent" : "Needs Review"}
-              </div>
+            <div className={styles.score}>
+              <span className={styles.label}>Standing</span>
+              <span className={styles.standing}>
+                {score >= 4 ? "Proficient" : score >= 3 ? "Competent" : "Worth another look"}
+              </span>
             </div>
           </div>
 
-          {/* Question-by-Question Audit */}
-          <div className="space-y-3 pt-2">
-            <h4 className="text-[11px] font-mono uppercase tracking-wider text-stone-500">
-              Question Audit Log
-            </h4>
-            <div className="space-y-2">
+          <div>
+            <span className={styles.label}>Question by question</span>
+            <ul className={styles.audit}>
               {quiz.questions.map((q, idx) => {
                 const attempt = answersLog[idx];
                 const isCorrect = attempt?.selected === q.correct_answer_index;
                 return (
-                  <div
-                    key={idx}
-                    className="p-3.5 rounded-md border border-stone-200 bg-stone-50/30 text-xs space-y-1.5"
-                  >
-                    <div className="flex items-start gap-2">
+                  <li key={idx} className={styles.auditRow}>
+                    <div className={styles.auditTop}>
                       {isCorrect ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-700 shrink-0 mt-0.5" />
+                        <Check size={15} className={styles.tick} aria-hidden="true" />
                       ) : (
-                        <span className="w-3.5 h-3.5 text-rose-700 font-bold shrink-0 mt-0.5 leading-none">✕</span>
+                        <XCircle size={15} className={styles.cross} aria-hidden="true" />
                       )}
-                      <span className="font-medium text-stone-900">{q.question}</span>
+                      <span className={styles.auditQ}>{q.question}</span>
                     </div>
-                    <div className="pl-5 text-stone-500 space-y-0.5">
-                      <div>
-                        Correct Answer: <span className="font-semibold text-stone-800">{q.options[q.correct_answer_index]}</span>
-                      </div>
-                      <p className="text-[11px] text-stone-500">{q.explanation}</p>
+                    <div className={styles.auditBody}>
+                      <span className={styles.auditAnswer}>
+                        Answer: <b>{q.options[q.correct_answer_index]}</b>
+                      </span>
+                      <p className={styles.auditWhy}>{q.explanation}</p>
                     </div>
-                  </div>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           </div>
 
-          <div className="pt-4 border-t border-stone-100 flex justify-end">
-            <button
-              onClick={handleReset}
-              className="inline-flex items-center gap-2 px-5 py-2 bg-stone-900 text-white text-xs font-medium uppercase tracking-wider rounded-md hover:bg-stone-800 transition"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              Retake or Select New Topic
+          <div className={styles.foot}>
+            <button className={styles.again} onClick={handleReset}>
+              <RotateCcw size={14} aria-hidden="true" />
+              Try another topic
             </button>
           </div>
-        </div>
+        </section>
       )}
     </div>
   );
