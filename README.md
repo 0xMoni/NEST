@@ -30,13 +30,6 @@ Test logins are in [`docs/dev-accounts.md`](docs/dev-accounts.md) — sign in as
 
 Next.js (App Router), TypeScript, CSS Modules, Supabase.
 
-Who may read or write what is decided by row-level security in Postgres, not by
-the pages. A page asks for every row it wants and the database returns the ones
-that caller is allowed — so a screen cannot leak something by forgetting a
-filter. Where RLS cannot express a rule, a trigger does: a student may
-acknowledge an alert but not reword it, and locked profile fields stay locked
-even if the request skips the form entirely.
-
 ## Where things are
 
 ```
