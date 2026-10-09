@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { 
-  CheckCircle2, 
-  XCircle, 
-  ArrowRight, 
-  RotateCcw, 
-  Clock, 
-  Check, 
-  FileCheck,
+  CheckCircle2,
+  XCircle,
+  RotateCcw,
+  Clock,
+  Check,
   ChevronRight
 } from "lucide-react";
 import { QuizData } from "@/app/api/ai/roadmap/schemas";
@@ -43,36 +41,43 @@ export function QuizClient() {
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Pacing countdown per question
-  useEffect(() => {
-    if (!quiz || showResult || completed) return;
-
-    setTimeLeft(QUESTION_LIMIT_SECONDS);
-    timerRef.current = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timerRef.current!);
-          handleTimeOut();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [currentIndex, quiz, showResult, completed]);
-
-  const handleTimeOut = () => {
-    if (showResult) return;
+  const handleTimeOut = useCallback(() => {
     setShowResult(true);
     setSelectedOption(null);
     setAnswersLog((prev) => [
       ...prev,
       { selected: null, correct: quiz?.questions[currentIndex].correct_answer_index ?? 0 },
     ]);
-  };
+  }, [quiz, currentIndex]);
+
+  // Held in a ref so the countdown below does not have to list it as a
+  // dependency — naming it there would restart the clock every time the
+  // question or the answer log changed, which is every second of a quiz.
+  const timeOutRef = useRef(handleTimeOut);
+  useEffect(() => {
+    timeOutRef.current = handleTimeOut;
+  }, [handleTimeOut]);
+
+  // Two timers, deliberately. The interval only counts down for the display.
+  // Running out is a timeout of its own, so it fires once, as an event —
+  // setting state from inside an effect is what makes renders cascade, and
+  // reaching into the interval's updater to do it is worse.
+  //
+  // Resetting the clock belongs to whatever moved the question on, not here.
+  useEffect(() => {
+    if (!quiz || showResult || completed) return;
+
+    const tick = setInterval(() => {
+      setTimeLeft((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    const expire = setTimeout(() => timeOutRef.current(), QUESTION_LIMIT_SECONDS * 1000);
+    timerRef.current = tick;
+
+    return () => {
+      clearInterval(tick);
+      clearTimeout(expire);
+    };
+  }, [currentIndex, quiz, showResult, completed]);
 
   const handleGenerateQuiz = async (selectedTopic?: string) => {
     const targetTopic = selectedTopic || topic;
@@ -87,6 +92,7 @@ export function QuizClient() {
     setCompleted(false);
     setSelectedOption(null);
     setShowResult(false);
+    setTimeLeft(QUESTION_LIMIT_SECONDS);
 
     try {
       const res = await fetch("/api/ai/quiz", {
@@ -99,8 +105,8 @@ export function QuizClient() {
       if (!res.ok) throw new Error(data.error || "Failed to generate evaluation");
 
       setQuiz(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Could not generate the quiz.");
     } finally {
       setLoading(false);
     }
@@ -131,6 +137,7 @@ export function QuizClient() {
       setCurrentIndex((prev) => prev + 1);
       setSelectedOption(null);
       setShowResult(false);
+      setTimeLeft(QUESTION_LIMIT_SECONDS);
     } else {
       setCompleted(true);
 
