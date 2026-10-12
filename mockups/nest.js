@@ -28,13 +28,13 @@ var NEST = (function () {
 
   function drawSwirl() {
     var svg = document.getElementById('swirl'); if (!svg) return;
-    var cx = 40, cy = 760, out = '', seed = 7;
+    var cx = 40, cy = 700, out = '', seed = 7;
     svg.setAttribute('viewBox', '0 0 260 900');
     svg.setAttribute('preserveAspectRatio', 'xMinYMax slice');
     function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
-    for (var i = 0; i < 46; i++) {
+    for (var i = 0; i < 58; i++) {
       var r = 30 + i * 6 + rnd() * 10, a0 = rnd() * Math.PI * 2, a1 = a0 + 0.6 + rnd() * 1.6;
-      out += '<path class="' + (i % 2 ? 'r' : '') + '" style="--d:' + (90 + rnd() * 150).toFixed(0) + 's;--g:' + (5 + rnd() * 6).toFixed(1) + 's;animation-delay:0s,-' + (rnd() * 8).toFixed(1) + 's" d="M' + (cx + r * Math.cos(a0)).toFixed(1) + ' ' + (cy + r * Math.sin(a0)).toFixed(1) + ' A' + r.toFixed(1) + ' ' + r.toFixed(1) + ' 0 0 1 ' + (cx + r * Math.cos(a1)).toFixed(1) + ' ' + (cy + r * Math.sin(a1)).toFixed(1) + '" fill="none" stroke="rgba(207,169,98,' + (0.1 + rnd() * 0.22).toFixed(2) + ')" stroke-width="' + (0.5 + rnd() * 0.7).toFixed(2) + '"/>';
+      out += '<path class="' + (i % 2 ? 'r' : '') + '" style="--d:' + (90 + rnd() * 150).toFixed(0) + 's;--g:' + (5 + rnd() * 6).toFixed(1) + 's;animation-delay:0s,-' + (rnd() * 8).toFixed(1) + 's" d="M' + (cx + r * Math.cos(a0)).toFixed(1) + ' ' + (cy + r * Math.sin(a0)).toFixed(1) + ' A' + r.toFixed(1) + ' ' + r.toFixed(1) + ' 0 0 1 ' + (cx + r * Math.cos(a1)).toFixed(1) + ' ' + (cy + r * Math.sin(a1)).toFixed(1) + '" fill="none" stroke="rgba(207,169,98,' + (0.2 + rnd() * 0.35).toFixed(2) + ')" stroke-width="' + (0.7 + rnd() * 0.9).toFixed(2) + '"/>';
     }
     svg.innerHTML = out;
   }
