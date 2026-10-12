@@ -34,36 +34,16 @@ var NEST_DATA = {
 // The signed-in student.
 NEST_DATA.student = { name: 'Aarav Sharma', roll: '23AD014', usn: '1CR23AD014', branch: 'B.Tech AI & DS · Sem 5 · A' };
 
-// NPTEL courses (from the admin's SPOC sheet).
-NEST_DATA.nptel = [
-  { id: 'cc', title: 'Cloud Computing', inst: 'IIT Kharagpur', run: 'Jul–Oct 2026', bestOf: 8, nptelId: 'NPTEL26CS43S5523014',
-    exam: { applied: true, date: 'Sun 25 Oct', slot: 'Forenoon', centre: 'Bengaluru' },
-    weeks: [
-      { t: 'Introduction to cloud computing', due: '30 Jul', v: [5, 5], s: 80 },
-      { t: 'Cloud computing architecture',    due: '6 Aug',  v: [6, 6], s: 90 },
-      { t: 'Service models: IaaS, PaaS, SaaS', due: '13 Aug', v: [5, 5], s: 70 },
-      { t: 'Virtualization',                  due: '20 Aug', v: [6, 6], s: 100 },
-      { t: 'SLAs and cloud economics',        due: '27 Aug', v: [5, 2], s: null },
-      { t: 'Resource management',             due: '3 Sep',  v: [6, 6], s: 85 },
-      { t: 'Cloud security I',                due: '10 Sep', v: [5, 5], s: 60 },
-      { t: 'Cloud security II',               due: '17 Sep', v: [5, 5], s: 90 },
-      { t: 'Fog and edge computing',          due: '24 Sep', v: [6, 6], s: 75 },
-      { t: 'Containers and Kubernetes',       due: '1 Oct',  v: [5, 4], s: 80 },
-      { t: 'Serverless computing',            due: '8 Oct',  v: [5, 1], s: 'open' },
-      { t: 'Case studies',                    due: '15 Oct', v: [4, 0], s: 'up' }
-    ] },
-  { id: 'dse', title: 'Data Science for Engineers', inst: 'IIT Madras', run: 'Aug–Oct 2026', bestOf: 6, nptelId: 'NPTEL26CS71S5523014',
-    exam: { applied: false, closes: '10 Oct' },
-    weeks: [
-      { t: 'Course intro and R basics', due: '26 Aug', v: [7, 7], s: 100 },
-      { t: 'Linear algebra',            due: '2 Sep',  v: [8, 8], s: 80 },
-      { t: 'Statistics',                due: '9 Sep',  v: [6, 2], s: null },
-      { t: 'Optimization',              due: '16 Sep', v: [7, 7], s: 70 },
-      { t: 'Regression',                due: '23 Sep', v: [6, 6], s: 90 },
-      { t: 'Classification',            due: '30 Sep', v: [7, 5], s: 60 },
-      { t: 'Clustering',                due: '7 Oct',  v: [6, 3], s: 'open' },
-      { t: 'Capstone case study',       due: '14 Oct', v: [5, 0], s: 'up' }
-    ] }
+// Online certifications the student has uploaded. The backend (backend/certifications) checks each file,
+// works out the provider, and files it in that provider's folder in the teacher's Google Drive.
+// status: 'verified' | 'review' (a person must look) | 'rejected'
+NEST_DATA.certs = [
+  { id: 'c1', file: 'nptel_java_cert.pdf', provider: 'NPTEL', course: 'Programming in Java', topic: 'Programming', issued: '2026-06-18', status: 'verified', folder: 'NPTEL' },
+  { id: 'c2', file: 'google_data_analytics.pdf', provider: 'Coursera', course: 'Google Data Analytics', topic: 'Data & AI', issued: '2026-03-02', status: 'verified', folder: 'Coursera' },
+  { id: 'c3', file: 'az900.pdf', provider: 'Microsoft', course: 'Azure Fundamentals (AZ-900)', topic: 'Cloud', issued: '2026-08-11', status: 'review', folder: 'Microsoft',
+    reason: 'We couldn’t read the credential ID, so your mentor will check it.' },
+  { id: 'c4', file: 'scan_0042.jpg', provider: null, course: null, topic: null, issued: null, status: 'rejected', folder: null,
+    reason: 'This doesn’t look like a certificate. Upload the PDF the provider gave you.' }
 ];
 NEST_DATA.mentor = 'Dr. Meera Rao';
 
@@ -79,21 +59,6 @@ NEST_DATA.mentorAlerts = [
     m: 'Attend every SEPM class this week. If you need a condonation form, collect it from me.',
     when: '5 Oct' }
 ];
-
-// NPTEL helpers. Closed weeks = deadline passed (submitted or missed).
-NEST_DATA.nptelClosed = function (c) {
-  return c.weeks.filter(function (w) { return typeof w.s === 'number' || w.s === null; });
-};
-// Assignment score out of 25 from closed weeks (missed = 0), best `bestOf` weeks. Future weeks can only raise it.
-NEST_DATA.nptelScore = function (c) {
-  var top = NEST_DATA.nptelClosed(c).map(function (w) { return w.s || 0; }).sort(function (a, b) { return b - a; }).slice(0, c.bestOf);
-  return Math.round(top.reduce(function (a, b) { return a + b; }, 0) / (c.bestOf * 100) * 25 * 10) / 10;
-};
-// [watched, total] for weeks released so far.
-NEST_DATA.nptelVideos = function (c) {
-  return c.weeks.filter(function (w) { return w.s !== 'up'; })
-    .reduce(function (acc, w) { acc[0] += w.v[1]; acc[1] += w.v[0]; return acc; }, [0, 0]);
-};
 
 // Events from today onwards, soonest first.
 NEST_DATA.upcoming = function () {

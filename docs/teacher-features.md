@@ -5,7 +5,7 @@ Everything teachers need, mostly the other side of what students already see. Ti
 **Who's who**
 - **Subject teacher**: teaches a subject to a class.
 - **Mentor**: looks after a group of students (mentees).
-- **Admin**: college office or NPTEL SPOC. Their items are marked *(admin)*.
+- **Admin**: college office. Their items are marked *(admin)*.
 
 **Status key**
 - **Student side ready**: the student page that shows this already exists in `mockups/`.
@@ -16,7 +16,7 @@ Everything teachers need, mostly the other side of what students already see. Ti
 ## 1. Teacher dashboard
 - [ ] Today's classes, with the current one highlighted. *Designed (FacultyHome)*
 - [ ] Things waiting on the teacher: marks to publish, profile edit requests, unacknowledged alerts.
-- [ ] Mentees who need attention: below 75% attendance, NPTEL exam not applied, low IAT marks.
+- [ ] Mentees who need attention: below 75% attendance, low IAT marks, certificates that were rejected.
 - [ ] Own weekly timetable.
 
 ## 2. Attendance
@@ -61,8 +61,8 @@ Student side ready: News & events → Newsletter.
 Student side ready: News & events → Hackathons / Workshops / Talks, dashboard Upcoming.
 
 ## 7. Mentoring
-- [ ] Mentee list with attendance, marks and NPTEL status at a glance. *Designed (FacultyMentees)*
-- [ ] One mentee's full picture: attendance, IAT marks, NPTEL, profile, past alerts.
+- [ ] Mentee list with attendance, marks and certificates at a glance. *Designed (FacultyMentees)*
+- [ ] One mentee's full picture: attendance, IAT marks, certificates, profile, past alerts.
 - [ ] **Send an alert** to one mentee or all of them, with an optional due date and an "urgent" flag.
 - [ ] See who has **acknowledged** each alert, and who hasn't.
 - [ ] Approve or reject a mentee's request to edit locked profile sections (and set until when).
@@ -70,21 +70,22 @@ Student side ready: News & events → Hackathons / Workshops / Talks, dashboard 
 
 Student side ready: Mentor page, dashboard Mentor alerts card, the mentor pop-in, profile "Request edit access".
 
-## 8. NPTEL
-- [ ] *(admin)* Upload the SPOC sheet. Fills every student's NPTEL page.
-- [ ] *(admin)* See when the sheet was last uploaded and which week it covers.
-- [ ] Mentor view: mentees' NPTEL progress, missed assignments, exam applied or not.
-- [ ] Remind mentees who haven't applied for the exam (sends a mentor alert).
+## 8. Online certifications
+- [ ] Create the Google Drive folder for the class and share it with the NEST service account (one-off setup, see `backend/README.md`).
+- [ ] See every student's certificates in that Drive folder, sorted into one subfolder per provider.
+- [ ] Look through the **Needs review** folder: certificates the checker couldn't confirm by itself.
+- [ ] Mentor view: each mentee's certificates and their status (verified, needs review, rejected).
+- [ ] Add a provider the checker doesn't know yet (`backend/certifications/providers.py`).
 
-Student side ready: NPTEL page, dashboard NPTEL card.
+Student side ready: Online certifications page (upload, status), dashboard card.
+Backend ready: `backend/certifications` (read, check, classify, file in Drive). Not yet connected to the web app.
 
 ## 9. PDF reports (for teachers, per student)
 - [ ] Download one student's attendance report as PDF (light mode).
 - [ ] Download one student's scorecard as PDF.
-- [ ] Download one student's NPTEL report as PDF.
 - [ ] Download a whole class at once *(maybe later)*.
 
-Ready to reuse: the PDF code in `mockups/nest.js` (`NEST.exportPDF`), already tested on all three reports.
+Ready to reuse: the PDF code in `mockups/nest.js` (`NEST.exportPDF`), already tested on the attendance and scorecard reports.
 
 ## 10. Admin
 - [ ] *(admin)* Build and publish the class timetable. *Designed (AdminTimetable)*

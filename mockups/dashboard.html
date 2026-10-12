@@ -411,6 +411,7 @@ button, input, select { font: inherit; color: inherit; }
 .field input:focus, .field select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
 .field input:disabled, .field select:disabled { background: var(--surface-2); border-color: var(--border); color: var(--muted); cursor: not-allowed; opacity: 1; -webkit-text-fill-color: var(--muted); }
 .field .help { font-size: 12.5px; color: var(--faint); }
+.field input[type="file"] { padding: 10px 14px; height: auto; min-height: 46px; font-size: 14px; }
 .dr-foot {
   position: sticky; bottom: 0; margin: 28px -32px 0; padding: 16px 32px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -485,9 +486,9 @@ button, input, select { font: inherit; color: inherit; }
       <a href="scorecard.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
         Scorecard</a>
-      <a href="nptel.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M10 8.5v5l4-2.5z"/><path d="M8 21h8"/></svg>
-        NPTEL</a>
+      <a href="certifications.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="M9 13.5L7.5 21l4.5-2.5 4.5 2.5L15 13.5"/><path d="M10 9l1.5 1.5L14.5 7.5"/></svg>
+        Online certifications</a>
       <a href="mentor.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5h5.5v4.5H18l-2 1.8z"/></svg>
         Mentor<span class="nav-badge" data-mentor-badge hidden></span></a>
@@ -570,19 +571,19 @@ button, input, select { font: inherit; color: inherit; }
         </div>
       </div>
 
-      <!-- NPTEL -->
+      <!-- Online certifications -->
       <div class="stat" data-pop id="npCard">
-        <a class="stat-hit" href="nptel.html" aria-describedby="pop-np">
-          <div class="stat-top"><span class="eyebrow">NPTEL</span>
+        <a class="stat-hit" href="certifications.html" aria-describedby="pop-np">
+          <div class="stat-top"><span class="eyebrow">Online certifications</span>
             <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
           <div class="stat-value" id="npValue"></div>
           <div class="stat-note" id="npNote"></div>
           <div class="meter"><i id="npMeter"></i></div>
         </a>
         <div class="pop" id="pop-np" role="tooltip">
-          <h3>Your courses</h3>
+          <h3>Your uploads</h3>
           <div id="npPop"></div>
-          <a class="pop-link" href="nptel.html">Open NPTEL →</a>
+          <a class="pop-link" href="certifications.html">Open online certifications →</a>
         </div>
       </div>
 
@@ -872,15 +873,19 @@ button, input, select { font: inherit; color: inherit; }
       { k: 'gender', l: 'Gender', v: 'Male', opts: ['Male', 'Female', 'Other', 'Prefer not to say'], req: 1 },
       { k: 'blood', l: 'Blood group', v: 'B+', opts: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] },
       { k: 'nation', l: 'Nationality', v: 'Indian', req: 1 },
-      { k: 'aadhaar', l: 'Aadhaar card number', v: 'XXXX XXXX 4821', req: 1, help: 'Only the last 4 digits are shown.' }
+      { k: 'aadhaar', l: 'Aadhaar card number', v: 'XXXX XXXX 4821', req: 1, help: 'Only the last 4 digits are shown.' },
+      { k: 'pan', l: 'PAN card number', v: 'XXXXX4821K', help: 'Only the last 5 characters are shown.' },
+      { k: 'voter', l: 'Voter ID number', v: 'XXXXX 20417', help: 'Leave blank if you don’t have one yet.' }
     ]},
     { id: 'parent', label: 'Parent details', desc: 'Parents or legal guardians on record.', state: 'locked', fields: [
       { k: 'father', l: 'Father’s name', v: 'Rajesh Sharma', req: 1 },
       { k: 'fatherOcc', l: 'Father’s occupation', v: 'Civil engineer' },
       { k: 'fatherPh', l: 'Father’s phone', v: '+91 98450 22871', type: 'tel', req: 1 },
+      { k: 'fatherEmail', l: 'Father’s email', v: 'rajesh.sharma@gmail.com', type: 'email' },
       { k: 'mother', l: 'Mother’s name', v: 'Neha Sharma', req: 1 },
       { k: 'motherOcc', l: 'Mother’s occupation', v: 'School teacher' },
-      { k: 'motherPh', l: 'Mother’s phone', v: '+91 98860 41392', type: 'tel' }
+      { k: 'motherPh', l: 'Mother’s phone', v: '+91 98860 41392', type: 'tel' },
+      { k: 'motherEmail', l: 'Mother’s email', v: 'neha.sharma@gmail.com', type: 'email' }
     ]},
     { id: 'guardian', label: 'Guardian details', desc: 'Local guardian, if you live away from your parents.', state: 'locked', fields: [
       { k: 'gName', l: 'Guardian name', v: 'Vikram Sharma' },
@@ -893,6 +898,7 @@ button, input, select { font: inherit; color: inherit; }
       { k: 'pEmail', l: 'Personal email', v: 'aarav.s2005@gmail.com', type: 'email' },
       { k: 'phone', l: 'Mobile number', v: '+91 98450 12345', type: 'tel', req: 1 },
       { k: 'altPhone', l: 'Alternate number', v: '', type: 'tel' },
+      { k: 'curAddr', l: 'Current address', v: 'Room 118, Block C Hostel, Bengaluru, Karnataka 560029', wide: 1, req: 1, help: 'Where you stay during the semester.' },
       { k: 'addr', l: 'Permanent address', v: '221, MG Road, Mysuru, Karnataka 570001', wide: 1, req: 1 }
     ]},
     { id: 'academic', label: 'Academic details', desc: 'Managed by the college office.', state: 'office', fields: [
@@ -901,6 +907,7 @@ button, input, select { font: inherit; color: inherit; }
       { k: 'sem', l: 'Semester · section', v: '5 · A' },
       { k: 'batch', l: 'Batch', v: '2023–2027' },
       { k: 'cgpa', l: 'CGPA', v: '8.42' },
+      { k: 'cgpaReport', l: 'CGPA report', v: 'CGPA_report_Sem4.pdf', file: 1, help: 'Issued by the college office after each semester.' },
       { k: 'mentor', l: 'Mentor', v: 'Dr. Meera Rao' }
     ]},
     { id: 'admission', label: 'Admission details', desc: 'Admission date and campus requirements.', state: 'locked', fields: [
@@ -908,6 +915,10 @@ button, input, select { font: inherit; color: inherit; }
       { k: 'quota', l: 'Admission quota', v: 'Merit', opts: ['Merit', 'Management', 'NRI', 'Sports'] },
       { k: 'hostel', l: 'Hostelite', v: 'Yes', opts: ['Yes', 'No'], req: 1 },
       { k: 'pwd', l: 'Physically challenged', v: 'No', opts: ['Yes', 'No'], req: 1 }
+    ]},
+    { id: 'documents', label: 'Documents', desc: 'Marks cards from school, as scanned PDFs or photos.', state: 'locked', fields: [
+      { k: 'tenth', l: '10th marks card', v: '10th_marks_card.pdf', file: 1, req: 1 },
+      { k: 'twelfth', l: '12th marks card', v: '12th_marks_card.pdf', file: 1, req: 1 }
     ]}
   ];
   var savedProfile = store.get('profile', {});
@@ -939,14 +950,18 @@ button, input, select { font: inherit; color: inherit; }
     var dis = editable && !f.lockAlways ? '' : ' disabled';
     var lock = dis ? ICON.lock : '';
     var ctrl;
-    if (f.opts) {
+    if (f.file && !dis) {
+      ctrl = '<input id="f-' + f.k + '" data-k="' + f.k + '" type="file" accept=".pdf,image/*">' +
+        '<span class="help">Current file: ' + esc(f.v || 'none') + '. Choose a new one to replace it.</span>';
+    } else if (f.opts) {
       ctrl = '<select id="f-' + f.k + '" data-k="' + f.k + '"' + dis + '>' + f.opts.map(function (o) { return '<option' + (o === f.v ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select>';
     } else {
       ctrl = '<input id="f-' + f.k + '" data-k="' + f.k + '" type="' + (f.type || 'text') + '" value="' + esc(f.v) + '"' + dis + (f.type === 'tel' ? ' inputmode="tel"' : '') + '>';
     }
     return '<div class="field' + (f.wide ? ' wide' : '') + '"><label for="f-' + f.k + '">' + esc(f.l) + (f.req ? '<span class="req">*</span>' : '') + lock + '</label>' + ctrl +
-      (f.help ? '<span class="help">' + esc(f.help) + '</span>' : '') + '</div>';
+      (f.help && !(f.file && !dis) ? '<span class="help">' + esc(f.help) + '</span>' : '') + '</div>';
   }
+  function fieldValue(el) { return el.type === 'file' ? (el.files[0] ? el.files[0].name : null) : el.value; }
   function renderPanel() {
     var s = sections.filter(function (x) { return x.id === activeSec; })[0], editable = s.state === 'unlocked', note;
     if (s.state === 'unlocked') note = '<div class="lock-note unlocked"><span class="ic">' + ICON.open + '</span><div class="txt">Dr. Meera Rao has allowed edits<small>You can update this section until ' + s.until + '.</small></div></div>';
@@ -995,10 +1010,11 @@ button, input, select { font: inherit; color: inherit; }
       var missing = null;
       s.fields.forEach(function (f) {
         var el = $('#f-' + f.k); if (!el || el.disabled) return;
-        if (f.req && !el.value.trim() && !missing) missing = el;
+        var v = fieldValue(el);
+        if (f.req && !(v === null ? f.v : v).trim() && !missing) missing = el;
       });
       if (missing) { missing.focus(); toast('Please fill the required fields'); return; }
-      s.fields.forEach(function (f) { var el = $('#f-' + f.k); if (el && !el.disabled) { f.v = el.value; savedProfile[f.k] = el.value; } });
+      s.fields.forEach(function (f) { var el = $('#f-' + f.k); if (el && !el.disabled) { var v = fieldValue(el); if (v === null) return; f.v = v; savedProfile[f.k] = v; } });
       store.set('profile', savedProfile);
       dirty = false; $('#saveState').textContent = 'All changes saved.'; b.disabled = true;
       toast('Profile updated');
@@ -1043,22 +1059,22 @@ button, input, select { font: inherit; color: inherit; }
 
   $('.signout').addEventListener('click', function () { toast('Signed out (mockup)'); });
 
-  /* ---- NPTEL card ---- */
-  var np = NEST_DATA.nptel, npDone = 0, npDue = 0, notApplied = [];
-  np.forEach(function (c) {
-    var cl = NEST_DATA.nptelClosed(c);
-    npDue += cl.length; npDone += cl.filter(function (w) { return w.s !== null; }).length;
-    if (!c.exam.applied) notApplied.push(c);
-  });
-  $('#npValue').innerHTML = npDone + '<small> / ' + npDue + ' assignments</small>';
-  $('#npNote').innerHTML = notApplied.length
-    ? '<b>' + notApplied.length + ' exam' + (notApplied.length > 1 ? 's' : '') + ' not applied</b> · ' + np.length + ' courses'
-    : np.length + ' courses · all exams applied';
-  $('#npMeter').style.width = (npDone / npDue * 100) + '%';
-  $('#npCard').classList.toggle('is-risk', notApplied.length > 0);
-  $('#npPop').innerHTML = np.map(function (c) {
-    return '<div class="np-row"><span>' + esc(c.title) + '<span class="s">Assignments ' + NEST_DATA.nptelScore(c).toFixed(1) + ' / 25</span></span>' +
-      (c.exam.applied ? '<span class="ex ok">Exam applied ✓</span>' : '<span class="ex no">Exam not applied · closes ' + c.exam.closes + '</span>') + '</div>';
+  /* ---- Online certifications card ---- */
+  var certs = NEST_DATA.certs;
+  var cOk = certs.filter(function (c) { return c.status === 'verified'; }).length;
+  var cRev = certs.filter(function (c) { return c.status === 'review'; }).length;
+  var cBad = certs.filter(function (c) { return c.status === 'rejected'; }).length;
+  $('#npValue').innerHTML = cOk + '<small> verified</small>';
+  $('#npNote').innerHTML = (cBad || cRev)
+    ? '<b>' + (cBad + cRev) + ' need' + (cBad + cRev > 1 ? '' : 's') + ' attention</b> · ' + certs.length + ' uploaded'
+    : certs.length + ' uploaded · all verified';
+  $('#npMeter').style.width = (certs.length ? cOk / certs.length * 100 : 0) + '%';
+  $('#npCard').classList.toggle('is-risk', cBad > 0);
+  var CERT_LABEL = { verified: ['Verified ✓', 'ok'], review: ['Mentor will check', 'no'], rejected: ['Rejected', 'no'] };
+  $('#npPop').innerHTML = certs.map(function (c) {
+    var l = CERT_LABEL[c.status];
+    return '<div class="np-row"><span>' + esc(c.course || c.file) + '<span class="s">' + esc(c.provider || 'Not recognised') + '</span></span>' +
+      '<span class="ex ' + l[1] + '">' + l[0] + '</span></div>';
   }).join('');
 
   /* ---- Mentor alerts card: the latest alert, and how many are still unacknowledged ---- */
