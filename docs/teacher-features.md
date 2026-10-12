@@ -66,6 +66,8 @@ Student side ready: News & events → Hackathons / Workshops / Talks, dashboard 
 - [ ] **Send an alert** to one mentee or all of them, with an optional due date and an "urgent" flag.
 - [ ] See who has **acknowledged** each alert, and who hasn't.
 - [ ] Approve or reject a mentee's request to edit locked profile sections (and set until when).
+- [ ] Download a mentee's SGPA and CGPA report as PDF (SGPA for each finished semester).
+- [ ] Download a mentee's admission documents (10th, 12th, study and migration certificates, admission letter, receipt).
 - [ ] Edit own contact card: email, phone, cabin, office hours, Active/Away status.
 
 Student side ready: Mentor page, dashboard Mentor alerts card, the mentor pop-in, profile "Request edit access".

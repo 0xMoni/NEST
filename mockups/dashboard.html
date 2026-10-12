@@ -399,6 +399,7 @@ button, input, select { font: inherit; color: inherit; }
 .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; }
 .field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
 .field.wide { grid-column: 1 / -1; }
+.field[hidden] { display: none; }
 .field label { font-family: var(--head); font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
 .field label .req { color: var(--risk); }
 .field label svg { width: 12px; height: 12px; color: var(--faint); }
@@ -906,19 +907,27 @@ button, input, select { font: inherit; color: inherit; }
       { k: 'prog', l: 'Programme', v: 'B.Tech Artificial Intelligence & Data Science' },
       { k: 'sem', l: 'Semester · section', v: '5 · A' },
       { k: 'batch', l: 'Batch', v: '2023–2027' },
-      { k: 'cgpa', l: 'CGPA', v: '8.42' },
+      { k: 'sgpa1', l: 'SGPA · Semester 1', v: '8.10' },
+      { k: 'sgpa2', l: 'SGPA · Semester 2', v: '8.35' },
+      { k: 'sgpa3', l: 'SGPA · Semester 3', v: '8.55' },
+      { k: 'sgpa4', l: 'SGPA · Semester 4', v: '8.68', help: 'Semester 5 appears once it’s finished.' },
+      { k: 'cgpa', l: 'CGPA', v: '8.42', help: 'Across the semesters finished so far.' },
       { k: 'cgpaReport', l: 'CGPA report', v: 'CGPA_report_Sem4.pdf', file: 1, help: 'Issued by the college office after each semester.' },
       { k: 'mentor', l: 'Mentor', v: 'Dr. Meera Rao' }
     ]},
-    { id: 'admission', label: 'Admission details', desc: 'Admission date and campus requirements.', state: 'locked', fields: [
+    { id: 'admission', label: 'Admission details', desc: 'Admission date, entry type and the documents you submitted. Scanned PDFs or photos.', state: 'locked', fields: [
       { k: 'admDate', l: 'Admission date', v: '2023-08-01', type: 'date', req: 1 },
-      { k: 'quota', l: 'Admission quota', v: 'Merit', opts: ['Merit', 'Management', 'NRI', 'Sports'] },
+      { k: 'entry', l: 'Entry type', v: 'KCET', opts: ['KCET', 'COMEDK', 'Management'], req: 1 },
       { k: 'hostel', l: 'Hostelite', v: 'Yes', opts: ['Yes', 'No'], req: 1 },
-      { k: 'pwd', l: 'Physically challenged', v: 'No', opts: ['Yes', 'No'], req: 1 }
-    ]},
-    { id: 'documents', label: 'Documents', desc: 'Marks cards from school, as scanned PDFs or photos.', state: 'locked', fields: [
+      { k: 'pwd', l: 'Physically challenged', v: 'No', opts: ['Yes', 'No'], req: 1 },
+      { k: 'admLetter', l: 'Admission letter', label: function (g) { return g('entry') + ' admission letter'; }, v: 'KCET_admission_letter.pdf', file: 1, req: 1, help: 'The letter for your entry type.' },
       { k: 'tenth', l: '10th marks card', v: '10th_marks_card.pdf', file: 1, req: 1 },
-      { k: 'twelfth', l: '12th marks card', v: '12th_marks_card.pdf', file: 1, req: 1 }
+      { k: 'twelfth', l: '12th marks card', v: '12th_marks_card.pdf', file: 1, req: 1 },
+      { k: 'study', l: 'Study certificate', v: 'study_certificate.pdf', file: 1, req: 1 },
+      { k: 'migration', l: 'Migration certificate', v: '', file: 1, help: 'If you have one. Needed if you moved from another board or university.' },
+      { k: 'disability', l: 'Disability certificate', v: '', file: 1, req: 1, showIf: function (g) { return g('pwd') === 'Yes'; } },
+      { k: 'caste', l: 'Caste certificate', v: '', file: 1, help: 'Only if applicable.' },
+      { k: 'receipt', l: 'Payment receipt', v: 'fee_receipt_2023.pdf', file: 1, req: 1 }
     ]}
   ];
   var savedProfile = store.get('profile', {});
@@ -956,10 +965,20 @@ button, input, select { font: inherit; color: inherit; }
     } else if (f.opts) {
       ctrl = '<select id="f-' + f.k + '" data-k="' + f.k + '"' + dis + '>' + f.opts.map(function (o) { return '<option' + (o === f.v ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select>';
     } else {
-      ctrl = '<input id="f-' + f.k + '" data-k="' + f.k + '" type="' + (f.type || 'text') + '" value="' + esc(f.v) + '"' + dis + (f.type === 'tel' ? ' inputmode="tel"' : '') + '>';
+      ctrl = '<input id="f-' + f.k + '" data-k="' + f.k + '" type="' + (f.type || 'text') + '" value="' + esc(f.v) + '"' + dis + (f.file ? ' placeholder="Not uploaded"' : '') + (f.type === 'tel' ? ' inputmode="tel"' : '') + '>';
     }
-    return '<div class="field' + (f.wide ? ' wide' : '') + '"><label for="f-' + f.k + '">' + esc(f.l) + (f.req ? '<span class="req">*</span>' : '') + lock + '</label>' + ctrl +
+    return '<div class="field' + (f.wide ? ' wide' : '') + '" data-field="' + f.k + '"><label for="f-' + f.k + '"><span class="lt">' + esc(f.l) + '</span>' + (f.req ? '<span class="req">*</span>' : '') + lock + '</label>' + ctrl +
       (f.help && !(f.file && !dis) ? '<span class="help">' + esc(f.help) + '</span>' : '') + '</div>';
+  }
+  // Fields that depend on others: a label that follows the entry type, a field shown only when it applies.
+  function applyConditions() {
+    var s = sections.filter(function (x) { return x.id === activeSec; })[0];
+    var get = function (k) { var el = $('#f-' + k); if (el) return el.value; var f = s.fields.filter(function (x) { return x.k === k; })[0]; return f ? f.v : ''; };
+    s.fields.forEach(function (f) {
+      var box = $('[data-field="' + f.k + '"]'); if (!box) return;
+      if (f.showIf) box.hidden = !f.showIf(get);
+      if (f.label) $('.lt', box).textContent = f.label(get);
+    });
   }
   function fieldValue(el) { return el.type === 'file' ? (el.files[0] ? el.files[0].name : null) : el.value; }
   function renderPanel() {
@@ -974,6 +993,7 @@ button, input, select { font: inherit; color: inherit; }
     $('#drPanel').setAttribute('aria-labelledby', 'tab-' + s.id);
     $('#drPanel').innerHTML = note + '<h3 class="sec-title">' + s.label + '</h3><p class="sec-sub">' + s.desc + '</p>' +
       '<div class="fields">' + s.fields.map(function (f) { return fieldHTML(f, editable); }).join('') + '</div>' + foot;
+    applyConditions();
     dirty = false;
   }
   function setState(id, st) {
@@ -1000,6 +1020,7 @@ button, input, select { font: inherit; color: inherit; }
   }
   $('#drPanel').addEventListener('input', markDirty);
   $('#drPanel').addEventListener('change', markDirty);
+  $('#drPanel').addEventListener('change', applyConditions);
   $('#drPanel').addEventListener('click', function (e) {
     var b = e.target.closest('[data-act]'); if (!b) return;
     var act = b.dataset.act;
@@ -1009,7 +1030,7 @@ button, input, select { font: inherit; color: inherit; }
       var s = sections.filter(function (x) { return x.id === activeSec; })[0];
       var missing = null;
       s.fields.forEach(function (f) {
-        var el = $('#f-' + f.k); if (!el || el.disabled) return;
+        var el = $('#f-' + f.k); if (!el || el.disabled || el.closest('.field').hidden) return;
         var v = fieldValue(el);
         if (f.req && !(v === null ? f.v : v).trim() && !missing) missing = el;
       });
