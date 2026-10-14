@@ -65,18 +65,6 @@
 .missed { color: var(--danger); background: var(--danger-bg); border-color: var(--danger) !important; }
 .missed span { color: var(--danger); opacity: 0.75; }
 
-.printBtn {
-  font-family: inherit;
-  font-size: 0.8125rem;
-  color: var(--ink-2);
-  background: none;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 9px 16px;
-  cursor: pointer;
-}
-.printBtn:hover { color: var(--ink); border-color: var(--line-hover); }
-
 @media print {
   /* the chevron button is hidden in print, so show the subject name it holds */
   .expand { display: inline !important; }
