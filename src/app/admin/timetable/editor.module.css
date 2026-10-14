@@ -1,0 +1,37 @@
+.wrap { overflow-x: auto; padding-bottom: 4px; }
+.grid { border-collapse: separate; border-spacing: 0 5px; min-width: 620px; }
+.grid thead th { padding: 0 6px 10px 0; text-align: left; font-weight: 400; vertical-align: bottom; white-space: nowrap; }
+.pNum { font-size: 0.6875rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+.pTime { display: block; font-size: 0.6875rem; color: var(--ink-3); opacity: 0.75; font-variant-numeric: tabular-nums; }
+.after { display: block; font-size: 0.5625rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-top: 3px; }
+.day { width: 46px; padding: 0 12px 0 0; text-align: left; font-size: 0.8125rem; font-weight: 400; color: var(--ink-2); }
+.grid td { padding: 0 6px 0 0; }
+
+.pick {
+  width: 112px;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+  background: var(--field);
+  border: 1px dashed var(--line);
+  border-radius: 9px;
+  padding: 10px 30px 10px 11px;
+  cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%23868a90' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center; background-size: 10px 7px;
+}
+/* a filled slot is solid; an empty one stays dashed, so the gaps are obvious */
+.set { border-style: solid; border-color: var(--line-hover); color: var(--ink); background: var(--field-2); }
+.pick:focus-visible { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px var(--ring); }
+.pick:disabled { opacity: 0.5; }
+
+.key {
+  display: flex; flex-wrap: wrap; gap: 8px 20px;
+  margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line);
+  font-size: 0.8125rem; color: var(--ink-2);
+}
+.keyItem b { color: var(--ink); font-weight: 500; margin-right: 4px; }
+.keyItem span { color: var(--ink-3); }
+.hint { font-size: 0.875rem; color: var(--ink-2); max-width: 56ch; }
+.error { color: var(--danger); font-size: 0.875rem; }

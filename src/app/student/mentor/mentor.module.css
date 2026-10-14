@@ -1,0 +1,70 @@
+.card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 22px;
+  background: var(--field);
+  max-width: 680px;
+  margin-bottom: 8px;
+}
+.name {
+  font-family: var(--font-newsreader), ui-serif, Georgia, serif;
+  font-weight: 400;
+  font-size: 1.45rem;
+  margin: 10px 0 16px;
+}
+.contact { display: grid; gap: 0; margin: 0; }
+.contact > div {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 14px;
+  padding: 9px 0;
+  border-top: 1px solid var(--line);
+}
+.contact dt { font-size: 0.8125rem; color: var(--ink-3); }
+.contact dd { margin: 0; font-size: 0.9375rem; }
+.thin { font-size: 0.875rem; color: var(--ink-3); margin: 12px 0 0; }
+
+.none {
+  font-size: 0.9375rem; color: var(--ink-2);
+  border: 1px dashed var(--line); border-radius: 12px;
+  padding: 20px; max-width: 54ch;
+}
+
+.alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; max-width: 680px; }
+.alert {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 18px;
+  background: var(--field);
+}
+.urgent { border-color: color-mix(in srgb, var(--danger) 45%, var(--line)); background: var(--danger-bg); }
+/* acknowledged work stays readable but stops competing with what is still open */
+.done { opacity: 0.6; }
+
+.alertHead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.kind {
+  font-size: 0.625rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ink-3); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px;
+}
+.urgentTag {
+  font-size: 0.625rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--danger); border: 1px solid currentColor; border-radius: 999px; padding: 2px 9px;
+}
+.when { margin-left: auto; font-size: 0.75rem; color: var(--ink-3); }
+
+.title { font-size: 1rem; font-weight: 500; margin: 0 0 6px; }
+.message { font-size: 0.9375rem; color: var(--ink-2); line-height: 1.55; margin: 0; }
+
+.alertFoot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-top: 14px;
+}
+.due { font-size: 0.8125rem; color: var(--ink-2); }
+.ack { font-size: 0.8125rem; color: var(--ok); margin-left: auto; }
+.ackBtn {
+  margin-left: auto;
+  font-family: inherit; font-size: 0.8125rem; font-weight: 500;
+  color: var(--btn-text); background: var(--btn);
+  border: 0; border-radius: 9px; padding: 9px 16px; cursor: pointer;
+}
+.ackBtn:disabled { opacity: 0.6; cursor: default; }

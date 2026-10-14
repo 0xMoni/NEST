@@ -1,0 +1,148 @@
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.count { font-size: 1rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.count strong { color: var(--ink); font-weight: 500; }
+.absentCount { color: var(--danger) !important; }
+
+.controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.segmented button {
+  font-family: inherit;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  background: none;
+  border: 0;
+  padding: 9px 15px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.segmented button + button { border-left: 1px solid var(--line); }
+.segmented button:hover { color: var(--ink); }
+.segmented button[aria-pressed="true"] {
+  background: var(--field-2);
+  color: var(--ink);
+  font-weight: 500;
+}
+.segmented button:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+
+.ghost {
+  font-family: inherit;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 15px;
+  cursor: pointer;
+}
+.ghost:hover { color: var(--ink); border-color: var(--line-hover); }
+
+.hint { font-size: 0.8125rem; color: var(--ink-3); margin: 14px 0 16px; }
+
+/* ---- USN only: the whole class on one screen, no scrolling ---- */
+.gridUsn {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 8px;
+}
+.chip {
+  width: 100%;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 8px;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+.chip { border-color: color-mix(in srgb, var(--ok) 32%, var(--line)); }
+.chip:hover { border-color: var(--ok); }
+.chip:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.usnBig {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ok);
+}
+
+/* ---- USN and name: full width, several columns ---- */
+.gridFull {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 8px;
+}
+.card {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 108px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 13px 14px;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+.card { border-color: color-mix(in srgb, var(--ok) 26%, var(--line)); }
+.card:hover { border-color: var(--ok); }
+.card:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.usnSmall { font-size: 0.8125rem; color: var(--ok); letter-spacing: 0.03em; font-variant-numeric: tabular-nums; }
+.name { font-size: 0.9375rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.state {
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ok);
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+/* ---- absent, in either view ---- */
+.absent { background: var(--danger-bg); border-color: var(--danger); }
+.absent .usnBig, .absent .name { color: var(--danger); }
+.absent .usnSmall { color: var(--danger); opacity: 0.8; }
+.absent .state { color: var(--danger); }
+
+.save {
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--btn-text);
+  background: var(--btn);
+  border: 0;
+  border-radius: 10px;
+  padding: 13px 26px;
+  cursor: pointer;
+}
+.save:disabled { opacity: 0.6; cursor: default; }
+
+.ok { color: var(--ok); font-size: 0.9375rem; }
+.error { color: var(--danger); font-size: 0.9375rem; }
+.empty { color: var(--ink-2); border: 1px dashed var(--line); border-radius: 12px; padding: 22px; max-width: 48ch; }

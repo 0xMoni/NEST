@@ -1,0 +1,102 @@
+.new { margin-bottom: 10px; }
+.form {
+  /* Explicit tracks, not auto-fit. auto-fit plus a two-column span kept
+     reflowing into a different shape at every width — Date wrapping under
+     Subject while Title got clipped. Four fields of known relative size want
+     four named columns. */
+  display: grid;
+  grid-template-columns: minmax(200px, 2.2fr) minmax(120px, 1.1fr) 92px 150px;
+  gap: 16px;
+  align-items: end;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  background: var(--field);
+  max-width: 900px;
+}
+.form label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  /* grid items default to min-width:auto, so a long option value would
+     otherwise refuse to shrink and run over its neighbour */
+  min-width: 0;
+}
+.form input, .form select {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 10px 12px;
+}
+/* The native arrow sits hard against the border with no way to move it.
+   Replacing it buys the breathing room the text already has. The chevron is a
+   mid grey on purpose — one colour that stays visible on both themes, since a
+   data URI cannot read a custom property. */
+.form select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 38px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%23868a90' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 12px 8px;
+}
+
+.form input:focus-visible, .form select:focus-visible {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+/* The people form shares these controls but has six fields of its own sizes,
+   so it sets its own tracks rather than inheriting four. */
+.formPeople {
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
+  max-width: 900px;
+}
+
+@media (max-width: 860px) {
+  .form { grid-template-columns: 1fr 1fr; }
+  .formPeople { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) {
+  .form, .formPeople { grid-template-columns: 1fr; }
+}
+
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+.primary {
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--btn-text);
+  background: var(--btn);
+  border: 0;
+  border-radius: 9px;
+  padding: 11px 20px;
+  cursor: pointer;
+}
+.primary:disabled { opacity: 0.6; cursor: default; }
+.ghost {
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 11px 18px;
+  cursor: pointer;
+}
+.error { color: var(--danger); font-size: 0.875rem; grid-column: 1 / -1; margin: 0; }
