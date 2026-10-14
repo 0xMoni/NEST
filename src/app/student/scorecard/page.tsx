@@ -2,7 +2,6 @@ import { requireRole } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { Shell } from "@/components/Shell";
 import { ui, Empty, Badge } from "@/components/ui";
-import { PrintButton } from "@/components/PrintButton";
 
 export default async function StudentScorecard() {
   const me = await requireRole("student");
@@ -68,11 +67,6 @@ export default async function StudentScorecard() {
         })
       )}
 
-      {rows.length > 0 && (
-        <div style={{ marginTop: 26 }}>
-          <PrintButton />
-        </div>
-      )}
     </Shell>
   );
 }

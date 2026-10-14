@@ -2,7 +2,6 @@ import { requireRole } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { Shell } from "@/components/Shell";
 import { ui, Empty, Tile } from "@/components/ui";
-import { PrintButton } from "@/components/PrintButton";
 import { SubjectRows, type Subject } from "./SubjectRows";
 
 export default async function StudentAttendance() {
@@ -72,9 +71,6 @@ export default async function StudentAttendance() {
             Open a subject to see the individual classes, and which ones you missed.
           </p>
           <SubjectRows subjects={subjects} />
-          <div style={{ marginTop: 22 }}>
-            <PrintButton />
-          </div>
         </>
       )}
     </Shell>
