@@ -109,6 +109,8 @@ button, input, select { font: inherit; color: inherit; }
 .nav a:hover { background: rgba(255, 255, 255, .05); color: #f3f1ea; }
 .nav a[aria-current="page"] { background: rgba(207, 169, 98, .13); color: #f3f1ea; box-shadow: inset 2px 0 0 #cfa962; }
 .nav a[aria-current="page"] svg { color: #cfa962; opacity: 1; }
+.nav .nav-badge { margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; display: grid; place-items: center; font-family: var(--head); font-size: 10.5px; font-weight: 700; background: #e8876d; color: #121418; }
+.nav .nav-badge[hidden] { display: none; }
 
 .side-foot { margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, .08); color: #f3f1ea; }
 .me {
@@ -219,17 +221,17 @@ button, input, select { font: inherit; color: inherit; }
 .task.done .t { text-decoration: line-through; color: var(--faint); }
 .task.done .due { opacity: .5; }
 
-.roadrow { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; font-size: 14.5px; }
-.roadrow .n { width: 22px; height: 22px; border-radius: 50%; flex: none; display: grid; place-items: center; font-family: var(--head); font-weight: 600; font-size: 10px; border: 1px solid var(--border-strong); color: var(--muted); }
-.roadrow.done .n { background: var(--gold); color: var(--bg); border-color: var(--gold); }
-.roadrow.now .n { border-color: var(--gold); color: var(--gold); }
-.roadrow .s { font-size: 13px; color: var(--muted); }
-
-.thread { border-left: 2px solid var(--border-strong); padding: 2px 0 2px 12px; font-size: 14px; }
-.thread + .thread { margin-top: 10px; }
-.thread.reply { border-color: var(--gold); }
-.thread .by { font-size: 12.5px; color: var(--muted); margin-bottom: 2px; }
-.thread .by b { color: var(--text); }
+.np-row { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding: 8px 0; font-size: 14.5px; }
+.np-row + .np-row { border-top: 1px dashed var(--border); }
+.np-row .s { display: block; font-size: 13px; color: var(--muted); }
+.np-row .ex { font-family: var(--head); font-size: 11px; font-weight: 600; white-space: nowrap; }
+.np-row .ex.ok { color: var(--ok); }
+.np-row .ex.no { color: var(--risk); }
+.al-when { font-size: 12.5px; color: var(--faint); }
+.al-ttl { font-weight: 700; font-size: 15px; margin: 2px 0 4px; }
+.al-msg { font-size: 14px; color: var(--muted); }
+.al-due { display: inline-block; margin-top: 8px; font-family: var(--head); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; background: var(--surface-3); color: var(--muted); }
+.al-due.urgent { background: var(--risk-soft); color: var(--risk); }
 
 /* ---------- Lower sections ---------- */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px 26px; }
@@ -279,51 +281,21 @@ button, input, select { font: inherit; color: inherit; }
 .badge.now { background: var(--gold); color: var(--bg); }
 .badge.next { background: var(--gold-soft); color: var(--gold); }
 
-/* opportunities & news */
-.feed-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
-.feed-head h2 { margin: 0; font-family: var(--head); font-weight: 600; font-size: 20px; }
-.feed-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 24px; align-items: start; }
-.card-sub { margin: 0; font-family: var(--head); font-weight: 600; font-size: 15px; }
-.chips { display: flex; gap: 6px; flex-wrap: wrap; }
-.chip {
-  min-height: 30px; padding: 0 12px; border-radius: 999px; font-family: var(--head); font-size: 11px; font-weight: 600;
-  border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all .15s;
-}
-.chip:hover { color: var(--text); border-color: var(--border-strong); }
-.chip[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
-.events { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.ev {
-  display: flex; flex-direction: column; gap: 6px; padding: 16px; border-radius: 12px;
+/* upcoming preview */
+.up-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.up-list a {
+  display: flex; gap: 14px; align-items: center; padding: 14px; border-radius: 12px; text-decoration: none;
   background: var(--surface-2); border: 1px solid var(--border); transition: border-color .15s, transform .15s;
 }
-.ev:hover { border-color: var(--border-strong); transform: translateY(-2px); }
-.ev[hidden] { display: none; }
-.ev-top { display: flex; justify-content: space-between; align-items: center; }
-.ev .kind { font-family: var(--head); font-size: 9.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
-.ev .when { font-family: var(--head); font-size: 11px; font-weight: 600; color: var(--muted); }
-.ev .ttl { font-size: 16px; font-weight: 700; line-height: 1.25; }
-.ev .sub { font-size: 13.5px; color: var(--muted); }
-.ev-foot { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 6px; }
-.closing { font-size: 13px; color: var(--risk); }
-.save { width: 36px; height: 36px; margin: -6px -8px -6px auto; border-radius: 10px; border: 1px solid transparent; background: none; display: grid; place-items: center; cursor: pointer; color: var(--faint); transition: all .15s; }
-.save:hover { border-color: var(--border); color: var(--text); }
-.save svg { width: 17px; height: 17px; }
-.save[aria-pressed="true"] { color: var(--gold); }
-.save[aria-pressed="true"] svg { fill: currentColor; }
-.empty-note { grid-column: 1 / -1; font-size: 14px; color: var(--muted); padding: 12px 0; }
-.news { list-style: none; margin: 0; padding: 0; }
-.news li + li { border-top: 1px solid var(--border); }
-.news a { display: grid; grid-template-columns: 8px 1fr; gap: 12px; padding: 14px 0; text-decoration: none; }
-.news a:hover .ttl { text-decoration: underline; }
-.news .dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 7px; background: var(--gold); }
-.news .read .dot { background: transparent; }
-.news .src { font-family: var(--head); font-size: 9.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.news .ttl { font-size: 15px; font-weight: 700; line-height: 1.3; margin: 2px 0; }
-.news .read .ttl { font-weight: 400; color: var(--muted); }
-.news .sub { font-size: 13px; color: var(--faint); }
+.up-list a:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+.up-date { width: 46px; flex: none; text-align: center; padding: 5px 0; border-radius: 9px; background: var(--surface); border: 1px solid var(--border); }
+.up-date .d { font-family: var(--head); font-weight: 600; font-size: 17px; line-height: 1.1; }
+.up-date .m { font-family: var(--head); font-size: 9px; font-weight: 600; letter-spacing: .14em; color: var(--muted); }
+.up-kind { font-family: var(--head); font-size: 9.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+.up-ttl { font-size: 15px; font-weight: 700; line-height: 1.25; }
+.up-empty { font-size: 14px; color: var(--muted); }
 .more { font-size: 14px; color: var(--gold); text-decoration: none; font-weight: 700; }
 .more:hover { text-decoration: underline; }
-.aside { font-size: 13.5px; color: var(--muted); }
 
 /* mentor pop-in */
 .mentor-pop { position: fixed; right: 24px; bottom: 24px; z-index: 30; display: flex; flex-direction: column; align-items: flex-end; }
@@ -427,6 +399,7 @@ button, input, select { font: inherit; color: inherit; }
 .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; }
 .field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
 .field.wide { grid-column: 1 / -1; }
+.field[hidden] { display: none; }
 .field label { font-family: var(--head); font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
 .field label .req { color: var(--risk); }
 .field label svg { width: 12px; height: 12px; color: var(--faint); }
@@ -439,6 +412,7 @@ button, input, select { font: inherit; color: inherit; }
 .field input:focus, .field select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
 .field input:disabled, .field select:disabled { background: var(--surface-2); border-color: var(--border); color: var(--muted); cursor: not-allowed; opacity: 1; -webkit-text-fill-color: var(--muted); }
 .field .help { font-size: 12.5px; color: var(--faint); }
+.field input[type="file"] { padding: 10px 14px; height: auto; min-height: 46px; font-size: 14px; }
 .dr-foot {
   position: sticky; bottom: 0; margin: 28px -32px 0; padding: 16px 32px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -460,7 +434,6 @@ button, input, select { font: inherit; color: inherit; }
   .stat:nth-child(even) .pop { left: auto; right: 0; }
   .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .tile.span2 { grid-column: span 1; }
-  .feed-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 860px) {
   .shell { grid-template-columns: 1fr; }
@@ -492,6 +465,7 @@ button, input, select { font: inherit; color: inherit; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
+<link rel="stylesheet" href="polish.css">
 </head>
 <body>
 <div class="shell">
@@ -514,9 +488,15 @@ button, input, select { font: inherit; color: inherit; }
       <a href="scorecard.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
         Scorecard</a>
-      <a href="roadmap.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h7"/></svg>
-        Roadmap &amp; practice</a>
+      <a href="certifications.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="M9 13.5L7.5 21l4.5-2.5 4.5 2.5L15 13.5"/><path d="M10 9l1.5 1.5L14.5 7.5"/></svg>
+        Online certifications</a>
+      <a href="mentor.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5h5.5v4.5H18l-2 1.8z"/></svg>
+        Mentor<span class="nav-badge" data-mentor-badge hidden></span></a>
+      <a href="news.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v10a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5M8 17h3"/></svg>
+        News &amp; events</a>
     </nav>
     <div class="side-foot">
       <button class="me" type="button" data-open-profile aria-haspopup="dialog">
@@ -593,43 +573,33 @@ button, input, select { font: inherit; color: inherit; }
         </div>
       </div>
 
-      <!-- Roadmap -->
-      <div class="stat" data-pop>
-        <a class="stat-hit" href="roadmap.html" aria-describedby="pop-road">
-          <div class="stat-top"><span class="eyebrow">Roadmap</span>
+      <!-- Online certifications -->
+      <div class="stat" data-pop id="npCard">
+        <a class="stat-hit" href="certifications.html" aria-describedby="pop-np">
+          <div class="stat-top"><span class="eyebrow">Online certifications</span>
             <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
-          <div class="stat-value">6<small> / 14</small></div>
-          <div class="stat-note">ML Engineer track</div>
-          <div class="meter"><i style="width:43%"></i></div>
+          <div class="stat-value" id="npValue"></div>
+          <div class="stat-note" id="npNote"></div>
+          <div class="meter"><i id="npMeter"></i></div>
         </a>
-        <div class="pop" id="pop-road" role="tooltip">
-          <h3>ML Engineer track</h3>
-          <div class="roadrow done"><span class="n">6</span><div>Model evaluation &amp; metrics<div class="s">Completed 24 Sep</div></div></div>
-          <div class="roadrow now"><span class="n">7</span><div>Feature engineering in practice<div class="s">In progress · 2 of 5 problems</div></div></div>
-          <div class="roadrow"><span class="n">8</span><div>Intro to MLOps<div class="s">Up next</div></div></div>
-          <a class="pop-link" href="roadmap.html">See all your roadmaps →</a>
+        <div class="pop" id="pop-np" role="tooltip">
+          <h3>Your uploads</h3>
+          <div id="npPop"></div>
+          <a class="pop-link" href="certifications.html">Open online certifications →</a>
         </div>
       </div>
 
-      <!-- Help requests -->
-      <div class="stat" data-pop>
-        <a class="stat-hit" href="help.html" aria-describedby="pop-help">
-          <div class="stat-top"><span class="eyebrow">Help requests</span>
+      <!-- Mentor alerts -->
+      <div class="stat" data-pop id="alCard">
+        <a class="stat-hit" href="mentor.html" aria-describedby="pop-al">
+          <div class="stat-top"><span class="eyebrow">Mentor alerts</span>
             <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></div>
-          <div class="stat-value">1 <small>open</small></div>
-          <div class="stat-note">New reply from <b>Dr. Meera Rao</b></div>
+          <div class="stat-value" id="alValue"></div>
+          <div class="stat-note" id="alNote"></div>
         </a>
-        <div class="pop" id="pop-help" role="tooltip">
-          <h3>To your mentor · 2 days ago</h3>
-          <div class="thread">
-            <div class="by"><b>You</b> · 27 Sep</div>
-            Struggling with the backprop derivation for DL Assignment 3. Could we go through it?
-          </div>
-          <div class="thread reply">
-            <div class="by"><b>Dr. Meera Rao</b> · today, 4:10 PM</div>
-            Sure. Come by my cabin Wednesday 3:30 PM, and bring your working so far.
-          </div>
-          <a class="pop-link" href="help.html">Open conversation →</a>
+        <div class="pop" id="pop-al" role="tooltip">
+          <div id="alPop"></div>
+          <a class="pop-link" href="mentor.html">See all alerts →</a>
         </div>
       </div>
     </section>
@@ -646,34 +616,13 @@ button, input, select { font: inherit; color: inherit; }
       <div class="tiles" id="tiles"></div>
     </section>
 
-    <!-- Opportunities & news -->
-    <section class="feed" aria-labelledby="feedTitle">
-      <div class="feed-head">
-        <h2 id="feedTitle">Opportunities &amp; news</h2>
-        <a class="more" href="opportunities.html">See all →</a>
+    <!-- Upcoming: a preview, the full list lives on news.html -->
+    <section class="card upcoming" aria-labelledby="upTitle">
+      <div class="card-head">
+        <h2 id="upTitle">Upcoming</h2>
+        <a class="more" href="news.html">See all →</a>
       </div>
-      <div class="feed-grid">
-        <div class="card">
-          <div class="card-head">
-            <h3 class="card-sub">Upcoming events</h3>
-            <div class="chips" role="group" aria-label="Filter events">
-              <button class="chip" type="button" data-f="all" aria-pressed="true">All</button>
-              <button class="chip" type="button" data-f="workshop" aria-pressed="false">Workshops</button>
-              <button class="chip" type="button" data-f="hackathon" aria-pressed="false">Hackathons</button>
-              <button class="chip" type="button" data-f="talk" aria-pressed="false">Talks</button>
-              <button class="chip" type="button" data-f="saved" aria-pressed="false">Saved</button>
-            </div>
-          </div>
-          <ul class="events" id="opps"></ul>
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <h3 class="card-sub">Newsletters &amp; notices</h3>
-            <span class="aside" id="newsUnread"></span>
-          </div>
-          <ul class="news" id="news"></ul>
-        </div>
-      </div>
+      <ul class="up-list" id="upcoming"></ul>
     </section>
   </main>
 </div>
@@ -730,6 +679,7 @@ button, input, select { font: inherit; color: inherit; }
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="data.js"></script>
 <script>
 (function () {
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -757,16 +707,18 @@ button, input, select { font: inherit; color: inherit; }
 
   /* ---- Sidebar swirl (echoes the login nest) ---- */
   (function drawSwirl() {
-    var svg = $('#swirl'), cx = 40, cy = 760, out = '', seed = 7;
+    var svg = $('#swirl'), cx = 40, cy = 700, out = '', seed = 7;
     svg.setAttribute('viewBox', '0 0 260 900');
     svg.setAttribute('preserveAspectRatio', 'xMinYMax slice');
     function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
-    for (var i = 0; i < 46; i++) {
-      var r = 30 + i * 6 + rnd() * 10, a0 = rnd() * Math.PI * 2, a1 = a0 + 0.6 + rnd() * 1.6, ry = r * .82;
-      out += '<path d="M' + (cx + r * Math.cos(a0)).toFixed(1) + ' ' + (cy + ry * Math.sin(a0)).toFixed(1) + ' A' + r.toFixed(1) + ' ' + ry.toFixed(1) + ' 0 0 1 ' + (cx + r * Math.cos(a1)).toFixed(1) + ' ' + (cy + ry * Math.sin(a1)).toFixed(1) + '" fill="none" stroke="rgba(207,169,98,' + (0.06 + rnd() * 0.18).toFixed(2) + ')" stroke-width="' + (0.5 + rnd() * 0.7).toFixed(2) + '"/>';
+    for (var i = 0; i < 58; i++) {
+      var r = 30 + i * 6 + rnd() * 10, a0 = rnd() * Math.PI * 2, a1 = a0 + 0.6 + rnd() * 1.6;
+      out += '<path class="' + (i % 2 ? 'r' : '') + '" style="--d:' + (90 + rnd() * 150).toFixed(0) + 's;--g:' + (5 + rnd() * 6).toFixed(1) + 's;animation-delay:0s,-' + (rnd() * 8).toFixed(1) + 's" d="M' + (cx + r * Math.cos(a0)).toFixed(1) + ' ' + (cy + r * Math.sin(a0)).toFixed(1) + ' A' + r.toFixed(1) + ' ' + r.toFixed(1) + ' 0 0 1 ' + (cx + r * Math.cos(a1)).toFixed(1) + ' ' + (cy + r * Math.sin(a1)).toFixed(1) + '" fill="none" stroke="rgba(207,169,98,' + (0.2 + rnd() * 0.35).toFixed(2) + ')" stroke-width="' + (0.7 + rnd() * 0.9).toFixed(2) + '"/>';
     }
     svg.innerHTML = out;
   })();
+
+  var curNav = $('.nav a[aria-current="page"]'); if (curNav && curNav.scrollIntoView) curNav.scrollIntoView({ inline: 'center', block: 'nearest' });
 
   /* ---- Date + greeting ---- */
   var now = new Date();
@@ -895,67 +847,14 @@ button, input, select { font: inherit; color: inherit; }
   });
   renderDays(); renderTiles(); setInterval(renderTiles, 60000);
 
-  /* ---- Opportunities ---- */
-  var opps = [
-    { id: 'o1', k: 'hackathon', dd: '02', mm: 'OCT', t: 'Inter-college AI hackathon', s: 'Team of 4 · 36 hrs · Main auditorium', close: 'Registrations close Fri' },
-    { id: 'o2', k: 'workshop', dd: '06', mm: 'OCT', t: 'MLOps with Docker & FastAPI', s: 'Seminar Hall 2 · 2:00–5:00 PM' },
-    { id: 'o3', k: 'talk', dd: '09', mm: 'OCT', t: 'LLMs in production: alumni talk', s: 'Auditorium · 11:10 AM · Sem 5+' },
-    { id: 'o4', k: 'workshop', dd: '14', mm: 'OCT', t: 'Power BI for data storytelling', s: 'Lab 3 · 2 sessions', close: '12 seats left' },
-    { id: 'o5', k: 'hackathon', dd: '18', mm: 'OCT', t: 'Campus Build-a-thon: internal round', s: 'Block B · teams of 2–6' }
-  ];
-  var saved = store.get('saved', { o1: true }), filter = 'all';
-  function renderOpps() {
-    var shown = 0;
-    var html = opps.map(function (o) {
-      var vis = filter === 'all' || (filter === 'saved' ? !!saved[o.id] : o.k === filter);
-      if (vis) shown++;
-      return '<li class="ev"' + (vis ? '' : ' hidden') + '>' +
-        '<div class="ev-top"><span class="kind">' + o.k + '</span><span class="when">' + o.dd + ' ' + o.mm + '</span></div>' +
-        '<div class="ttl">' + esc(o.t) + '</div>' +
-        '<div class="sub">' + esc(o.s) + '</div>' +
-        '<div class="ev-foot"><span class="closing">' + (o.close || '') + '</span>' +
-        '<button class="save" type="button" data-id="' + o.id + '" aria-pressed="' + !!saved[o.id] + '" aria-label="' + (saved[o.id] ? 'Unsave ' : 'Save ') + esc(o.t) + '">' +
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg></button></div></li>';
-    }).join('');
-    if (!shown) html += '<li class="empty-note">' + (filter === 'saved' ? 'Nothing saved yet. Tap the bookmark on an event to keep it here.' : 'Nothing coming up in this category.') + '</li>';
-    $('#opps').innerHTML = html;
-  }
-  $('.chips').addEventListener('click', function (e) {
-    var b = e.target.closest('.chip'); if (!b) return;
-    filter = b.dataset.f;
-    $$('.chip').forEach(function (c) { c.setAttribute('aria-pressed', c === b ? 'true' : 'false'); });
-    renderOpps();
-  });
-  $('#opps').addEventListener('click', function (e) {
-    var b = e.target.closest('.save'); if (!b) return;
-    var id = b.dataset.id; saved[id] = !saved[id]; store.set('saved', saved);
-    renderOpps(); var nb = $('.save[data-id="' + id + '"]'); if (nb) nb.focus();
-    toast(saved[id] ? 'Saved to your list' : 'Removed from saved');
-  });
-  renderOpps();
-
-  /* ---- Newsletters & notices ---- */
-  var news = [
-    { id: 'n1', src: 'Exam cell', t: 'Lab internals timetable released', s: 'Runs 12–16 Oct · check your lab batch', when: 'Today' },
-    { id: 'n2', src: 'Placement cell', t: 'Infosys campus drive on 12 Oct', s: 'Eligibility: CGPA 7.0+ · register by 5 Oct', when: 'Yesterday' },
-    { id: 'n3', src: 'AI & DS newsletter', t: 'September issue: student projects & a faculty Q&A', s: '6 min read', when: '27 Sep' },
-    { id: 'n4', src: 'Library', t: 'IEEE Xplore access now on campus Wi-Fi', s: 'Sign in with your college email', when: '24 Sep' }
-  ];
-  var readMap = store.get('newsRead', { n4: true });
-  function renderNews() {
-    $('#news').innerHTML = news.map(function (n) {
-      return '<li class="' + (readMap[n.id] ? 'read' : '') + '"><a href="news.html#' + n.id + '" data-id="' + n.id + '">' +
-        '<span class="dot" aria-hidden="true"></span><span><span class="src">' + esc(n.src) + ' · ' + n.when + '</span>' +
-        '<span class="ttl" style="display:block">' + esc(n.t) + '</span><span class="sub">' + esc(n.s) + '</span></span></a></li>';
-    }).join('');
-    var unread = news.filter(function (n) { return !readMap[n.id]; }).length;
-    $('#newsUnread').textContent = unread ? unread + ' unread' : 'All read';
-  }
-  $('#news').addEventListener('click', function (e) {
-    var a = e.target.closest('a'); if (!a) return;
-    readMap[a.dataset.id] = true; store.set('newsRead', readMap); renderNews();
-  });
-  renderNews();
+  /* ---- Upcoming preview (next 3 events; clicking opens it on the News page) ---- */
+  var next = NEST_DATA.upcoming().slice(0, 3);
+  $('#upcoming').innerHTML = next.length ? next.map(function (e) {
+    var dm = NEST_DATA.dayMonth(e.date);
+    return '<li><a href="news.html#' + e.id + '">' +
+      '<span class="up-date"><span class="d" style="display:block">' + dm.d + '</span><span class="m">' + dm.m + '</span></span>' +
+      '<span><span class="up-kind">' + e.k + '</span><span class="up-ttl" style="display:block">' + esc(e.t) + '</span></span></a></li>';
+  }).join('') : '<li class="up-empty">Nothing coming up right now.</li>';
 
   /* ---- Mentor pop-in ---- */
   var mp = $('#mentorPop');
@@ -978,15 +877,19 @@ button, input, select { font: inherit; color: inherit; }
       { k: 'gender', l: 'Gender', v: 'Male', opts: ['Male', 'Female', 'Other', 'Prefer not to say'], req: 1 },
       { k: 'blood', l: 'Blood group', v: 'B+', opts: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] },
       { k: 'nation', l: 'Nationality', v: 'Indian', req: 1 },
-      { k: 'aadhaar', l: 'Aadhaar card number', v: 'XXXX XXXX 4821', req: 1, help: 'Only the last 4 digits are shown.' }
+      { k: 'aadhaar', l: 'Aadhaar card number', v: 'XXXX XXXX 4821', req: 1, help: 'Only the last 4 digits are shown.' },
+      { k: 'pan', l: 'PAN card number', v: 'XXXXX4821K', help: 'Only the last 5 characters are shown.' },
+      { k: 'voter', l: 'Voter ID number', v: 'XXXXX 20417', help: 'Leave blank if you don’t have one yet.' }
     ]},
     { id: 'parent', label: 'Parent details', desc: 'Parents or legal guardians on record.', state: 'locked', fields: [
       { k: 'father', l: 'Father’s name', v: 'Rajesh Sharma', req: 1 },
       { k: 'fatherOcc', l: 'Father’s occupation', v: 'Civil engineer' },
       { k: 'fatherPh', l: 'Father’s phone', v: '+91 98450 22871', type: 'tel', req: 1 },
+      { k: 'fatherEmail', l: 'Father’s email', v: 'rajesh.sharma@gmail.com', type: 'email' },
       { k: 'mother', l: 'Mother’s name', v: 'Neha Sharma', req: 1 },
       { k: 'motherOcc', l: 'Mother’s occupation', v: 'School teacher' },
-      { k: 'motherPh', l: 'Mother’s phone', v: '+91 98860 41392', type: 'tel' }
+      { k: 'motherPh', l: 'Mother’s phone', v: '+91 98860 41392', type: 'tel' },
+      { k: 'motherEmail', l: 'Mother’s email', v: 'neha.sharma@gmail.com', type: 'email' }
     ]},
     { id: 'guardian', label: 'Guardian details', desc: 'Local guardian, if you live away from your parents.', state: 'locked', fields: [
       { k: 'gName', l: 'Guardian name', v: 'Vikram Sharma' },
@@ -999,6 +902,7 @@ button, input, select { font: inherit; color: inherit; }
       { k: 'pEmail', l: 'Personal email', v: 'aarav.s2005@gmail.com', type: 'email' },
       { k: 'phone', l: 'Mobile number', v: '+91 98450 12345', type: 'tel', req: 1 },
       { k: 'altPhone', l: 'Alternate number', v: '', type: 'tel' },
+      { k: 'curAddr', l: 'Current address', v: 'Room 118, Block C Hostel, Bengaluru, Karnataka 560029', wide: 1, req: 1, help: 'Where you stay during the semester.' },
       { k: 'addr', l: 'Permanent address', v: '221, MG Road, Mysuru, Karnataka 570001', wide: 1, req: 1 }
     ]},
     { id: 'academic', label: 'Academic details', desc: 'Managed by the college office.', state: 'office', fields: [
@@ -1006,14 +910,27 @@ button, input, select { font: inherit; color: inherit; }
       { k: 'prog', l: 'Programme', v: 'B.Tech Artificial Intelligence & Data Science' },
       { k: 'sem', l: 'Semester · section', v: '5 · A' },
       { k: 'batch', l: 'Batch', v: '2023–2027' },
-      { k: 'cgpa', l: 'CGPA', v: '8.42' },
+      { k: 'sgpa1', l: 'SGPA · Semester 1', v: '8.10' },
+      { k: 'sgpa2', l: 'SGPA · Semester 2', v: '8.35' },
+      { k: 'sgpa3', l: 'SGPA · Semester 3', v: '8.55' },
+      { k: 'sgpa4', l: 'SGPA · Semester 4', v: '8.68', help: 'Semester 5 appears once it’s finished.' },
+      { k: 'cgpa', l: 'CGPA', v: '8.42', help: 'Across the semesters finished so far.' },
+      { k: 'cgpaReport', l: 'CGPA report', v: 'CGPA_report_Sem4.pdf', file: 1, help: 'Issued by the college office after each semester.' },
       { k: 'mentor', l: 'Mentor', v: 'Dr. Meera Rao' }
     ]},
-    { id: 'admission', label: 'Admission details', desc: 'Admission date and campus requirements.', state: 'locked', fields: [
+    { id: 'admission', label: 'Admission details', desc: 'Admission date, entry type and the documents you submitted. Scanned PDFs or photos.', state: 'locked', fields: [
       { k: 'admDate', l: 'Admission date', v: '2023-08-01', type: 'date', req: 1 },
-      { k: 'quota', l: 'Admission quota', v: 'Merit', opts: ['Merit', 'Management', 'NRI', 'Sports'] },
+      { k: 'entry', l: 'Entry type', v: 'KCET', opts: ['KCET', 'COMEDK', 'Management'], req: 1 },
       { k: 'hostel', l: 'Hostelite', v: 'Yes', opts: ['Yes', 'No'], req: 1 },
-      { k: 'pwd', l: 'Physically challenged', v: 'No', opts: ['Yes', 'No'], req: 1 }
+      { k: 'pwd', l: 'Physically challenged', v: 'No', opts: ['Yes', 'No'], req: 1 },
+      { k: 'admLetter', l: 'Admission letter', label: function (g) { return g('entry') + ' admission letter'; }, v: 'KCET_admission_letter.pdf', file: 1, req: 1, help: 'The letter for your entry type.' },
+      { k: 'tenth', l: '10th marks card', v: '10th_marks_card.pdf', file: 1, req: 1 },
+      { k: 'twelfth', l: '12th marks card', v: '12th_marks_card.pdf', file: 1, req: 1 },
+      { k: 'study', l: 'Study certificate', v: 'study_certificate.pdf', file: 1, req: 1 },
+      { k: 'migration', l: 'Migration certificate', v: '', file: 1, help: 'If you have one. Needed if you moved from another board or university.' },
+      { k: 'disability', l: 'Disability certificate', v: '', file: 1, req: 1, showIf: function (g) { return g('pwd') === 'Yes'; } },
+      { k: 'caste', l: 'Caste certificate', v: '', file: 1, help: 'Only if applicable.' },
+      { k: 'receipt', l: 'Payment receipt', v: 'fee_receipt_2023.pdf', file: 1, req: 1 }
     ]}
   ];
   var savedProfile = store.get('profile', {});
@@ -1045,14 +962,28 @@ button, input, select { font: inherit; color: inherit; }
     var dis = editable && !f.lockAlways ? '' : ' disabled';
     var lock = dis ? ICON.lock : '';
     var ctrl;
-    if (f.opts) {
+    if (f.file && !dis) {
+      ctrl = '<input id="f-' + f.k + '" data-k="' + f.k + '" type="file" accept=".pdf,image/*">' +
+        '<span class="help">Current file: ' + esc(f.v || 'none') + '. Choose a new one to replace it.</span>';
+    } else if (f.opts) {
       ctrl = '<select id="f-' + f.k + '" data-k="' + f.k + '"' + dis + '>' + f.opts.map(function (o) { return '<option' + (o === f.v ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select>';
     } else {
-      ctrl = '<input id="f-' + f.k + '" data-k="' + f.k + '" type="' + (f.type || 'text') + '" value="' + esc(f.v) + '"' + dis + (f.type === 'tel' ? ' inputmode="tel"' : '') + '>';
+      ctrl = '<input id="f-' + f.k + '" data-k="' + f.k + '" type="' + (f.type || 'text') + '" value="' + esc(f.v) + '"' + dis + (f.file ? ' placeholder="Not uploaded"' : '') + (f.type === 'tel' ? ' inputmode="tel"' : '') + '>';
     }
-    return '<div class="field' + (f.wide ? ' wide' : '') + '"><label for="f-' + f.k + '">' + esc(f.l) + (f.req ? '<span class="req">*</span>' : '') + lock + '</label>' + ctrl +
-      (f.help ? '<span class="help">' + esc(f.help) + '</span>' : '') + '</div>';
+    return '<div class="field' + (f.wide ? ' wide' : '') + '" data-field="' + f.k + '"><label for="f-' + f.k + '"><span class="lt">' + esc(f.l) + '</span>' + (f.req ? '<span class="req">*</span>' : '') + lock + '</label>' + ctrl +
+      (f.help && !(f.file && !dis) ? '<span class="help">' + esc(f.help) + '</span>' : '') + '</div>';
   }
+  // Fields that depend on others: a label that follows the entry type, a field shown only when it applies.
+  function applyConditions() {
+    var s = sections.filter(function (x) { return x.id === activeSec; })[0];
+    var get = function (k) { var el = $('#f-' + k); if (el) return el.value; var f = s.fields.filter(function (x) { return x.k === k; })[0]; return f ? f.v : ''; };
+    s.fields.forEach(function (f) {
+      var box = $('[data-field="' + f.k + '"]'); if (!box) return;
+      if (f.showIf) box.hidden = !f.showIf(get);
+      if (f.label) $('.lt', box).textContent = f.label(get);
+    });
+  }
+  function fieldValue(el) { return el.type === 'file' ? (el.files[0] ? el.files[0].name : null) : el.value; }
   function renderPanel() {
     var s = sections.filter(function (x) { return x.id === activeSec; })[0], editable = s.state === 'unlocked', note;
     if (s.state === 'unlocked') note = '<div class="lock-note unlocked"><span class="ic">' + ICON.open + '</span><div class="txt">Dr. Meera Rao has allowed edits<small>You can update this section until ' + s.until + '.</small></div></div>';
@@ -1065,6 +996,7 @@ button, input, select { font: inherit; color: inherit; }
     $('#drPanel').setAttribute('aria-labelledby', 'tab-' + s.id);
     $('#drPanel').innerHTML = note + '<h3 class="sec-title">' + s.label + '</h3><p class="sec-sub">' + s.desc + '</p>' +
       '<div class="fields">' + s.fields.map(function (f) { return fieldHTML(f, editable); }).join('') + '</div>' + foot;
+    applyConditions();
     dirty = false;
   }
   function setState(id, st) {
@@ -1091,6 +1023,7 @@ button, input, select { font: inherit; color: inherit; }
   }
   $('#drPanel').addEventListener('input', markDirty);
   $('#drPanel').addEventListener('change', markDirty);
+  $('#drPanel').addEventListener('change', applyConditions);
   $('#drPanel').addEventListener('click', function (e) {
     var b = e.target.closest('[data-act]'); if (!b) return;
     var act = b.dataset.act;
@@ -1100,11 +1033,12 @@ button, input, select { font: inherit; color: inherit; }
       var s = sections.filter(function (x) { return x.id === activeSec; })[0];
       var missing = null;
       s.fields.forEach(function (f) {
-        var el = $('#f-' + f.k); if (!el || el.disabled) return;
-        if (f.req && !el.value.trim() && !missing) missing = el;
+        var el = $('#f-' + f.k); if (!el || el.disabled || el.closest('.field').hidden) return;
+        var v = fieldValue(el);
+        if (f.req && !(v === null ? f.v : v).trim() && !missing) missing = el;
       });
       if (missing) { missing.focus(); toast('Please fill the required fields'); return; }
-      s.fields.forEach(function (f) { var el = $('#f-' + f.k); if (el && !el.disabled) { f.v = el.value; savedProfile[f.k] = el.value; } });
+      s.fields.forEach(function (f) { var el = $('#f-' + f.k); if (el && !el.disabled) { var v = fieldValue(el); if (v === null) return; f.v = v; savedProfile[f.k] = v; } });
       store.set('profile', savedProfile);
       dirty = false; $('#saveState').textContent = 'All changes saved.'; b.disabled = true;
       toast('Profile updated');
@@ -1148,6 +1082,43 @@ button, input, select { font: inherit; color: inherit; }
   });
 
   $('.signout').addEventListener('click', function () { toast('Signed out (mockup)'); });
+
+  /* ---- Online certifications card ---- */
+  var certs = NEST_DATA.certs;
+  var cOk = certs.filter(function (c) { return c.status === 'verified'; }).length;
+  var cRev = certs.filter(function (c) { return c.status === 'review'; }).length;
+  var cBad = certs.filter(function (c) { return c.status === 'rejected'; }).length;
+  $('#npValue').innerHTML = cOk + '<small> verified</small>';
+  $('#npNote').innerHTML = (cBad || cRev)
+    ? '<b>' + (cBad + cRev) + ' need' + (cBad + cRev > 1 ? '' : 's') + ' attention</b> · ' + certs.length + ' uploaded'
+    : certs.length + ' uploaded · all verified';
+  $('#npMeter').style.width = (certs.length ? cOk / certs.length * 100 : 0) + '%';
+  $('#npCard').classList.toggle('is-risk', cBad > 0);
+  var CERT_LABEL = { verified: ['Verified ✓', 'ok'], review: ['Mentor will check', 'no'], rejected: ['Rejected', 'no'] };
+  $('#npPop').innerHTML = certs.map(function (c) {
+    var l = CERT_LABEL[c.status];
+    return '<div class="np-row"><span>' + esc(c.course || c.file) + '<span class="s">' + esc(c.provider || 'Not recognised') + '</span></span>' +
+      '<span class="ex ' + l[1] + '">' + l[0] + '</span></div>';
+  }).join('');
+
+  /* ---- Mentor alerts card: the latest alert, and how many are still unacknowledged ---- */
+  var acks = store.get('mentorAcks', {});
+  var alerts = NEST_DATA.mentorAlerts, latest = alerts[0];
+  var fresh = alerts.filter(function (a) { return !acks[a.id]; }).length;
+  $('#alValue').innerHTML = fresh ? fresh + ' <small>new</small>' : alerts.length + ' <small>seen</small>';
+  $('#alNote').innerHTML = latest ? 'Latest: <b>' + esc(latest.t) + '</b>' : 'No alerts';
+  $('#alCard').classList.toggle('is-risk', !!(latest && latest.urgent && !acks[latest.id]));
+  $('#alPop').innerHTML = latest
+    ? '<div class="al-when">' + esc(NEST_DATA.mentor) + ' · ' + esc(latest.when) + '</div>' +
+      '<div class="al-ttl">' + esc(latest.t) + '</div><div class="al-msg">' + esc(latest.m) + '</div>' +
+      (latest.due ? '<span class="al-due' + (latest.urgent ? ' urgent' : '') + '">' + esc(latest.due) + '</span>' : '')
+    : '<div class="al-msg">Nothing from your mentor yet.</div>';
+
+  // Mentor tab badge in the sidebar
+  $$('[data-mentor-badge]').forEach(function (b) {
+    b.textContent = fresh; b.hidden = !fresh;
+    b.setAttribute('aria-label', fresh + ' new alert' + (fresh === 1 ? '' : 's'));
+  });
 })();
 </script>
 </body>

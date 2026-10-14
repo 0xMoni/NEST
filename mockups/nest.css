@@ -85,6 +85,8 @@ button { font: inherit; color: inherit; }
 .nav a:hover { background: rgba(255, 255, 255, .05); color: #f3f1ea; }
 .nav a[aria-current="page"] { background: rgba(207, 169, 98, .13); color: #f3f1ea; box-shadow: inset 2px 0 0 #cfa962; }
 .nav a[aria-current="page"] svg { color: #cfa962; opacity: 1; }
+.nav .nav-badge { margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; display: grid; place-items: center; font-family: var(--head); font-size: 10.5px; font-weight: 700; background: #e8876d; color: #121418; }
+.nav .nav-badge[hidden] { display: none; }
 .side-foot { margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, .08); }
 .me {
   display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 12px; border: 1px solid transparent;

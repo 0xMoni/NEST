@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEST News</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Carlito:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="nest.css">
+<style>
+/* view toggle */
+.bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  min-height: 40px; padding: 0 18px; border-radius: 999px; cursor: pointer;
+  font-family: var(--head); font-size: 13px; font-weight: 600;
+  border: 1px solid var(--border-strong); background: transparent; color: var(--muted); transition: all .15s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.chip:hover { color: var(--text); border-color: var(--muted); }
+.chip[aria-selected="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+.chip .c { font-size: 10.5px; font-weight: 700; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; display: grid; place-items: center; background: var(--surface-3); color: var(--muted); }
+.chip[aria-selected="true"] .c { background: color-mix(in srgb, var(--bg) 18%, transparent); color: var(--bg); }
+.link-btn { border: 0; background: none; padding: 6px 0; cursor: pointer; font-family: var(--head); font-size: 12px; font-weight: 600; color: var(--gold); }
+.link-btn:hover { text-decoration: underline; }
+.link-btn[disabled] { color: var(--faint); cursor: default; text-decoration: none; }
+
+/* newsletter */
+.news { list-style: none; margin: 0; padding: 0; }
+.news li + li { border-top: 1px solid var(--border); }
+.item {
+  display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 14px; align-items: start; width: 100%;
+  padding: 18px 4px; border: 0; background: none; text-align: left; cursor: pointer; border-radius: 10px;
+  transition: background .15s;
+}
+.item:hover { background: var(--surface-2); }
+.item .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; background: var(--gold); }
+.read .item .dot { background: transparent; }
+.item .src { font-family: var(--head); font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.item .ttl { display: block; font-size: 16.5px; font-weight: 700; margin: 3px 0 2px; }
+.read .item .ttl { font-weight: 400; }
+.item .sum { display: block; font-size: 14.5px; color: var(--muted); }
+.item .chev { width: 18px; height: 18px; color: var(--faint); margin-top: 4px; transition: transform .2s; }
+.item[aria-expanded="true"] .chev { transform: rotate(180deg); color: var(--gold); }
+.body { padding: 0 4px 20px 28px; font-size: 15.5px; line-height: 1.6; }
+.body[hidden] { display: none; }
+.body p { margin: 0 0 10px; }
+.body .from { font-size: 13px; color: var(--faint); }
+
+/* events */
+.events { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.ev {
+  display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: 14px; height: 100%;
+  background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit;
+  transition: border-color .15s, transform .15s, box-shadow .2s;
+}
+.ev:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+.ev.flash { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+.ev-top { display: flex; gap: 14px; align-items: center; }
+.date { width: 52px; flex: none; text-align: center; padding: 6px 0; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border); }
+.date .d { font-family: var(--head); font-weight: 600; font-size: 20px; line-height: 1.1; }
+.date .m { font-family: var(--head); font-size: 9.5px; font-weight: 600; letter-spacing: .14em; color: var(--muted); }
+.ev .kind { font-family: var(--head); font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+.ev .ttl { font-size: 17px; font-weight: 700; line-height: 1.25; }
+.ev .desc { font-size: 14.5px; color: var(--muted); }
+.ev .facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13.5px; color: var(--muted); }
+.ev .facts li { display: flex; gap: 8px; align-items: center; }
+.ev .facts svg { width: 14px; height: 14px; color: var(--faint); flex: none; }
+.ev .closing { color: var(--risk); font-weight: 700; }
+.ev .go { margin-top: auto; padding-top: 6px; display: inline-flex; align-items: center; gap: 6px; font-family: var(--head); font-size: 12px; font-weight: 600; color: var(--gold); }
+.ev .go svg { width: 14px; height: 14px; }
+.ev:hover .go { text-decoration: underline; }
+.empty { padding: 28px; border-radius: 14px; border: 1px dashed var(--border-strong); text-align: center; color: var(--muted); font-size: 15px; }
+
+@media (max-width: 560px) {
+  .events { grid-template-columns: 1fr; }
+  .body { padding-left: 4px; }
+  .chip { padding: 0 14px; }
+}
+</style>
+<link rel="stylesheet" href="polish.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <svg class="side-swirl" id="swirl" aria-hidden="true"></svg>
+    <a class="brand" href="dashboard.html">
+      <div class="brand-word">NEST</div>
+      <div class="brand-sub">NURTURING EDUCATION &amp; STUDENT TRACKING</div>
+      <div class="brand-role">STUDENT</div>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Dashboard</a>
+      <a href="attendance.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M9 15l2 2 4-4"/></svg>
+        Attendance</a>
+      <a href="scorecard.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        Scorecard</a>
+      <a href="certifications.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5.5"/><path d="M9 13.5L7.5 21l4.5-2.5 4.5 2.5L15 13.5"/><path d="M10 9l1.5 1.5L14.5 7.5"/></svg>
+        Online certifications</a>
+      <a href="mentor.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5h5.5v4.5H18l-2 1.8z"/></svg>
+        Mentor<span class="nav-badge" data-mentor-badge hidden></span></a>
+      <a href="news.html" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h13v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v10a2 2 0 0 1-2 2"/><path d="M8 9h5M8 13h5M8 17h3"/></svg>
+        News &amp; events</a>
+    </nav>
+    <div class="side-foot">
+      <a class="me" href="dashboard.html#profile">
+        <span class="ini" aria-hidden="true">AS</span>
+        <span><span class="who">Aarav Sharma</span><span class="meta">23AD014 · Sem 5 · A</span></span>
+        <svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="head">
+      <h1>News &amp; events</h1>
+      <div class="head-actions">
+        <button class="icon-btn" type="button" id="themeBtn" aria-label="Switch to light theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="bar">
+      <div class="chips" role="tablist" aria-label="Show" id="chips"></div>
+      <button class="link-btn" type="button" id="markAll" hidden>Mark all as read</button>
+    </div>
+    <section role="tabpanel" id="view" aria-live="polite"></section>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="nest.js"></script>
+<script src="data.js"></script>
+<script>
+(function () {
+  var esc = NEST.esc;
+
+  var news = NEST_DATA.news, events = NEST_DATA.upcoming();
+
+  var VIEWS = [
+    { id: 'newsletter', label: 'Newsletter' },
+    { id: 'hackathon', label: 'Hackathons' },
+    { id: 'workshop', label: 'Workshops' },
+    { id: 'talk', label: 'Talks' }
+  ];
+
+  var readMap = NEST.store.get('newsRead', { n4: true });
+  var view = 'newsletter', openItem = null, flashId = null;
+
+  // links from the dashboard: news.html#n2 opens that newsletter, news.html#o3 jumps to that event
+  var h = location.hash.slice(1);
+  var ev = events.filter(function (e) { return e.id === h; })[0];
+  if (news.some(function (n) { return n.id === h; })) { openItem = h; readMap[h] = true; NEST.store.set('newsRead', readMap); }
+  else if (ev) { view = ev.k; flashId = ev.id; }
+  else if (VIEWS.some(function (v) { return v.id === h; })) view = h;
+
+  var ICON = {
+    pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    team: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 4a3 3 0 0 1 0 6M21 20a6 6 0 0 0-4-5.6"/></svg>',
+    out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+    chev: '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>'
+  };
+
+  function count(id) {
+    if (id === 'newsletter') return news.filter(function (n) { return !readMap[n.id]; }).length;
+    return events.filter(function (e) { return e.k === id; }).length;
+  }
+
+  function renderChips() {
+    document.getElementById('chips').innerHTML = VIEWS.map(function (v) {
+      var c = count(v.id);
+      return '<button class="chip" role="tab" type="button" id="chip-' + v.id + '" data-v="' + v.id + '" aria-selected="' + (v.id === view) + '" tabindex="' + (v.id === view ? 0 : -1) + '">' +
+        v.label + (c ? '<span class="c"' + (v.id === 'newsletter' ? ' aria-label="' + c + ' unread"' : '') + '>' + c + '</span>' : '') + '</button>';
+    }).join('');
+    var markAll = document.getElementById('markAll');
+    markAll.hidden = view !== 'newsletter';
+    markAll.disabled = !count('newsletter');
+  }
+
+  function newsHTML() {
+    return '<ul class="news card">' + news.map(function (n) {
+      var open = openItem === n.id;
+      return '<li class="' + (readMap[n.id] ? 'read' : '') + '">' +
+        '<button class="item" type="button" data-n="' + n.id + '" aria-expanded="' + open + '" aria-controls="b-' + n.id + '">' +
+          '<span class="dot" aria-hidden="true"></span>' +
+          '<span><span class="src">' + esc(n.by) + ' · ' + esc(n.when) + '</span>' +
+          '<span class="ttl">' + esc(n.t) + (readMap[n.id] ? '' : '<span class="sr"> (unread)</span>') + '</span><span class="sum">' + esc(n.sum) + '</span></span>' +
+          ICON.chev + '</button>' +
+        '<div class="body" id="b-' + n.id + '"' + (open ? '' : ' hidden') + '>' +
+          n.body.map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('') +
+          '<div class="from">' + esc(n.by) + ' · ' + esc(n.subject) + '</div></div></li>';
+    }).join('') + '</ul>';
+  }
+
+  function eventHTML(e) {
+    var dm = NEST_DATA.dayMonth(e.date);
+    return '<li><a class="ev' + (flashId === e.id ? ' flash' : '') + '" id="ev-' + e.id + '" href="' + esc(e.link) + '" target="_blank" rel="noopener">' +
+      '<div class="ev-top"><div class="date"><div class="d">' + dm.d + '</div><div class="m">' + dm.m + '</div></div>' +
+        '<div><div class="kind">' + e.k + '</div><div class="ttl">' + esc(e.t) + '</div></div></div>' +
+      '<div class="desc">' + esc(e.desc) + '</div>' +
+      '<ul class="facts">' +
+        '<li>' + ICON.pin + esc(e.where) + '</li>' +
+        '<li>' + ICON.clock + esc(e.time) + '</li>' +
+        '<li>' + ICON.team + esc(e.team) + '</li>' +
+        (e.close ? '<li class="closing">' + esc(e.close) + '</li>' : '') +
+      '</ul>' +
+      '<span class="go">Open event page' + ICON.out + '<span class="sr"> (opens in a new tab)</span></span>' +
+      '</a></li>';
+  }
+
+  function renderView() {
+    var el = document.getElementById('view');
+    el.setAttribute('aria-labelledby', 'chip-' + view);
+    if (view === 'newsletter') { el.innerHTML = newsHTML(); return; }
+    var list = events.filter(function (e) { return e.k === view; });
+    el.innerHTML = list.length
+      ? '<ul class="events">' + list.map(eventHTML).join('') + '</ul>'
+      : '<div class="empty">Nothing coming up here yet.</div>';
+    if (flashId) {
+      var f = document.getElementById('ev-' + flashId);
+      if (f) { f.scrollIntoView({ block: 'center' }); f.focus({ preventScroll: true }); }
+      setTimeout(function (id) { var x = document.getElementById('ev-' + id); if (x) x.classList.remove('flash'); }.bind(null, flashId), 2200);
+      flashId = null;
+    }
+  }
+
+  function render() { renderChips(); renderView(); }
+
+  document.getElementById('chips').addEventListener('click', function (e) {
+    var b = e.target.closest('.chip'); if (!b) return;
+    view = b.dataset.v; history.replaceState(null, '', '#' + view); render();
+  });
+  document.getElementById('chips').addEventListener('keydown', function (e) {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    var i = VIEWS.findIndex(function (v) { return v.id === view; });
+    view = VIEWS[(i + (e.key === 'ArrowRight' ? 1 : -1) + VIEWS.length) % VIEWS.length].id;
+    e.preventDefault(); history.replaceState(null, '', '#' + view); render();
+    document.getElementById('chip-' + view).focus();
+  });
+
+  document.getElementById('markAll').addEventListener('click', function () {
+    news.forEach(function (n) { readMap[n.id] = true; });
+    NEST.store.set('newsRead', readMap); render(); NEST.toast('All marked as read');
+  });
+
+  document.getElementById('view').addEventListener('click', function (e) {
+    var item = e.target.closest('.item');
+    if (item) {
+      var id = item.dataset.n;
+      openItem = openItem === id ? null : id;
+      if (!readMap[id]) { readMap[id] = true; NEST.store.set('newsRead', readMap); }
+      render(); document.querySelector('.item[data-n="' + id + '"]').focus();
+      return;
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
