@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEST · Mark attendance</title>
+<link rel="stylesheet" href="../../mockups/nest.css"><link rel="stylesheet" href="../css/web.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div><h1>Mark attendance</h1><p class="sub" id="sub">Every class you teach.</p></div>
+    <button class="btn ghost" onclick="NEST.signOut()">Sign out</button>
+  </div>
+  <div id="app"><p class="dim">Loading…</p></div>
+</div>
+<script src="../config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="../js/api.js"></script>
+<script>
+(async function () {
+  var sb = NEST.sb, esc = NEST.esc, app = document.getElementById('app');
+  var me = await NEST.requireRole('faculty');
+  var q = new URLSearchParams(location.search);
+  var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var today = new Date().toISOString().slice(0, 10);
+
+  if (q.get('a')) return markSheet(q.get('a'), Number(q.get('period') || 1), q.get('date') || today);
+  return classList();
+
+  // List of the teacher's classes. Row-level security returns only theirs.
+  async function classList() {
+    var r = await sb.from('timetable_slots')
+      .select('day_of_week, period, assignment_id, faculty_assignments!inner(sections!inner(dept, semester, name), subjects!inner(code, name))')
+      .order('day_of_week').order('period');
+    var done = await sb.from('attendance_sessions').select('assignment_id, period').eq('held_on', today);
+    if (r.error) { app.innerHTML = '<p class="msg err">' + esc(r.error.message) + '</p>'; return; }
+    var marked = new Set((done.data || []).map(function (m) { return m.assignment_id + ':' + m.period; }));
+    if (!r.data.length) { app.innerHTML = '<div class="card dim">You have no classes on the timetable yet.</div>'; return; }
+    app.innerHTML = '<div class="card"><table><thead><tr><th>Day</th><th>Period</th><th>Subject</th><th>Section</th><th>Today</th><th></th></tr></thead><tbody>' +
+      r.data.map(function (s) {
+        var fa = s.faculty_assignments, ok = marked.has(s.assignment_id + ':' + s.period);
+        return '<tr><td class="dim">' + DAYS[s.day_of_week] + '</td><td>P' + s.period + '</td><td>' + esc(fa.subjects.name) +
+          ' <span class="dim">' + esc(fa.subjects.code) + '</span></td><td class="dim">' +
+          esc(fa.sections.dept) + '-' + fa.sections.semester + esc(fa.sections.name) + '</td><td>' +
+          (ok ? '<span class="badge ok">Marked</span>' : '<span class="badge">—</span>') +
+          '</td><td><a href="?a=' + encodeURIComponent(s.assignment_id) + '&period=' + s.period + '&date=' + today + '">' +
+          (ok ? 'Edit' : 'Mark') + '</a></td></tr>';
+      }).join('') + '</tbody></table></div>';
+  }
+
+  // One class: everyone present by default, tick the absentees.
+  async function markSheet(aid, period, date) {
+    var a = await sb.from('faculty_assignments')
+      .select('id, section_id, sections!inner(dept, semester, name), subjects!inner(code, name)').eq('id', aid).maybeSingle();
+    if (!a.data) { app.innerHTML = '<p class="msg err">Class not found, or it is not yours.</p><a href="attendance.html">Back</a>'; return; }
+    var enrol = await sb.from('section_students').select('profiles!inner(id, full_name, usn)').eq('section_id', a.data.section_id);
+    var students = (enrol.data || []).map(function (e) { return e.profiles; })
+      .sort(function (x, y) { return (x.usn || '').localeCompare(y.usn || ''); });
+    var ses = await sb.from('attendance_sessions').select('id').eq('assignment_id', aid).eq('held_on', date).eq('period', period).maybeSingle();
+    var absent = new Set();
+    if (ses.data) {
+      var rec = await sb.from('attendance_records').select('student_id').eq('session_id', ses.data.id).eq('status', 'absent');
+      (rec.data || []).forEach(function (x) { absent.add(x.student_id); });
+    }
+    document.getElementById('sub').textContent = a.data.subjects.name + ' · ' + a.data.sections.dept + '-' +
+      a.data.sections.semester + a.data.sections.name + ' · P' + period + ' · ' + date;
+
+    function count() {
+      document.getElementById('count').textContent = (students.length - absent.size) + ' present · ' + absent.size + ' absent';
+    }
+    function draw() {
+      app.innerHTML = '<div class="tools"><a class="btn ghost" href="attendance.html">Back</a><input type="date" id="d" value="' + esc(date) + '">' +
+        '<span class="dim" id="count"></span></div><div class="card" id="list">' +
+        students.map(function (s) {
+          var ab = absent.has(s.id);
+          return '<label class="roll' + (ab ? ' absent' : '') + '"><input type="checkbox" data-id="' + esc(s.id) + '"' + (ab ? ' checked' : '') +
+            '><span>' + esc(s.full_name) + '</span><span class="dim">' + esc(s.usn || '') + '</span></label>';
+        }).join('') + '</div><button class="btn" id="save">Save attendance</button><div class="msg" id="msg"></div>';
+      count();
+      document.getElementById('list').addEventListener('change', function (e) {
+        var id = e.target.getAttribute('data-id'); if (!id) return;
+        if (e.target.checked) absent.add(id); else absent.delete(id);
+        e.target.closest('.roll').classList.toggle('absent', e.target.checked); count();
+      });
+      document.getElementById('d').addEventListener('change', function (e) {
+        location.search = '?a=' + encodeURIComponent(aid) + '&period=' + period + '&date=' + e.target.value;
+      });
+      document.getElementById('save').addEventListener('click', save);
+    }
+
+    async function save() {
+      var btn = document.getElementById('save'), msg = document.getElementById('msg');
+      btn.disabled = true; msg.className = 'msg'; msg.textContent = 'Saving…';
+      // Same class + date + period again corrects it: the unique key makes that true.
+      var s = await sb.from('attendance_sessions')
+        .upsert({ assignment_id: aid, held_on: date, period: period, taken_by: me.id }, { onConflict: 'assignment_id,held_on,period' })
+        .select('id').single();
+      if (s.error) { msg.className = 'msg err'; msg.textContent = s.error.message; btn.disabled = false; return; }
+      var rows = students.map(function (st) {
+        return { session_id: s.data.id, student_id: st.id, status: absent.has(st.id) ? 'absent' : 'present' };
+      });
+      var r = await sb.from('attendance_records').upsert(rows, { onConflict: 'session_id,student_id' });
+      btn.disabled = false;
+      if (r.error) { msg.className = 'msg err'; msg.textContent = r.error.message; return; }
+      msg.className = 'msg good'; msg.textContent = 'Saved: ' + (students.length - absent.size) + ' present, ' + absent.size + ' absent.';
+    }
+    draw();
+  }
+})();
+</script>
+</body>
+</html>

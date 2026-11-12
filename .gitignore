@@ -54,3 +54,6 @@ private-data/
 # Python bytecode from scripts/
 __pycache__/
 *.pyc
+
+# plain-HTML frontend: local Supabase keys
+/web/config.js

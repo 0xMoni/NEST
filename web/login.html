@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEST · Sign in</title>
+<link rel="stylesheet" href="../mockups/nest.css"><link rel="stylesheet" href="css/web.css">
+</head>
+<body>
+<div class="wrap" style="max-width:420px">
+  <h1>NEST</h1><p class="sub">Sign in with your college email.</p>
+  <form class="card" id="f">
+    <p><input id="email" type="email" placeholder="Email" required autocomplete="username" style="width:100%;box-sizing:border-box"></p>
+    <p><input id="pw" type="password" placeholder="Password" required autocomplete="current-password" style="width:100%;box-sizing:border-box"></p>
+    <button class="btn" id="go">Sign in</button>
+    <div class="msg err" id="msg"></div>
+  </form>
+  <p class="dim">Students: sign-in with your USN is coming; for now use the main app.</p>
+</div>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/api.js"></script>
+<script>
+document.getElementById('f').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  var msg = document.getElementById('msg'); msg.textContent = '';
+  var r = await NEST.sb.auth.signInWithPassword({ email: email.value.trim().toLowerCase(), password: pw.value });
+  // One message for every failure, so it can't be used to find out who has an account.
+  if (r.error) { msg.textContent = "Those details don't match an account."; return; }
+  location.href = 'faculty/attendance.html';
+});
+</script>
+</body>
+</html>

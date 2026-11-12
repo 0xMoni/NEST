@@ -1,0 +1,23 @@
+/* Small additions on top of mockups/nest.css (tokens, theme, base look). */
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--body); }
+.wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+.bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+h1 { font-family: var(--head); font-size: 22px; margin: 0; }
+.sub { color: var(--muted); margin: 4px 0 0; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--border); }
+th { color: var(--faint); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.dim { color: var(--muted); }
+.btn { background: var(--btn-bg); color: var(--btn-text); border: 0; border-radius: 8px; padding: 9px 16px; font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+.btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border-strong); }
+.btn:disabled { opacity: .5; cursor: default; }
+input, select { background: var(--surface-2); color: var(--text); border: 1px solid var(--border-strong); border-radius: 8px; padding: 9px 10px; font: inherit; }
+.badge { padding: 2px 8px; border-radius: 99px; font-size: 12px; background: var(--surface-3); color: var(--muted); }
+.badge.ok { background: var(--ok-soft); color: var(--ok); }
+.msg { margin: 12px 0; min-height: 1.2em; }
+.msg.err { color: var(--risk); } .msg.good { color: var(--ok); }
+.roll { display: flex; align-items: center; gap: 12px; padding: 9px 4px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.roll.absent { background: var(--risk-soft); }
+.roll input { width: 18px; height: 18px; }
+.tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
