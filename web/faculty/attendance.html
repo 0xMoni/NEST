@@ -11,6 +11,7 @@
     <div><h1>Mark attendance</h1><p class="sub" id="sub">Every class you teach.</p></div>
     <button class="btn ghost" onclick="NEST.signOut()">Sign out</button>
   </div>
+  <div id="nav"></div>
   <div id="app"><p class="dim">Loading…</p></div>
 </div>
 <script src="../config.js"></script>
@@ -20,6 +21,7 @@
 (async function () {
   var sb = NEST.sb, esc = NEST.esc, app = document.getElementById('app');
   var me = await NEST.requireRole('faculty');
+  NEST.nav('attendance');
   var q = new URLSearchParams(location.search);
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   var today = new Date().toISOString().slice(0, 10);

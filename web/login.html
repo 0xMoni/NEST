@@ -26,7 +26,7 @@ document.getElementById('f').addEventListener('submit', async function (e) {
   var r = await NEST.sb.auth.signInWithPassword({ email: email.value.trim().toLowerCase(), password: pw.value });
   // One message for every failure, so it can't be used to find out who has an account.
   if (r.error) { msg.textContent = "Those details don't match an account."; return; }
-  location.href = 'faculty/attendance.html';
+  location.href = 'faculty/index.html';
 });
 </script>
 </body>

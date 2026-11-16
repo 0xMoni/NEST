@@ -22,5 +22,14 @@
 
   async function signOut() { await sb.auth.signOut(); location.href = (location.pathname.indexOf('/faculty/') >= 0 ? '../' : '') + 'login.html'; }
 
-  window.NEST = { sb: sb, esc: esc, requireRole: requireRole, signOut: signOut };
+  // Teacher menu, drawn into <div id="nav"> on every faculty page.
+  function nav(active) {
+    var items = [['index', 'Home'], ['attendance', 'Attendance'], ['marks', 'Marks']];
+    var el = document.getElementById('nav'); if (!el) return;
+    el.innerHTML = items.map(function (i) {
+      return '<a class="navlink' + (i[0] === active ? ' on' : '') + '" href="' + i[0] + '.html">' + i[1] + '</a>';
+    }).join('');
+  }
+
+  window.NEST = { nav: nav, sb: sb, esc: esc, requireRole: requireRole, signOut: signOut };
 })();

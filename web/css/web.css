@@ -21,3 +21,12 @@ input, select { background: var(--surface-2); color: var(--text); border: 1px so
 .roll.absent { background: var(--risk-soft); }
 .roll input { width: 18px; height: 18px; }
 .tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+
+#nav { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+.navlink { padding: 8px 14px; color: var(--muted); text-decoration: none; border-bottom: 2px solid transparent; }
+.navlink.on { color: var(--text); border-bottom-color: var(--gold); }
+a { color: var(--gold); }
+.now { border-color: var(--gold); background: var(--gold-soft); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.big { font-family: var(--head); font-size: 28px; }
+td input.sc { width: 80px; }
