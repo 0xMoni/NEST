@@ -185,13 +185,6 @@
 <script src="../config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../js/api.js"></script>
-<script>
-/* Only signed-in students see this page. It stays hidden until that is checked. */
-(function () {
-  var show = function () { var g = document.getElementById('guard'); if (g) g.remove(); };
-  window.addEventListener('error', show);
-  NEST.requireRole('student', '../login.html').then(show);
-})();
-</script>
+<script src="student.js"></script>
 </body>
 </html>

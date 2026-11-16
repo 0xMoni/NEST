@@ -71,3 +71,5 @@ NEST_DATA.dayMonth = function (iso) {
   var d = new Date(iso + 'T00:00:00');
   return { d: ('0' + d.getDate()).slice(-2), m: ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][d.getMonth()] };
 };
+
+NEST_DATA.acks = {};  // alert id -> when the student acknowledged it (filled from the database)

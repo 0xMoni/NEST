@@ -1103,7 +1103,8 @@ button, input, select { font: inherit; color: inherit; }
   }).join('');
 
   /* ---- Mentor alerts card: the latest alert, and how many are still unacknowledged ---- */
-  var acks = store.get('mentorAcks', {});
+  function alertsCard() {
+  var acks = NEST_DATA.acks || {};
   var alerts = NEST_DATA.mentorAlerts, latest = alerts[0];
   var fresh = alerts.filter(function (a) { return !acks[a.id]; }).length;
   $('#alValue').innerHTML = fresh ? fresh + ' <small>new</small>' : alerts.length + ' <small>seen</small>';
@@ -1120,18 +1121,14 @@ button, input, select { font: inherit; color: inherit; }
     b.textContent = fresh; b.hidden = !fresh;
     b.setAttribute('aria-label', fresh + ' new alert' + (fresh === 1 ? '' : 's'));
   });
+  }
+  window.NEST_onData = alertsCard;
+  alertsCard();
 })();
 </script>
 <script src="../config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../js/api.js"></script>
-<script>
-/* Only signed-in students see this page. It stays hidden until that is checked. */
-(function () {
-  var show = function () { var g = document.getElementById('guard'); if (g) g.remove(); };
-  window.addEventListener('error', show);
-  NEST.requireRole('student', '../login.html').then(show);
-})();
-</script>
+<script src="student.js"></script>
 </body>
 </html>

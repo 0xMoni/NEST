@@ -39,5 +39,5 @@
   window.addEventListener('error', function (e) { showError(e.message); });
   window.addEventListener('unhandledrejection', function (e) { showError((e.reason && e.reason.message) || e.reason); });
 
-  window.NEST = { nav: nav, sb: sb, esc: esc, requireRole: requireRole, signOut: signOut };
+  window.NEST = Object.assign(window.NEST || {}, { nav: nav, sb: sb, esc: esc, requireRole: requireRole, signOut: signOut });
 })();

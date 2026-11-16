@@ -202,11 +202,11 @@
 <script>
 (function () {
   var esc = NEST.esc;
-  var MENTOR = 'Dr. Meera Rao';
+  var MENTOR = NEST_DATA.mentor || 'Your mentor';
 
   // Requests the mentor has sent this student. The backend will supply these; shape only for now.
   // kind: 'task' (something to do), 'meet' (a meeting), 'note' (heads-up)
-  var alerts = NEST_DATA.mentorAlerts;
+  var alerts = [];
 
   var ICONS = {
     task: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1z"/><path d="M16 5h2a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h2"/><path d="M9 13l2 2 4-4"/></svg>',
@@ -214,11 +214,10 @@
   };
 
   // Acknowledged alerts: id -> time the student acknowledged it. An alert is "new" until acknowledged.
-  var acks = NEST.store.get('mentorAcks', {});
+  var acks = NEST_DATA.acks;
   var TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>';
 
   function save() {
-    NEST.store.set('mentorAcks', acks);
     var fresh = alerts.filter(function (a) { return !acks[a.id]; }).length;
     NEST.store.set('mentorPending', fresh);
     NEST.updateMentorBadge(fresh);
@@ -248,9 +247,13 @@
       : '<li class="empty">No alerts. When your mentor asks you for something, it shows up here.</li>';
   }
 
-  document.getElementById('alerts').addEventListener('click', function (e) {
+  document.getElementById('alerts').addEventListener('click', async function (e) {
     var b = e.target.closest('[data-ack]'); if (!b) return;
+    b.disabled = true;
     var now = new Date();
+    // Saved to the database, so the mentor sees who has acknowledged.
+    var r = await NEST.sb.from('mentor_alerts').update({ acknowledged_at: now.toISOString() }).eq('id', b.dataset.ack);
+    if (r.error) { b.disabled = false; NEST.toast('Could not save that. Try again.'); return; }
     acks[b.dataset.ack] = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ', ' +
       now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     render();
@@ -264,19 +267,14 @@
       .then(function () { NEST.toast('Copied'); }, function () { NEST.toast(v); });
   });
 
+  // Draw once the student's real alerts have loaded (student.js calls this).
+  window.NEST_onData = function () { alerts = NEST_DATA.mentorAlerts; acks = NEST_DATA.acks; MENTOR = NEST_DATA.mentor || 'Your mentor'; render(); };
   render();
 })();
 </script>
 <script src="../config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../js/api.js"></script>
-<script>
-/* Only signed-in students see this page. It stays hidden until that is checked. */
-(function () {
-  var show = function () { var g = document.getElementById('guard'); if (g) g.remove(); };
-  window.addEventListener('error', show);
-  NEST.requireRole('student', '../login.html').then(show);
-})();
-</script>
+<script src="student.js"></script>
 </body>
 </html>
