@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEST · Mentees</title>
+<link rel="stylesheet" href="../css/nest.css"><link rel="stylesheet" href="../css/web.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div><h1>Mentees</h1><p class="sub" id="sub">Students assigned to you.</p></div>
+    <button class="btn ghost" onclick="NEST.signOut()">Sign out</button>
+  </div>
+  <div id="nav"></div>
+  <div id="app"><p class="dim">Loading…</p></div>
+</div>
+<script src="../config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="../js/api.js"></script>
+<script>
+(async function () {
+  var sb = NEST.sb, esc = NEST.esc, app = document.getElementById('app');
+  var me = await NEST.requireRole('faculty');
+  NEST.nav('mentees');
+
+  var SECTION = { student: 'Student details', parent: 'Parent details', guardian: 'Guardian details', contact: 'Contact details', academic: 'Academic details', admission: 'Admission details' };
+  var mentees = [];
+
+  await load();
+
+  // Row-level security returns only this mentor's own mentees, requests and alerts.
+  async function load() {
+    var r = await Promise.all([
+      sb.from('profiles').select('cabin, office_hours, phone').eq('id', me.id).maybeSingle(),
+      sb.from('mentorships').select('student_id, profiles!mentorships_student_id_fkey(id, full_name, usn, semester)'),
+      sb.from('v_student_attendance').select('student_id, held, attended, short'),
+      sb.from('profile_edit_requests').select('id, section, reason, requested_at, profiles!profile_edit_requests_student_id_fkey(full_name, usn)').eq('status', 'pending').order('requested_at'),
+      sb.from('mentor_alerts').select('id, student_id, kind, urgent, title, due_text, created_at, acknowledged_at').order('created_at', { ascending: false }).limit(20)
+    ]);
+    var bad = r.find(function (x) { return x.error; });
+    if (bad) { app.innerHTML = '<div class="card"><p class="msg err">' + esc(bad.error.message) + '</p></div>'; return; }
+
+    var mine = r[0].data || {};
+    mentees = (r[1].data || []).map(function (l) { return l.profiles; }).filter(Boolean);
+    var byId = {}; mentees.forEach(function (m) { byId[m.id] = m; });
+
+    var sum = {};
+    (r[2].data || []).forEach(function (x) {
+      var s = sum[x.student_id] = sum[x.student_id] || { held: 0, att: 0, short: 0 };
+      s.held += Number(x.held || 0); s.att += Number(x.attended || 0); if (x.short) s.short++;
+    });
+    document.getElementById('sub').textContent = mentees.length + ' student' + (mentees.length === 1 ? '' : 's') + ' assigned to you.';
+
+    // ---- requests waiting ----
+    var reqs = r[3].data || [];
+    var reqHtml = reqs.length ? '<div class="card"><h2 class="h2">Profile edit requests</h2><table><tbody>' + reqs.map(function (q) {
+      var who = q.profiles || {};
+      return '<tr><td>' + esc(who.full_name || 'A student') + ' <span class="dim">' + esc(who.usn || '') + '</span></td><td>' + esc(SECTION[q.section] || q.section) +
+        '</td><td class="dim">' + esc(q.reason || '—') + '</td><td style="white-space:nowrap">' +
+        '<button class="btn" data-approve="' + esc(q.id) + '">Approve 48 h</button> <button class="btn ghost" data-reject="' + esc(q.id) + '">Reject</button></td></tr>';
+    }).join('') + '</tbody></table><div class="msg" id="rmsg"></div></div>' : '';
+
+    // ---- mentee table, those needing a word first ----
+    var rows = mentees.map(function (m) { return { m: m, s: sum[m.id] }; })
+      .sort(function (a, b) { return ((b.s && b.s.short) || 0) - ((a.s && a.s.short) || 0); });
+    var table = mentees.length ? '<div class="card"><table><thead><tr><th>USN</th><th>Name</th><th>Attendance</th><th>Subjects short</th><th>Status</th><th></th></tr></thead><tbody>' +
+      rows.map(function (x) {
+        var pct = x.s && x.s.held ? Math.round(1000 * x.s.att / x.s.held) / 10 : null, risk = x.s && x.s.short > 0;
+        return '<tr><td class="dim">' + esc(x.m.usn || '') + '</td><td>' + esc(x.m.full_name) + '</td><td>' + (pct === null ? '—' : pct + '%') + '</td><td>' + (x.s ? x.s.short : 0) + '</td><td>' +
+          (pct === null ? '<span class="badge">No data</span>' : risk ? '<span class="badge bad">Needs a word</span>' : '<span class="badge ok">Fine</span>') +
+          '</td><td><a href="#alert" data-to="' + esc(x.m.id) + '">Alert</a></td></tr>';
+      }).join('') + '</tbody></table></div>' : '<div class="card dim">No students have been assigned to you as mentees yet. The HOD sets this.</div>';
+
+    // ---- contact card ----
+    var contact = '<form class="card" id="cf"><h2 class="h2">My contact card</h2><p class="dim" style="margin-top:0">What your mentees see on their Mentor page.</p>' +
+      '<div class="tools"><input id="cp" placeholder="Phone" value="' + esc(mine.phone || '') + '"><input id="cc" placeholder="Cabin, e.g. 214, Block B" value="' + esc(mine.cabin || '') + '">' +
+      '<input id="co" placeholder="Office hours, e.g. Mon, Wed 3:30–5:00 PM" value="' + esc(mine.office_hours || '') + '" style="min-width:260px"><button class="btn">Save</button></div><div class="msg" id="cmsg"></div></form>';
+
+    // ---- alert form ----
+    var opts = '<option value="__all">All my mentees</option>' + mentees.map(function (m) { return '<option value="' + esc(m.id) + '">' + esc(m.full_name) + ' · ' + esc(m.usn || '') + '</option>'; }).join('');
+    var form = mentees.length ? '<form class="card" id="af"><h2 class="h2" id="alert">Send an alert</h2><div class="tools">' +
+      '<select id="at">' + opts + '</select><select id="ak"><option value="task">Task</option><option value="meet">Meet</option></select>' +
+      '<label class="dim"><input type="checkbox" id="au"> Urgent</label></div>' +
+      '<p><input id="ati" placeholder="Title (what the student sees first)" style="width:100%" required></p>' +
+      '<p><input id="am" placeholder="Message (optional)" style="width:100%"></p>' +
+      '<p><input id="ad" placeholder="Due or when, e.g. Wed 7 Oct · 3:30 PM (optional)" style="width:100%"></p>' +
+      '<button class="btn">Send</button><div class="msg" id="amsg"></div></form>' : '';
+
+    // ---- sent alerts ----
+    var sent = r[4].data || [];
+    var sentHtml = '<div class="card"><h2 class="h2">Sent alerts</h2>' + (sent.length ? '<table><thead><tr><th>To</th><th>Alert</th><th>Status</th><th></th></tr></thead><tbody>' + sent.map(function (a) {
+      var who = byId[a.student_id];
+      return '<tr><td>' + esc(who ? who.full_name : '') + '</td><td>' + (a.urgent ? '<span class="badge bad">Urgent</span> ' : '') + esc(a.title) + (a.due_text ? ' <span class="dim">· ' + esc(a.due_text) + '</span>' : '') + '</td><td>' +
+        (a.acknowledged_at ? '<span class="badge ok">Acknowledged</span>' : '<span class="badge">Not yet</span>') + '</td><td><a href="#" data-del="' + esc(a.id) + '">Delete</a></td></tr>';
+    }).join('') + '</tbody></table>' : '<p class="dim">Nothing sent yet.</p>') + '<div class="msg" id="dmsg"></div></div>';
+
+    app.innerHTML = reqHtml + table + contact + form + sentHtml;
+    wire();
+  }
+
+  function say(id, cls, text) { var m = document.getElementById(id); if (m) { m.className = 'msg ' + cls; m.textContent = text; } }
+
+  function wire() {
+    // Approve opens a 48-hour window rather than unlocking for good.
+    app.querySelectorAll('[data-approve],[data-reject]').forEach(function (b) {
+      b.addEventListener('click', async function () {
+        var approve = b.hasAttribute('data-approve'), id = b.getAttribute(approve ? 'data-approve' : 'data-reject');
+        b.disabled = true;
+        var r = await sb.from('profile_edit_requests').update({
+          status: approve ? 'approved' : 'rejected', decided_by: me.id, decided_at: new Date().toISOString(),
+          expires_at: approve ? new Date(Date.now() + 48 * 3600e3).toISOString() : null
+        }).eq('id', id);
+        if (r.error) { b.disabled = false; say('rmsg', 'err', r.error.message); return; }
+        load();
+      });
+    });
+
+    app.querySelectorAll('[data-to]').forEach(function (a) {
+      a.addEventListener('click', function () { var s = document.getElementById('at'); if (s) s.value = a.getAttribute('data-to'); });
+    });
+
+    var cf = document.getElementById('cf');
+    cf.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var v = function (id) { return document.getElementById(id).value.trim() || null; };
+      var r = await sb.from('profiles').update({ phone: v('cp'), cabin: v('cc'), office_hours: v('co') }).eq('id', me.id);
+      if (r.error) say('cmsg', 'err', r.error.message); else say('cmsg', 'good', 'Saved. Your mentees see this now.');
+    });
+
+    var af = document.getElementById('af');
+    if (af) af.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var title = document.getElementById('ati').value.trim();
+      if (!title) { say('amsg', 'err', 'Give the alert a title. It is what the student sees first.'); return; }
+      var to = document.getElementById('at').value, ids = to === '__all' ? mentees.map(function (m) { return m.id; }) : [to];
+      var rows = ids.map(function (id) {
+        return { mentor_id: me.id, student_id: id, kind: document.getElementById('ak').value, urgent: document.getElementById('au').checked, title: title,
+          message: document.getElementById('am').value.trim() || null, due_text: document.getElementById('ad').value.trim() || null };
+      });
+      var r = await sb.from('mentor_alerts').insert(rows);
+      if (r.error) { say('amsg', 'err', r.error.code === '42501' ? 'You can only send alerts to your own mentees.' : r.error.message); return; }
+      await load(); say('amsg', 'good', 'Sent to ' + rows.length + ' mentee' + (rows.length === 1 ? '' : 's') + '.');
+    });
+
+    app.querySelectorAll('[data-del]').forEach(function (a) {
+      a.addEventListener('click', async function (e) {
+        e.preventDefault();
+        if (!confirm('Delete this alert? The student will no longer see it.')) return;
+        var r = await sb.from('mentor_alerts').delete().eq('id', a.getAttribute('data-del'));
+        if (r.error) say('dmsg', 'err', r.error.message); else load();
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>

@@ -24,7 +24,7 @@
 
   // Teacher menu, drawn into <div id="nav"> on every faculty page.
   function nav(active) {
-    var items = [['index', 'Home'], ['attendance', 'Attendance'], ['marks', 'Marks']];
+    var items = [['index', 'Home'], ['attendance', 'Attendance'], ['marks', 'Marks'], ['mentees', 'Mentees']];
     var el = document.getElementById('nav'); if (!el) return;
     el.innerHTML = items.map(function (i) {
       return '<a class="navlink' + (i[0] === active ? ' on' : '') + '" href="' + i[0] + '.html">' + i[1] + '</a>';
