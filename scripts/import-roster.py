@@ -186,6 +186,7 @@ class Supabase:
             "email": email, "password": password,
             "email_confirm": True,          # no mail is ever sent to a real student
             "user_metadata": meta,
+            "app_metadata": meta,         # what the database trusts: only the secret key can set it
         })
         return made["id"]
 
@@ -310,6 +311,7 @@ def main():
                 ids.append(sb.create_user(s["email"], password, {
                     "full_name": s["full_name"], "role": "student",
                     "usn": s["usn"], "phone": s["phone"],
+                    "dept": s["dept"], "semester": s["semester"],
                 }))
                 made += 1
             except RuntimeError as e:

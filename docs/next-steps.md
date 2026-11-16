@@ -17,16 +17,18 @@ Next.js version that used to live in `src/` has been removed. NPTEL is dropped.
 - [x] Student: dashboard, attendance (per class), scorecard, timetable, mentor + alerts, profile with locked sections
 - [x] HOD: overview, people list, structure (sections, subjects, who teaches what), timetable editor
 
-## Database (next)
-These are in the database, not the pages, and matter more now that the browser
-talks to it directly — row-level security is the only lock.
-- [ ] **Critical:** the signup trigger takes `role` from what the person signing up sends, so anyone can make themselves HOD. Fix the trigger and turn off public sign-ups.
-- [ ] Narrow "faculty read profiles": every teacher can currently read every student's private details.
-- [ ] Let mentors see their mentees' attendance and marks in every subject (today: only subjects they teach).
-- [ ] Faculty can't change their own phone (the student profile lock catches it).
-- [ ] New accounts never get `dept` / `semester` (the trigger ignores them).
-- [ ] `ai_quiz_attempts` table is missing.
-- [ ] Removing a teaching assignment cascades into its attendance and marks (the page refuses; the database should too).
+## Database
+Fixed in `supabase/migrations/20261116000000_lock_down_access.sql`:
+- [x] **Critical:** sign-ups could make themselves HOD. Role, USN, department and semester now come only from `app_metadata`, which only the secret key can set.
+- [x] Teachers no longer read every student's private details: mentors read their mentees' profiles; subject teachers get a name-and-USN roster (`v_class_roster`).
+- [x] Mentors see their mentees' attendance and published marks in every subject.
+- [x] Faculty can change their own phone number.
+- [x] Department and semester filled in from each student's section, now and on every enrolment.
+- [x] A teaching assignment with attendance or marks can't be deleted.
+- [x] Attendance, marks, alerts and edit-request decisions can't be saved in someone else's name or for students outside the class.
+- [x] AI roadmaps: readable by the student, their mentor and the HOD only.
+- [ ] **Turn off public sign-ups** in the dashboard (Authentication → Sign In / Providers → "Allow new users to sign up").
+- [ ] `ai_quiz_attempts` table: add it with the AI backend, which is what uses it.
 
 ## Backend (needs a secret, so a small server — Supabase Edge Functions)
 - [ ] Sign in and reset with a USN instead of an email

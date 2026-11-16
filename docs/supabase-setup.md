@@ -47,9 +47,13 @@ same page, but the legacy pair is being retired at the end of 2026 — so take t
 There is no longer a **Settings → API** page; keys live under **Settings → API
 Keys**.
 
-## 3. Turn off email confirmation
+## 3. Turn off public sign-ups, and email confirmation
 
-**Authentication → Providers → Email**, and switch **Confirm email** off.
+**Authentication → Sign In / Providers**: switch off **Allow new users to sign up**.
+Accounts are made by the office with the scripts; nobody should be able to make
+their own. (Making accounts with the secret key still works with this off.)
+
+Then **Authentication → Providers → Email**, and switch **Confirm email** off.
 
 Our dev accounts use addresses that cannot receive mail. Leave
 confirmation on and every seeded account is locked out of itself. Turn it back
@@ -65,6 +69,33 @@ filename order. They depend on each other, so the order matters:
 | `20260930000000_profiles_and_roles.sql` | `profiles`, the role enum, RLS, the signup trigger |
 | `20261001000000_login_by_usn.sql` | `profiles.email`, so a USN can be resolved to an account |
 | `20261002000000_academic_spine.sql` | Sections, subjects, timetable, attendance, marks, mentorships, and the two calculated views |
+| `20261003…` – `20261008…` | Locked profile sections, mentor alerts, the forced password change, AI roadmaps |
+| `20261116000000_lock_down_access.sql` | Who may see and change what — see below. **Run this before using the current pages**: the teacher pages read its `v_class_roster` view |
+
+### What `lock_down_access` changes
+
+- A sign-up can no longer make itself HOD or claim a USN. Role, USN, department and
+  semester come only from `app_metadata`, which only the secret key (the scripts) can set.
+- Subject teachers see a class roster (name, USN) instead of every student's profile;
+  mentors still see their mentees' full profiles, and now their attendance and
+  published marks in every subject.
+- Staff can edit their own phone; students' sections stay locked until a mentor opens one.
+- Department and semester are filled in from each student's section.
+- A class that already has attendance or marks can't be deleted.
+
+After running it, check nobody made themselves HOD while the hole was open. In the
+SQL Editor:
+
+```sql
+select p.email, p.full_name, p.role, u.created_at
+  from public.profiles p join auth.users u on u.id = p.id
+ where p.role = 'admin'
+ order by u.created_at;
+```
+
+Every row should be an account the office made. For one that isn't:
+`update public.profiles set role = 'student' where email = '…';`, then delete the
+user under **Authentication → Users**.
 
 Or link the CLI and push them all:
 

@@ -51,7 +51,9 @@ const LAST = ["Sharma","Reddy","Nair","Iyer","Gowda","Patel","Rao","Shetty","Heg
 
 async function user(email, meta) {
   const { data, error } = await db.auth.admin.createUser({
-    email, password: PASSWORD, email_confirm: true, user_metadata: meta,
+    email, password: PASSWORD, email_confirm: true,
+    // app_metadata is what the database trusts for role and USN: only the secret key can set it.
+    user_metadata: meta, app_metadata: meta,
   });
   if (!error) return data.user.id;
   if (!/already/i.test(error.message)) throw error;

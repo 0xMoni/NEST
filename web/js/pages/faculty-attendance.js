@@ -83,10 +83,11 @@
     }
     var cls = a.data;
     var res = await Promise.all([
-      must(sb.from('section_students').select('profiles!inner(id, full_name, usn)').eq('section_id', cls.section_id)),
+      // The roster view: name and USN only. Subject teachers can't read students' profiles.
+      must(sb.from('v_class_roster').select('student_id, full_name, usn').eq('section_id', cls.section_id)),
       must(sb.from('attendance_sessions').select('id').eq('assignment_id', aid).eq('held_on', date).eq('period', period).maybeSingle())
     ]);
-    var students = (res[0].data || []).map(function (e) { return e.profiles; })
+    var students = (res[0].data || []).map(function (r) { return { id: r.student_id, full_name: r.full_name, usn: r.usn }; })
       .sort(function (x, y) { return (x.usn || '').localeCompare(y.usn || ''); });
     var session = res[1].data, absent = new Set();
     if (session) {
