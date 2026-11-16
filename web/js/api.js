@@ -20,7 +20,7 @@
     return me;
   }
 
-  async function signOut() { await sb.auth.signOut(); location.href = (location.pathname.indexOf('/faculty/') >= 0 ? '../' : '') + 'login.html'; }
+  async function signOut() { await sb.auth.signOut(); location.href = (/\/(faculty|student)\//.test(location.pathname) ? '../' : '') + 'login.html'; }
 
   // Teacher menu, drawn into <div id="nav"> on every faculty page.
   function nav(active) {

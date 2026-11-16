@@ -118,7 +118,8 @@
     go.disabled = false; go.textContent = 'Log in';
     // One message for every failure, so it can't be used to find out who has an account.
     if (r.error) return fail("Those details don't match an account.", pw);
-    location.href = 'faculty/index.html';
+    var prof = await NEST.sb.from('profiles').select('role').eq('id', r.data.user.id).single();
+    location.href = (prof.data && prof.data.role === 'student') ? 'student/dashboard.html' : 'faculty/index.html';
   });
 
   paintToggle();
