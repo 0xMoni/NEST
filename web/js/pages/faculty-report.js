@@ -66,7 +66,7 @@
               '<td>' + (s.pct == null ? '<span class="dim">No classes yet</span>' : '<div class="pbar"><div class="track mark"><i style="width:' + Math.min(100, s.pct) + '%"></i></div><span class="v">' + s.pct + '%</span></div>') + '</td>' +
               '<td>' + (s.short ? '<span class="pill risk">Short</span> <span class="dim">needs ' + toRecover(s) + ' in a row</span>' : s.edge ? '<span class="pill watch">One miss away</span>' : s.pct == null ? '' : '<span class="pill ok">Fine</span>') + '</td></tr>';
           }).join('') + '</tbody></table></div>') +
-      '<p class="foot-note">Present, late and excused count as attended. 75% is the minimum per subject.</p>' +
+      '<p class="foot-note">75% is the minimum per subject.</p>' +
     '</section>';
 
   N.$('pick').addEventListener('change', function (e) { location.search = '?a=' + encodeURIComponent(e.target.value); });

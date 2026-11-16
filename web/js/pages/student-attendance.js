@@ -8,11 +8,11 @@
   var res = await Promise.all([
     must(sb.from('v_student_attendance').select('subject_id, subject_code, subject_name, section_id, held, attended, percentage, short').eq('student_id', me.id).order('subject_code')),
     must(sb.from('attendance_records').select('status, attendance_sessions!inner(held_on, period, faculty_assignments!inner(subject_id))').eq('student_id', me.id)),
-    must(sb.from('faculty_assignments').select('subject_id, section_id, profiles(full_name)'))
+    must(sb.from('v_my_teachers').select('subject_id, section_id, faculty_name'))
   ]);
   var rows = res[0].data || [], records = res[1].data || [];
   var teacher = {};
-  (res[2].data || []).forEach(function (a) { teacher[a.section_id + ':' + a.subject_id] = a.profiles ? a.profiles.full_name : ''; });
+  (res[2].data || []).forEach(function (a) { teacher[a.section_id + ':' + a.subject_id] = a.faculty_name || ''; });
 
   if (!rows.length) {
     app.innerHTML = '<div class="card"><p class="empty">No attendance has been marked for you yet. It appears here as soon as a teacher marks a class.</p></div>';
@@ -77,7 +77,7 @@
         '<td>' + status(r) + '</td></tr>' +
         '<tr class="detail" id="d' + i + '" hidden><td colspan="7"></td></tr>';
     }).join('') + '</tbody></table></div>' +
-    '<p class="foot-note">Present, late and excused all count as attended. A corrected entry shows here as soon as your teacher saves it.</p></section>';
+    '<p class="foot-note">A corrected entry shows here as soon as your teacher saves it.</p></section>';
 
   // Open a subject to see its classes. The range toggle is shared by all rows.
   app.addEventListener('click', function (e) {

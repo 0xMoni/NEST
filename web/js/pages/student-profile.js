@@ -30,12 +30,12 @@
     var res = await Promise.all([
       must(sb.from('profiles').select(ALL.join(',')).eq('id', me.id).single()),
       must(sb.from('profile_edit_requests').select('id, section, status, reason, expires_at, requested_at').eq('student_id', me.id).order('requested_at', { ascending: false })),
-      must(sb.from('mentorships').select('profiles!mentorships_mentor_id_fkey(full_name)').eq('student_id', me.id).maybeSingle())
+      must(sb.from('v_my_mentor').select('full_name').maybeSingle())
     ]);
     profile = res[0].data;
     latest = {};
     (res[1].data || []).forEach(function (r) { if (!latest[r.section]) latest[r.section] = r; }); // newest per section wins
-    mentor = res[2].data && res[2].data.profiles ? res[2].data.profiles.full_name : null;
+    mentor = res[2].data ? res[2].data.full_name : null;
     render();
   }
 

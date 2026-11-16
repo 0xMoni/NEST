@@ -9,14 +9,14 @@
     // The view already leaves out unpublished assessments, and row-level
     // security keeps it to this student — a half-entered test cannot leak here.
     must(sb.from('v_student_scorecard').select('subject_id, subject_code, subject_name, title, scored, max_marks, percentage').eq('student_id', me.id)),
-    must(sb.from('faculty_assignments').select('subject_id, subjects!inner(code, name), profiles(full_name)'))
+    must(sb.from('v_my_teachers').select('subject_id, subject_code, subject_name, faculty_name'))
   ]);
   var marks = res[0].data || [], classes = res[1].data || [];
 
   // Every subject the student takes, whether or not anything is published yet.
   var subjects = {};
   classes.forEach(function (a) {
-    subjects[a.subject_id] = { code: a.subjects.code, name: a.subjects.name, who: a.profiles ? a.profiles.full_name : '', items: [] };
+    subjects[a.subject_id] = { code: a.subject_code, name: a.subject_name, who: a.faculty_name || '', items: [] };
   });
   marks.forEach(function (m) {
     var s = subjects[m.subject_id] || (subjects[m.subject_id] = { code: m.subject_code, name: m.subject_name, who: '', items: [] });

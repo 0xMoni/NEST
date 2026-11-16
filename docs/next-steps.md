@@ -28,7 +28,20 @@ Fixed in `supabase/migrations/20261116000000_lock_down_access.sql`:
 - [x] Attendance, marks, alerts and edit-request decisions can't be saved in someone else's name or for students outside the class.
 - [x] AI roadmaps: readable by the student, their mentor and the HOD only.
 - [ ] **Turn off public sign-ups** in the dashboard (Authentication → Sign In / Providers → "Allow new users to sign up").
-- [ ] `ai_quiz_attempts` table: add it with the AI backend, which is what uses it.
+
+Then `supabase/migrations/20261116010000_tidy_up.sql`:
+- [x] Students see each subject's teacher name and their mentor's contact card, not teachers' private details.
+- [x] A section can't get two classes in the same period.
+- [x] Attendance is present or absent only.
+- [x] Indexes on assessments by class, enrolment by student, alerts by mentor.
+- [x] `ai_quiz_attempts` (made by hand in the dashboard) written into a migration, with its access rules. The AI features stay for the backend.
+- [x] Removed `profiles.avatar_url` and the duplicate `current_role_is()` helper.
+
+## Before handing the project over
+- [ ] Delete the demo accounts (`*@eastpoint.ac.in` test logins, `docs/dev-accounts.md`) and the demo section, or start a fresh Supabase project for the real data.
+- [ ] Import the real roster and faculty with `scripts/import-roster.py` and `scripts/import-faculty.py`.
+- [ ] Turn email confirmation back on, and set up real SMTP for password resets.
+- [ ] Check the HOD list (query in `docs/supabase-setup.md`).
 
 ## Backend (needs a secret, so a small server — Supabase Edge Functions)
 - [ ] Sign in and reset with a USN instead of an email

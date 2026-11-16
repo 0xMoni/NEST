@@ -70,7 +70,11 @@ filename order. They depend on each other, so the order matters:
 | `20261001000000_login_by_usn.sql` | `profiles.email`, so a USN can be resolved to an account |
 | `20261002000000_academic_spine.sql` | Sections, subjects, timetable, attendance, marks, mentorships, and the two calculated views |
 | `20261003…` – `20261008…` | Locked profile sections, mentor alerts, the forced password change, AI roadmaps |
-| `20261116000000_lock_down_access.sql` | Who may see and change what — see below. **Run this before using the current pages**: the teacher pages read its `v_class_roster` view |
+| `20261116000000_lock_down_access.sql` | Who may see and change what — see below |
+| `20261116010000_tidy_up.sql` | Students see teachers' names and their mentor's contact card only; one class per section per period; present/absent only; indexes; `ai_quiz_attempts` written down; `avatar_url` removed |
+
+**Run the last two before using the current pages**, in that order: the pages read
+the views they create (`v_class_roster`, `v_my_teachers`, `v_my_mentor`).
 
 ### What `lock_down_access` changes
 

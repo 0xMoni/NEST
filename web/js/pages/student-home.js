@@ -14,14 +14,14 @@
   var res = await Promise.all([
     must(sb.from('v_student_attendance').select('subject_code, subject_name, held, attended, percentage, short').eq('student_id', me.id).order('percentage', { ascending: true })),
     must(sb.from('timetable_slots').select('period, faculty_assignments!inner(subjects!inner(code, name))').eq('day_of_week', dow).order('period')),
-    must(sb.from('mentorships').select('profiles!mentorships_mentor_id_fkey(full_name)').eq('student_id', me.id).maybeSingle()),
+    must(sb.from('v_my_mentor').select('full_name').maybeSingle()),
     must(sb.from('mentor_alerts').select('id, kind, urgent, title, due_text').eq('student_id', me.id).is('acknowledged_at', null)
       .order('urgent', { ascending: false }).order('created_at', { ascending: false })),
     must(sb.from('v_student_scorecard').select('subject_code').eq('student_id', me.id))
   ]);
 
   var rows = res[0].data || [], slots = res[1].data || [], alerts = res[3].data || [], marks = res[4].data || [];
-  var mentor = res[2].data && res[2].data.profiles ? res[2].data.profiles.full_name : null;
+  var mentor = res[2].data ? res[2].data.full_name : null;
 
   var held = 0, attended = 0;
   rows.forEach(function (r) { held += Number(r.held || 0); attended += Number(r.attended || 0); });
