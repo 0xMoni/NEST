@@ -10,8 +10,7 @@
   var app = N.shell(me, { active: 'attendance', title: 'Attendance', sub: 'Every class you teach.' });
   var today = N.localISO();
 
-  var aid = N.param('a');
-  if (aid) return markSheet(aid);
+  if (N.param('a')) return markSheet(N.param('a'));
   return classList();
 
   // ---------------------------------------------------------------- list

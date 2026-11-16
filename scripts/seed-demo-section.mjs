@@ -18,7 +18,12 @@ for (const line of readFileSync(new URL("../.env.local", import.meta.url), "utf8
   if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim();
 }
 
-const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY, {
+const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL; // older .env.local files use the second name
+if (!url || !process.env.SUPABASE_SECRET_KEY) {
+  console.error("Missing SUPABASE_URL or SUPABASE_SECRET_KEY in .env.local");
+  process.exit(1);
+}
+const db = createClient(url, process.env.SUPABASE_SECRET_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 

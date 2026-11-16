@@ -1,5 +1,5 @@
-/* Additions on top of nest.css (the mockups' tokens, shell and tables) for
-   what the live pages need and the mockups never drew: forms, messages,
+/* Additions on top of nest.css (tokens, shell and tables) for what the
+   live pages need beyond it: forms, messages,
    the attendance roll, the timetable grid, profile locks. Load order on
    every page: nest.css, web.css, polish.css. */
 
@@ -9,14 +9,12 @@
 body > .loading { padding: 32px; }
 #app:focus { outline: none; }
 .dim { color: var(--muted); }
-.faint { color: var(--faint); }
 .sub { color: var(--muted); margin: 6px 0 0; font-size: 15px; }
 .sub:empty { display: none; }
 .head h1 { margin-top: 0; }
 a { color: inherit; }
 .link { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
 .link:hover { text-decoration-thickness: 2px; }
-h2.section-title { font-family: var(--head); font-size: 18px; font-weight: 600; margin: 32px 0 14px; }
 
 /* ---------- Sidebar footer: sign out ---------- */
 .signout {
@@ -45,7 +43,6 @@ h2.section-title { font-family: var(--head); font-size: 18px; font-weight: 600; 
 .btn.sm { min-height: 34px; padding: 0 12px; font-size: 12px; border-radius: 9px; }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: .5; cursor: default; transform: none; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-.row.end { justify-content: flex-end; }
 .tools { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 18px; }
 .spacer { flex: 1; }
 
@@ -96,12 +93,6 @@ a.stat { display: block; text-decoration: none; color: inherit; }
 .kv { display: grid; grid-template-columns: minmax(120px, max-content) 1fr; gap: 10px 24px; margin: 0; }
 .kv dt { color: var(--muted); font-size: 14px; }
 .kv dd { margin: 0; font-weight: 600; }
-
-/* Prithika's badges, kept for the pages that still use them. */
-.badge { display: inline-block; padding: 3px 9px; border-radius: 99px; font-family: var(--head); font-size: 11px; font-weight: 600; background: var(--surface-3); color: var(--muted); white-space: nowrap; }
-.badge.ok { background: var(--ok-soft); color: var(--ok); }
-.badge.risk { background: var(--risk-soft); color: var(--risk); }
-.badge.watch { background: var(--watch-soft); color: var(--watch); }
 
 /* ---------- Tables ---------- */
 table.data.compact { min-width: 0; }

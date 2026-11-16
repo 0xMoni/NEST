@@ -48,10 +48,15 @@ web/js/api.js        shared: Supabase client, sign-in gate, layout, helpers
 web/js/auth.js       shared by the four sign-in pages
 web/js/pages/        one script per page
 web/student/ faculty/ admin/   the pages for each role (thin HTML shells)
-web/css/             nest.css (design tokens, from the mockups), web.css, polish.css, login.css
+web/css/             nest.css (design tokens and layout), web.css (forms, tables, page parts),
+                     polish.css (motion, phones), login.css (the sign-in pages)
 supabase/            migrations — apply in filename order
 scripts/             seed accounts, a demo section, the roster and faculty imports
 backend/             the certificate checker (Python, not wired in yet)
-mockups/             the original design references
 docs/                setup, test accounts, what is next
 ```
+
+The original HTML mockups were removed once every page they drew was built. The
+two not built yet — news & events, and online certifications — and the PDF export
+code are still in git: `git show c0e66a1:mockups/news.html` (also
+`certifications.html`, `nest.js`, `data.js`).

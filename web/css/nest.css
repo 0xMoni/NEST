@@ -1,5 +1,5 @@
-/* Shared NEST styles for the inner pages (attendance, scorecard, …).
-   Tokens and shell match dashboard.html. */
+/* NEST design tokens (dark and light), the sidebar shell, stats, cards and
+   tables. Every app page loads this first, then web.css, then polish.css. */
 :root {
   --head: "Montserrat", "Segoe UI", sans-serif;
   --body: Calibri, Carlito, "Segoe UI", sans-serif;
@@ -59,8 +59,6 @@ a { color: inherit; }
 button { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
 .eyebrow { font-family: var(--head); font-size: 10.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-.num { font-family: var(--head); font-variant-numeric: tabular-nums; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ---------- Shell & sidebar ---------- */
 .shell { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }

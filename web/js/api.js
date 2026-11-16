@@ -323,10 +323,10 @@
 
   window.NEST = {
     sb: sb, url: url, homeFor: homeFor, esc: esc, $: $, param: param, must: must,
-    localISO: localISO, isISODate: isISODate, parseISO: parseISO, fmtDate: fmtDate, fmtDateTime: fmtDateTime,
+    localISO: localISO, isISODate: isISODate, fmtDate: fmtDate, fmtDateTime: fmtDateTime,
     DAYS: DAYS, DAYS_SHORT: DAYS_SHORT, PERIODS: PERIODS, BREAK_AFTER: BREAK_AFTER, periodAt: periodAt, periodTime: periodTime,
     sectionLabel: sectionLabel, pct: pct, initials: initials, busy: busy, say: say, toast: toast,
     theme: theme, setTheme: setTheme, getMe: getMe, requireRole: requireRole, signOut: signOut,
-    shell: shell, setHead: setHead, showError: showError, icon: icon
+    shell: shell, setHead: setHead
   };
 })();

@@ -8,31 +8,31 @@ Everything teachers need, mostly the other side of what students already see. Ti
 - **Admin**: college office. Their items are marked *(admin)*.
 
 **Status key**
-- **Student side ready**: the student page that shows this already exists in `mockups/`.
+- **Student side ready**: the student page that shows this already exists in `web/student/`.
 - **Designed**: an early layout exists in the *NEST — Screens* canvas.
 
 ---
 
 ## 1. Teacher dashboard
-- [ ] Today's classes, with the current one highlighted. *Designed (FacultyHome)*
-- [ ] Things waiting on the teacher: marks to publish, profile edit requests, unacknowledged alerts.
+- [x] Today's classes, with the current one highlighted. *Designed (FacultyHome)*
+- [x] Things waiting on the teacher: marks to publish, profile edit requests, unacknowledged alerts.
 - [ ] Mentees who need attention: below 75% attendance, low IAT marks, certificates that were rejected.
-- [ ] Own weekly timetable.
+- [x] Own weekly timetable.
 
 ## 2. Attendance
-- [ ] Mark attendance for a period: whole class present by default, tap the absentees. *Designed (FacultyMark)*
+- [x] Mark attendance for a period: whole class present by default, tap the absentees. *Designed (FacultyMark)*
 - [ ] Phone version for marking in class. *Designed (FacultyMarkPhone)*
-- [ ] Correct a past entry (wrongly marked absent). The fix shows up for the student right away.
-- [ ] Class view: every student's percentage per subject.
-- [ ] List of students below 75%, and those one miss away.
+- [x] Correct a past entry (wrongly marked absent). The fix shows up for the student right away.
+- [x] Class view: every student's percentage per subject.
+- [x] List of students below 75%, and those one miss away.
 - [ ] Condonation form requests. *(open question: who approves?)*
 
 Student side ready: Attendance page, dashboard Attendance card.
 
 ## 3. IAT marks (Scorecard)
-- [ ] Enter IAT 1 and IAT 2 marks (out of 25) for a subject.
-- [ ] Save as draft. Students can't see drafts.
-- [ ] **Publish** per subject per IAT. Only then do students see the marks.
+- [x] Enter IAT 1 and IAT 2 marks (out of 25) for a subject.
+- [x] Save as draft. Students can't see drafts.
+- [x] **Publish** per subject per IAT. Only then do students see the marks.
 - [ ] Edit after publishing, with a note of what changed.
 - [ ] Import marks from an Excel sheet.
 
@@ -63,9 +63,9 @@ Student side ready: News & events → Hackathons / Workshops / Talks, dashboard 
 ## 7. Mentoring
 - [ ] Mentee list with attendance, marks and certificates at a glance. *Designed (FacultyMentees)*
 - [ ] One mentee's full picture: attendance, IAT marks, certificates, profile, past alerts.
-- [ ] **Send an alert** to one mentee or all of them, with an optional due date and an "urgent" flag.
-- [ ] See who has **acknowledged** each alert, and who hasn't.
-- [ ] Approve or reject a mentee's request to edit locked profile sections (and set until when).
+- [x] **Send an alert** to one mentee or all of them, with an optional due date and an "urgent" flag.
+- [x] See who has **acknowledged** each alert, and who hasn't.
+- [x] Approve or reject a mentee's request to edit locked profile sections (and set until when).
 - [ ] Download a mentee's SGPA and CGPA report as PDF (SGPA for each finished semester).
 - [ ] Download a mentee's admission documents (10th, 12th, study and migration certificates, admission letter, receipt).
 - [ ] Edit own contact card: email, phone, cabin, office hours, Active/Away status.
@@ -87,10 +87,10 @@ Backend ready: `backend/certifications` (read, check, classify, file in Drive). 
 - [ ] Download one student's scorecard as PDF.
 - [ ] Download a whole class at once *(maybe later)*.
 
-Ready to reuse: the PDF code in `mockups/nest.js` (`NEST.exportPDF`), already tested on the attendance and scorecard reports.
+Ready to reuse: the PDF code from the old mockups (`NEST.exportPDF`, tested on the attendance and scorecard reports) — `git show c0e66a1:mockups/nest.js`.
 
 ## 10. Admin
-- [ ] *(admin)* Build and publish the class timetable. *Designed (AdminTimetable)*
+- [x] *(admin)* Build and publish the class timetable. *Designed (AdminTimetable)*
 - [ ] *(admin)* Assign mentors to students.
 - [ ] *(admin)* Add teachers and students, and reset logins.
 

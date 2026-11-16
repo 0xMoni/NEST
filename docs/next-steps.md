@@ -5,7 +5,7 @@ Next.js version that used to live in `src/` has been removed. NPTEL is dropped.
 
 ## Done
 - [x] `web/` scaffold: shared `api.js`, styles, login
-- [x] One layout for every page (the mockups' sidebar), light/dark theme remembered across pages
+- [x] One layout for every page (sidebar, stats, cards), light/dark theme remembered across pages
 - [x] Sign-in sends each role to its own home; wrong-role pages bounce to your own
 - [x] Forced password change on first sign-in (`must_change_password`)
 - [x] Forgot / reset password (email link, survives mail scanners), change password on Account

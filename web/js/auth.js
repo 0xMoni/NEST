@@ -69,8 +69,8 @@
   Array.prototype.forEach.call(document.querySelectorAll('.reveal'), function (b) {
     var input = b.parentNode.querySelector('input');
     b.addEventListener('click', function () {
-      var show = input.type === 'password'; input.type = show ? 'text' : 'password';
-      b.textContent = show ? 'Hide' : 'Show'; b.setAttribute('aria-label', show ? 'Hide password' : 'Show password'); input.focus();
+      var reveal = input.type === 'password'; input.type = reveal ? 'text' : 'password';
+      b.textContent = reveal ? 'Hide' : 'Show'; b.setAttribute('aria-label', reveal ? 'Hide password' : 'Show password'); input.focus();
     });
   });
 

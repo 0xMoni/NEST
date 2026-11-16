@@ -220,9 +220,9 @@ def main():
     args = ap.parse_args()
 
     env_from_local()
-    url, key = os.environ.get("NEXT_PUBLIC_SUPABASE_URL"), os.environ.get("SUPABASE_SECRET_KEY")
+    url, key = (os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")), os.environ.get("SUPABASE_SECRET_KEY")
     if not url or not key:
-        sys.exit("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY in .env.local")
+        sys.exit("Missing SUPABASE_URL or SUPABASE_SECRET_KEY in .env.local")
     password = os.environ.get("SEED_PASSWORD", "123456")
 
     students, no_usn, problems = parse(args.file, args.sheet)

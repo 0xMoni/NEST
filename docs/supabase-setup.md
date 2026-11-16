@@ -30,17 +30,19 @@ https://supabase.com/dashboard/project/_/settings/api-keys/
 
 The `_` in those URLs resolves to whichever project you have open.
 
-| Dashboard value | Goes into |
-| --- | --- |
-| Project URL | `NEXT_PUBLIC_SUPABASE_URL` |
-| Publishable key (`sb_publishable_…`) | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
-| Secret key (`sb_secret_…`) | `SUPABASE_SECRET_KEY` |
+| Dashboard value | Goes into | Used by |
+| --- | --- | --- |
+| Project URL | `SUPABASE_URL` in `web/config.js` **and** `.env.local` | the pages, the scripts |
+| Publishable key (`sb_publishable_…`) | `SUPABASE_PUBLISHABLE_KEY` in `web/config.js` | the pages |
+| Secret key (`sb_secret_…`) | `SUPABASE_SECRET_KEY` in `.env.local` | the scripts only — never in `web/` |
+
+`.env.local` starts as a copy of `.env.example`; `web/config.js` as a copy of
+`web/config.example.js`. Both are gitignored.
 
 **On the naming.** Supabase renamed these: `anon` is now *publishable*, and
 `service_role` is now *secret*. Older keys still work and both appear on the
 same page, but the legacy pair is being retired at the end of 2026 — so take the
-`sb_publishable_` / `sb_secret_` versions. Our variable names keep the old words
-because that is what the Supabase client libraries still call the arguments.
+`sb_publishable_` / `sb_secret_` versions.
 
 There is no longer a **Settings → API** page; keys live under **Settings → API
 Keys**.
@@ -76,6 +78,7 @@ The project ref is the subdomain of your project URL.
 ## 5. Seed something to work against
 
 ```
+npm install                          # once: the Supabase library the scripts use
 node scripts/seed-dev-users.mjs      # one account per role
 node scripts/seed-demo-section.mjs   # CSE-5A: 6 subjects, 6 faculty, 24 students, a timetable
 ```
