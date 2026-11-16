@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 920" width="100%" height="100%">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+      text { font-family: 'Inter', -apple-system, sans-serif; }
+      .bg { fill: #ffffff; }
+      .sheet { fill: #fbfbfc; filter: drop-shadow(0 4px 20px rgba(0,0,0,0.08)); }
+      .tag-bad { fill: #fee2e2; stroke: #ef4444; stroke-width: 1.5; rx: 6; }
+      .tag-text { font-size: 11px; font-weight: 600; fill: #b91c1c; }
+      .h1 { font-size: 20px; font-weight: 700; fill: #1e293b; }
+      .h2 { font-size: 12px; font-weight: 700; fill: #475569; text-transform: uppercase; letter-spacing: 0.05em; }
+      .txt { font-size: 11px; fill: #64748b; line-height: 1.4; }
+      .warn-line { stroke: #ef4444; stroke-width: 1.5; stroke-dasharray: 4,4; fill: none; }
+      .badge-critique { fill: #ef4444; rx: 4; }
+    </style>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="700" height="920" fill="#f8fafc" rx="12" />
+
+  <!-- Card Header -->
+  <rect x="25" y="20" width="650" height="50" rx="8" fill="#fef2f2" stroke="#fecaca" stroke-width="1" />
+  <circle cx="50" cy="45" r="14" fill="#ef4444" />
+  <text x="50" y="50" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="700">✕</text>
+  <text x="75" y="42" font-size="14" font-weight="700" fill="#991b1b">AVERAGE COLLEGE RESUME (ATS Score: 44/100)</text>
+  <text x="75" y="57" font-size="11" fill="#b91c1c">Critical Red Flags: Multi-column parse failure, subjective ratings, no metrics</text>
+
+  <!-- The Resume Page -->
+  <g transform="translate(45, 90)">
+    <!-- Page Background -->
+    <rect width="610" height="790" rx="6" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
+
+    <!-- Two-column Divider Line (ATS Trap) -->
+    <line x1="210" y1="90" x2="210" y2="760" stroke="#f1f5f9" stroke-width="2" />
+
+    <!-- Header -->
+    <text x="30" y="45" class="h1">Rohan Sharma</text>
+    <text x="30" y="65" font-size="11" fill="#64748b">Student at ABC Institute of Tech | rohan@gmail.com | 9876543210</text>
+    <line x1="30" y1="80" x2="580" y2="80" stroke="#e2e8f0" stroke-width="1" />
+
+    <!-- LEFT COLUMN (Unparseable sidebar) -->
+    <!-- Objective -->
+    <text x="30" y="110" class="h2">Objective</text>
+    <text x="30" y="130" class="txt">Hardworking and passionate</text>
+    <text x="30" y="145" class="txt">student seeking a challenging</text>
+    <text x="30" y="160" class="txt">software role to learn skills.</text>
+
+    <!-- Skills with Star Ratings (ATS Killer) -->
+    <text x="30" y="205" class="h2">Skills</text>
+    <text x="30" y="230" font-size="11" font-weight="600" fill="#334155">Java</text>
+    <text x="110" y="230" font-size="12" fill="#eab308">★★★★☆</text>
+
+    <text x="30" y="255" font-size="11" font-weight="600" fill="#334155">Python</text>
+    <text x="110" y="255" font-size="12" fill="#eab308">★★★☆☆</text>
+
+    <text x="30" y="280" font-size="11" font-weight="600" fill="#334155">SQL</text>
+    <text x="110" y="280" font-size="12" fill="#eab308">★★☆☆☆</text>
+
+    <text x="30" y="305" font-size="11" font-weight="600" fill="#334155">HTML/CSS</text>
+    <text x="110" y="305" font-size="12" fill="#eab308">★★★★★</text>
+
+    <!-- Languages -->
+    <text x="30" y="350" class="h2">Languages</text>
+    <text x="30" y="375" class="txt">• English (Fluent)</text>
+    <text x="30" y="395" class="txt">• Hindi (Native)</text>
+
+    <!-- Hobbies -->
+    <text x="30" y="440" class="h2">Hobbies</text>
+    <text x="30" y="465" class="txt">• Cricket, Gaming, Music</text>
+
+    <!-- RIGHT COLUMN -->
+    <!-- Education -->
+    <text x="230" y="110" class="h2">Education</text>
+    <text x="230" y="130" font-size="12" font-weight="600" fill="#1e293b">B.E. in Computer Science &amp; Engg.</text>
+    <text x="230" y="146" font-size="11" fill="#64748b">ABC Institute of Technology (2021 - 2025)</text>
+    <text x="230" y="162" font-size="11" fill="#64748b">CGPA: 7.8 / 10</text>
+
+    <!-- Academic Projects -->
+    <text x="230" y="205" class="h2">Academic Projects</text>
+    <text x="230" y="230" font-size="12" font-weight="600" fill="#1e293b">E-Commerce Website</text>
+    <text x="230" y="246" font-size="11" fill="#94a3b8">Technologies: React, Node.js, MongoDB</text>
+    <text x="230" y="266" class="txt">• Worked on an e-commerce website with my friends.</text>
+    <text x="230" y="282" class="txt">• Responsible for creating frontend buttons and forms.</text>
+    <text x="230" y="298" class="txt">• Handled MongoDB database connections.</text>
+
+    <text x="230" y="340" font-size="12" font-weight="600" fill="#1e293b">Student Attendance System</text>
+    <text x="230" y="356" font-size="11" fill="#94a3b8">Technologies: Python, SQLite</text>
+    <text x="230" y="376" class="txt">• Created a GUI for teacher attendance login.</text>
+    <text x="230" y="392" class="txt">• Fixed various bugs in the system code.</text>
+
+    <!-- Experience -->
+    <text x="230" y="435" class="h2">Internship</text>
+    <text x="230" y="455" font-size="12" font-weight="600" fill="#1e293b">Web Development Intern</text>
+    <text x="230" y="471" font-size="11" fill="#64748b">Tech Solutions Pvt Ltd (1 Month)</text>
+    <text x="230" y="491" class="txt">• Helped senior developers with everyday tasks.</text>
+    <text x="230" y="507" class="txt">• Gained good knowledge of software lifecycle.</text>
+  </g>
+
+  <!-- RED ANNOTATION CALLOUT CARDS -->
+  <!-- Callout 1: Star ratings -->
+  <g transform="translate(60, 395)">
+    <rect width="210" height="52" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2" />
+    <text x="10" y="18" font-size="10" font-weight="700" fill="#991b1b">⚠️ ATS PARSER BLIND SPOT</text>
+    <text x="10" y="32" font-size="9" fill="#7f1d1d">Star ratings (★★★★☆) turn into</text>
+    <text x="10" y="44" font-size="9" fill="#7f1d1d">gibberish symbols in ATS crawlers.</text>
+  </g>
+
+  <!-- Callout 2: Two column layout -->
+  <g transform="translate(60, 565)">
+    <rect width="210" height="52" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2" />
+    <text x="10" y="18" font-size="10" font-weight="700" fill="#991b1b">⚠️ MULTI-COLUMN JAM</text>
+    <text x="10" y="32" font-size="9" fill="#7f1d1d">Workday &amp; Taleo read left-to-right,</text>
+    <text x="10" y="44" font-size="9" fill="#7f1d1d">scrambling sidebar text into main body.</text>
+  </g>
+
+  <!-- Callout 3: Weak Bullets -->
+  <g transform="translate(370, 400)">
+    <rect width="265" height="58" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2" />
+    <text x="10" y="18" font-size="10" font-weight="700" fill="#991b1b">⚠️ ZERO QUANTIFIED METRICS</text>
+    <text x="10" y="32" font-size="9" fill="#7f1d1d">"Worked on...", "Responsible for..."</text>
+    <text x="10" y="44" font-size="9" fill="#7f1d1d">Lacks impact scale, users, latency, or result.</text>
+    <text x="10" y="55" font-size="9" fill="#991b1b" font-weight="600">No GitHub or Live Demo links provided.</text>
+  </g>
+
+  <!-- Callout 4: Passive Internship -->
+  <g transform="translate(370, 615)">
+    <rect width="265" height="48" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="1.2" />
+    <text x="10" y="18" font-size="10" font-weight="700" fill="#991b1b">⚠️ PASSIVE WORDING</text>
+    <text x="10" y="32" font-size="9" fill="#7f1d1d">"Helped senior developers..." sounds passive.</text>
+    <text x="10" y="43" font-size="9" fill="#7f1d1d">Use active verbs: "Engineered", "Optimized".</text>
+  </g>
+</svg>

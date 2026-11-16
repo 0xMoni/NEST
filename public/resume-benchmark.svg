@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 920" width="100%" height="100%">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+      text { font-family: 'Inter', -apple-system, sans-serif; }
+      .bg { fill: #ffffff; }
+      .sheet { fill: #ffffff; filter: drop-shadow(0 4px 20px rgba(0,0,0,0.08)); }
+      .tag-good { fill: #ecfdf5; stroke: #10b981; stroke-width: 1.5; rx: 6; }
+      .tag-good-text { font-size: 11px; font-weight: 600; fill: #047857; }
+      .h1 { font-size: 22px; font-weight: 700; fill: #0f172a; letter-spacing: -0.02em; }
+      .h2 { font-size: 11px; font-weight: 700; fill: #047857; text-transform: uppercase; letter-spacing: 0.08em; }
+      .txt { font-size: 10.5px; fill: #334155; line-height: 1.45; }
+      .bold { font-weight: 700; fill: #0f172a; }
+      .link { fill: #2563eb; font-weight: 500; text-decoration: underline; }
+    </style>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="700" height="920" fill="#f8fafc" rx="12" />
+
+  <!-- Card Header -->
+  <rect x="25" y="20" width="650" height="50" rx="8" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1" />
+  <circle cx="50" cy="45" r="14" fill="#10b981" />
+  <text x="50" y="50" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="700">✓</text>
+  <text x="75" y="42" font-size="14" font-weight="700" fill="#065f46">TOP 1% MARKET BENCHMARK (ATS Score: 98/100)</text>
+  <text x="75" y="57" font-size="11" fill="#047857">FAANG / Top-Tier Standard: Single column, Google X-Y-Z formula, live links, quantified impact</text>
+
+  <!-- The Resume Page -->
+  <g transform="translate(45, 90)">
+    <!-- Page Background -->
+    <rect width="610" height="790" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+
+    <!-- Header Section (Centered Clean Contact Bar) -->
+    <text x="305" y="40" text-anchor="middle" class="h1">ROHAN SHARMA</text>
+    <text x="305" y="58" text-anchor="middle" font-size="10.5" fill="#475569">
+      Bengaluru, India | +91 98765 43210 | rohan.sharma@college.edu
+    </text>
+    <text x="305" y="73" text-anchor="middle" font-size="10.5" fill="#2563eb">
+      linkedin.com/in/rohansharma | github.com/rohansharma-dev | rohansharma.dev
+    </text>
+
+    <!-- SECTION 1: EDUCATION -->
+    <line x1="30" y1="90" x2="580" y2="90" stroke="#047857" stroke-width="1.5" />
+    <text x="30" y="104" class="h2">EDUCATION</text>
+    <text x="30" y="122" font-size="11" font-weight="700" fill="#0f172a">Bachelor of Engineering in Computer Science</text>
+    <text x="580" y="122" text-anchor="end" font-size="10.5" fill="#475569">2021 – 2025</text>
+    <text x="30" y="137" font-size="10.5" fill="#475569">East Point College of Engineering &amp; Technology | CGPA: 8.6 / 10.0</text>
+    <text x="580" y="137" text-anchor="end" font-size="10" font-weight="600" fill="#047857">Department Rank 4</text>
+
+    <!-- SECTION 2: TECHNICAL SKILLS (Categorized, Keyword-Optimized) -->
+    <line x1="30" y1="152" x2="580" y2="152" stroke="#047857" stroke-width="1.5" />
+    <text x="30" y="166" class="h2">TECHNICAL SKILLS</text>
+    <text x="30" y="184" class="txt"><tspan class="bold">Languages:</tspan> Python, Java, TypeScript, JavaScript, SQL (PostgreSQL), C++</text>
+    <text x="30" y="200" class="txt"><tspan class="bold">Frameworks &amp; Libs:</tspan> React 19, Next.js 15, Node.js, Express, Fastify, Tailwind CSS</text>
+    <text x="30" y="216" class="txt"><tspan class="bold">Cloud &amp; DevOps:</tspan> AWS (S3, Lambda, EC2), Docker, GitHub Actions, Supabase, Redis</text>
+    <text x="30" y="232" class="txt"><tspan class="bold">Developer Tools:</tspan> Git, Linux/Bash, Postman, Vitest, Jest, Figma, Chrome DevTools</text>
+
+    <!-- SECTION 3: WORK EXPERIENCE -->
+    <line x1="30" y1="247" x2="580" y2="247" stroke="#047857" stroke-width="1.5" />
+    <text x="30" y="261" class="h2">EXPERIENCE</text>
+    <text x="30" y="279" font-size="11" font-weight="700" fill="#0f172a">Software Engineering Intern <tspan font-weight="400" fill="#475569">| TechScale Solutions</tspan></text>
+    <text x="580" y="279" text-anchor="end" font-size="10.5" fill="#475569">June 2024 – Aug 2024</text>
+    <text x="30" y="297" class="txt">• <tspan class="bold">Architected</tspan> a Redis caching tier for user session auth, cutting API response times by <tspan class="bold">38%</tspan> across 50k+ daily calls.</text>
+    <text x="30" y="313" class="txt">• <tspan class="bold">Automated</tspan> CI/CD pipeline using GitHub Actions and Docker, reducing production build deployment cycles from 45 min to <tspan class="bold">11 min</tspan>.</text>
+    <text x="30" y="329" class="txt">• <tspan class="bold">Spearheaded</tspan> migration of 8 legacy REST endpoints to TypeScript, preventing <tspan class="bold">95%</tspan> of runtime schema validation errors.</text>
+
+    <!-- SECTION 4: PROJECTS -->
+    <line x1="30" y1="344" x2="580" y2="344" stroke="#047857" stroke-width="1.5" />
+    <text x="30" y="358" class="h2">FEATURED PROJECTS</text>
+    
+    <text x="30" y="376" font-size="11" font-weight="700" fill="#0f172a">NestFlow — Real-time Student Mentorship Platform</text>
+    <text x="580" y="376" text-anchor="end" font-size="10" fill="#2563eb">[Live Demo ↗] | [GitHub ↗]</text>
+    <text x="30" y="392" font-size="10" font-style="italic" fill="#64748b">Next.js 15, TypeScript, PostgreSQL, Supabase RLS, Groq AI API</text>
+    <text x="30" y="410" class="txt">• <tspan class="bold">Engineered</tspan> an automated attendance &amp; marks engine with PostgreSQL Row-Level Security, serving <tspan class="bold">500+ active department users</tspan>.</text>
+    <text x="30" y="426" class="txt">• <tspan class="bold">Integrated</tspan> an AI-driven career roadmap generator with structured JSON schema outputs, achieving <tspan class="bold">&lt;850ms</tspan> average streaming response.</text>
+    <text x="30" y="442" class="txt">• <tspan class="bold">Optimized</tspan> database queries with indexing and materialized views, cutting dashboard load times by <tspan class="bold">62%</tspan>.</text>
+
+    <text x="30" y="468" font-size="11" font-weight="700" fill="#0f172a">Distributed E-Commerce Microservice</text>
+    <text x="580" y="468" text-anchor="end" font-size="10" fill="#2563eb">[Live Demo ↗] | [GitHub ↗]</text>
+    <text x="30" y="484" font-size="10" font-style="italic" fill="#64748b">Node.js, Express, MongoDB, Apache Kafka, Stripe API, Docker</text>
+    <text x="30" y="502" class="txt">• <tspan class="bold">Designed</tspan> an event-driven inventory management service processing up to <tspan class="bold">1,200 orders/minute</tspan> with zero race condition oversells.</text>
+    <text x="30" y="518" class="txt">• <tspan class="bold">Implemented</tspan> idempotent Stripe payment webhooks with exponential backoff retries, ensuring <tspan class="bold">99.99%</tspan> transaction delivery accuracy.</text>
+
+    <!-- SECTION 5: CERTIFICATIONS & HONORS -->
+    <line x1="30" y1="535" x2="580" y2="535" stroke="#047857" stroke-width="1.5" />
+    <text x="30" y="549" class="h2">CERTIFICATIONS &amp; ACHIEVEMENTS</text>
+    <text x="30" y="567" class="txt">• <tspan class="bold">AWS Certified Cloud Practitioner</tspan> (Amazon Web Services, Credential ID: AWS-8923491) — 2024</text>
+    <text x="30" y="583" class="txt">• <tspan class="bold">Winner (1st of 64 teams):</tspan> State-level Smart India Hackathon for AI Emergency Response Portal — 2024</text>
+    <text x="30" y="599" class="txt">• <tspan class="bold">LeetCode:</tspan> 450+ DSA problems solved (Knight Tier, Top 6% global ranking, Max Rating 1940)</text>
+  </g>
+
+  <!-- GREEN ANNOTATION CALLOUT CARDS -->
+  <!-- Callout 1: 100% Parsable Single Column -->
+  <g transform="translate(60, 205)">
+    <rect width="240" height="48" rx="6" fill="#ecfdf5" stroke="#059669" stroke-width="1.2" />
+    <text x="10" y="18" font-size="10" font-weight="700" fill="#065f46">✅ 100% ATS PARSER COMPLIANT</text>
+    <text x="10" y="32" font-size="9" fill="#047857">Single-column flow passes every ATS</text>
+    <text x="10" y="43" font-size="9" fill="#047857">system (Taleo, Greenhouse, Workday).</text>
+  </g>
+
+  <!-- Callout 2: High Impact Keywords -->
+  <g transform="translate(370, 315)">
+    <rect width="265" height="52" rx="6" fill="#ecfdf5" stroke="#059669" stroke-width="1.2" />
+    <text x="10" y="18" font-size="10" font-weight="700" fill="#065f46">✅ CATEGORIZED KEYWORDS</text>
+    <text x="10" y="32" font-size="9" fill="#047857">Clear separation of languages, tools, and</text>
+    <text x="10" y="44" font-size="9" fill="#047857">cloud allows automated boolean keyword match.</text>
+  </g>
+
+  <!-- Callout 3: Google X-Y-Z Formula -->
+  <g transform="translate(370, 520)">
+    <rect width="265" height="52" rx="6" fill="#ecfdf5" stroke="#059669" stroke-width="1.2" />
+    <text x="10" y="18" font-size="10" font-weight="700" fill="#065f46">✅ GOOGLE X-Y-Z IMPACT FORMULA</text>
+    <text x="10" y="32" font-size="9" fill="#047857">"Accomplished [X] measured by [Y] doing [Z]"</text>
+    <text x="10" y="44" font-size="9" fill="#047857">Every bullet has concrete numbers (%, ms, users).</text>
+  </g>
+
+  <!-- Callout 4: Verified Proof -->
+  <g transform="translate(60, 695)">
+    <rect width="240" height="48" rx="6" fill="#ecfdf5" stroke="#059669" stroke-width="1.2" />
+    <text x="10" y="18" font-size="10" font-weight="700" fill="#065f46">✅ LIVE DEMO &amp; REPO LINKS</text>
+    <text x="10" y="32" font-size="9" fill="#047857">Verified project links prove authentic</text>
+    <text x="10" y="43" font-size="9" fill="#047857">hands-on code to recruiters in 5 seconds.</text>
+  </g>
+</svg>

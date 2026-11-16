@@ -23,6 +23,7 @@ const NAV: Record<Me["role"], NavItem[]> = {
       children: [
         { href: "/student/roadmap", label: "AI Roadmap" },
         { href: "/student/quiz", label: "AI Quiz" },
+        { href: "/student/resume", label: "ATS Resume Scorer" },
       ],
     },
     { href: "/student/profile", label: "Profile" },
