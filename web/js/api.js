@@ -31,5 +31,13 @@
     }).join('');
   }
 
+  // Never leave a page stuck on "Loading…": show what went wrong instead.
+  function showError(msg) {
+    var el = document.getElementById('app') || document.body;
+    el.innerHTML = '<div class="card"><p class="msg err">Something went wrong: ' + esc(msg) + '</p><p class="dim">Open the browser console (F12) for details.</p></div>';
+  }
+  window.addEventListener('error', function (e) { showError(e.message); });
+  window.addEventListener('unhandledrejection', function (e) { showError((e.reason && e.reason.message) || e.reason); });
+
   window.NEST = { nav: nav, sb: sb, esc: esc, requireRole: requireRole, signOut: signOut };
 })();
