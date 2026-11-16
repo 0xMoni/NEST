@@ -15,14 +15,14 @@ for (const line of readFileSync(new URL("../.env.local", import.meta.url), "utf8
   if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim();
 }
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL; // older .env.local files use the second name
 const serviceKey = process.env.SUPABASE_SECRET_KEY;
 // Dev accounts live on a real college domain so they pass the same check a
 // student does. The dev. prefix keeps them obviously distinct from anyone real.
 const domain = process.argv[2] ?? "eastpoint.ac.in";
 
 if (!url || !serviceKey) {
-  console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SECRET_KEY in .env.local");
+  console.error("Missing SUPABASE_URL or SUPABASE_SECRET_KEY in .env.local");
   process.exit(1);
 }
 

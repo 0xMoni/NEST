@@ -16,7 +16,7 @@ is scripted.
 ## 2. Copy the keys
 
 Fastest route — the **Connect** dialog, which hands you the URL and publishable
-key already formatted for Next.js:
+key ready to copy:
 
 ```
 https://supabase.com/dashboard/project/_?showConnect=true
@@ -30,17 +30,19 @@ https://supabase.com/dashboard/project/_/settings/api-keys/
 
 The `_` in those URLs resolves to whichever project you have open.
 
-| Dashboard value | Goes into |
-| --- | --- |
-| Project URL | `NEXT_PUBLIC_SUPABASE_URL` |
-| Publishable key (`sb_publishable_…`) | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
-| Secret key (`sb_secret_…`) | `SUPABASE_SECRET_KEY` |
+| Dashboard value | Goes into | Used by |
+| --- | --- | --- |
+| Project URL | `SUPABASE_URL` in `web/config.js` **and** `.env.local` | the pages, the scripts |
+| Publishable key (`sb_publishable_…`) | `SUPABASE_PUBLISHABLE_KEY` in `web/config.js` | the pages |
+| Secret key (`sb_secret_…`) | `SUPABASE_SECRET_KEY` in `.env.local` | the scripts only — never in `web/` |
+
+`.env.local` starts as a copy of `.env.example`; `web/config.js` as a copy of
+`web/config.example.js`. Both are gitignored.
 
 **On the naming.** Supabase renamed these: `anon` is now *publishable*, and
 `service_role` is now *secret*. Older keys still work and both appear on the
 same page, but the legacy pair is being retired at the end of 2026 — so take the
-`sb_publishable_` / `sb_secret_` versions. Our variable names keep the old words
-because that is what the Supabase client libraries still call the arguments.
+`sb_publishable_` / `sb_secret_` versions.
 
 There is no longer a **Settings → API** page; keys live under **Settings → API
 Keys**.
@@ -76,6 +78,7 @@ The project ref is the subdomain of your project URL.
 ## 5. Seed something to work against
 
 ```
+npm install                          # once: the Supabase library the scripts use
 node scripts/seed-dev-users.mjs      # one account per role
 node scripts/seed-demo-section.mjs   # CSE-5A: 6 subjects, 6 faculty, 24 students, a timetable
 ```
@@ -84,15 +87,45 @@ Both are safe to re-run. The demo section is invented people on a real structure
 the college's own student list is 514 actual people and never goes near this.
 
 
-## 6. Check it worked
+## 6. Point the web pages at it
+
+```
+cp web/config.example.js web/config.js
+```
+
+Put the **Project URL** and the **publishable key** in `web/config.js`. Never the
+secret key: everything in `web/` runs in the browser.
+
+## 7. Allow the reset-password link
+
+**Authentication → URL Configuration**:
+
+- **Site URL:** where the app is served, e.g. `http://localhost:3000` while developing
+- **Redirect URLs:** add `http://localhost:3000/reset-password.html`, and the same
+  path on the real address once it is deployed
+
+Supabase refuses to send people anywhere not on that list.
+
+**Optional, recommended:** the stock reset email spends its one-time token the moment
+anything opens the link — and mail scanners and click trackers open links before the
+person does. Under **Authentication → Emails → Reset password**, change the link to:
+
+```
+<a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=recovery">Reset your password</a>
+```
+
+`reset-password.html` then waits for the person to press Continue before spending it.
+Both forms of the link work; this one just survives scanners.
+
+## 8. Check it worked
 
 ```
 npm run dev
 ```
 
-Sign in at `/login` as `1EP23CS001` with `123456` — a USN, not an email. You should
-land on the student dashboard. Visiting `/login` while signed in should bounce you
-away, which is the middleware doing its job.
+Open `http://localhost:3000`, and sign in as `1ep23cs001@eastpoint.ac.in` with
+`123456`. You should land on the student dashboard. Opening `login.html` while
+signed in sends you to your own home instead.
 
 ## The check that actually matters
 

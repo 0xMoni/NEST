@@ -3,28 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "dev": "python3 -m http.server 3000 -d web",
+    "seed:users": "node scripts/seed-dev-users.mjs",
+    "seed:section": "node scripts/seed-demo-section.mjs"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.12.7",
-    "@supabase/supabase-js": "^2.117.2",
-    "groq-sdk": "^1.6.0",
-    "lucide-react": "^1.53.0",
-    "next": "16.3.7",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "zod": "^4.6.5"
+    "@supabase/supabase-js": "^2.117.2"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.3.7",
-    "supabase": "^2.118.0",
-    "typescript": "^5"
+    "supabase": "^2.118.0"
   }
 }

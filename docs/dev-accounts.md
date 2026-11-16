@@ -5,20 +5,22 @@ and is gitignored — it never goes near this.
 
 **Every account below uses the password `123456`.**
 
-## Students — sign in with the USN
+## Students
 
 ```
-1EP23CS001   Aarav Sharma
-1EP23CS002   Diya Reddy
+1ep23cs001@eastpoint.ac.in   1EP23CS001   Aarav Sharma
+1ep23cs002@eastpoint.ac.in   1EP23CS002   Diya Reddy
 …
-1EP23CS024
+1ep23cs024@eastpoint.ac.in   1EP23CS024
 ```
 
 All 24 are in **CSE-5A**, the section that has a timetable, subjects and faculty —
 so whichever you pick sees real data. `1EP23CS001` is the easiest to find in a
 roll list.
 
-Type the USN alone. No `@`, no email.
+For now everyone signs in with their **email**. Signing in with just the USN needs a
+small server step (looking up an email from a USN cannot be done safely in the
+browser), and comes with the backend.
 
 ## Faculty — sign in with the email
 
@@ -50,13 +52,14 @@ Accounts are created by an administrator, so every new student starts on the sam
 default. That is normal, and safe only while the second half is true: the account
 must demand a new password on first sign-in.
 
-Faculty can change theirs on **Profile**. Nothing yet *forces* anyone to, so for now
-"default" quietly becomes "permanent" for anyone who never thinks about it.
+Every new account carries `must_change_password` on `profiles`. Until it is
+cleared, every page sends that person to `change-password.html`, and picking a
+password there (or through a reset link) clears it. Anyone can change theirs again
+later on the **Account** page.
 
-**Still to build:** a `must_change_password` flag on `profiles`, set when an account
-is created and cleared once the student picks their own. The middleware already runs
-on every request, so it only has to send anyone carrying that flag to a
-change-password screen before letting them anywhere else.
+`1EP23CS001` has the flag cleared, so it goes straight in — handy for testing the
+student pages. The faculty accounts still carry it, so signing in as one shows the
+change-password screen first.
 
 ## Rules while these exist
 

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEST · Sign in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=Newsreader:ital,wght@0,300;0,400;1,300&display=swap">
+<link rel="stylesheet" href="css/login.css">
+<script>try { var t = localStorage.getItem('nest-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}</script>
+</head>
+<body>
+<div class="page">
+  <!-- BRAND -->
+  <section class="brand" id="brand">
+    <canvas class="weave" id="weave" aria-hidden="true"></canvas>
+    <img class="logo" src="assets/nest-logo.png" alt="NEST — Nurturing Education and Student Tracking" width="274" height="246">
+    <h2 class="statement">Every class, every mark, every student — <em>in one place.</em></h2>
+    <p class="brandFoot">© 2026 NEST</p>
+  </section>
+
+  <!-- FORM -->
+  <section class="side">
+    <button type="button" class="theme" id="theme" title="Switch theme" aria-label="Switch theme"></button>
+    <div class="formWrap" id="wrap">
+      <h1 class="title rise">Sign in</h1>
+      <p class="lede rise d1">Welcome back.</p>
+      <form class="form" id="f" novalidate>
+        <div class="alert" id="alert" role="alert" aria-live="polite" hidden>
+          <svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.4v4.3M8 11.2v.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span id="alertText"></span>
+        </div>
+        <div class="field rise d1">
+          <label for="email">College email</label>
+          <div class="control"><input type="text" id="email" placeholder="you@example.com" autocomplete="username" spellcheck="false" required></div>
+        </div>
+        <div class="field rise d2">
+          <label for="password">Password</label>
+          <div class="control hasToggle">
+            <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+            <button type="button" class="reveal" id="reveal" aria-label="Show password">Show</button>
+          </div>
+          <p class="caps" id="caps" hidden>Caps Lock is on</p>
+        </div>
+        <div class="row rise d3"><span></span><a href="forgot-password.html">Forgot password?</a></div>
+        <button type="submit" class="submit rise d4" id="go">Log in</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+(async function () {
+  var $ = NEST.$, email = $('email'), pw = $('password');
+
+  // Already signed in: go straight to where this person belongs.
+  var me = await NEST.getMe().catch(function () { return null; });
+  if (me) return location.replace(me.must_change_password ? 'change-password.html' : NEST.homeFor(me.role));
+
+  if (NEST.param('reset') === '1') AUTH.show('Password changed. Sign in with the new one.', true);
+
+  pw.addEventListener('keyup', caps); pw.addEventListener('keydown', caps);
+  pw.addEventListener('blur', function () { $('caps').hidden = true; });
+  function caps(e) { $('caps').hidden = !(e.getModifierState && e.getModifierState('CapsLock')); }
+
+  $('f').addEventListener('submit', async function (e) {
+    e.preventDefault(); AUTH.hide();
+    var v = email.value.trim();
+    if (!v || !pw.value) return AUTH.fail('Enter your email and your password.', v ? pw : email);
+    // Students know their USN, but turning a USN into an email has to happen on
+    // a server, or anyone could list every student's address. That piece comes
+    // with the backend; until then everyone signs in with their email.
+    if (v.indexOf('@') < 0) return AUTH.fail('Signing in with a USN is not available yet. Use your college email.', email);
+    var go = $('go'); go.disabled = true; go.textContent = 'Signing in…';
+    var r = await NEST.sb.auth.signInWithPassword({ email: v.toLowerCase(), password: pw.value });
+    if (r.error) {
+      go.disabled = false; go.textContent = 'Log in';
+      // One message for every failure, so it can't be used to find out who has an account.
+      return AUTH.fail("Those details don't match an account.", pw);
+    }
+    var who = await NEST.getMe().catch(function () { return null; });
+    if (!who) {
+      go.disabled = false; go.textContent = 'Log in';
+      return AUTH.fail('Signed in, but this account has no NEST profile. Ask the HOD to check it.', email);
+    }
+    location.replace(who.must_change_password ? 'change-password.html' : NEST.homeFor(who.role));
+  });
+})();
+</script>
+</body>
+</html>
