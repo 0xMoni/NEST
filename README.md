@@ -7,36 +7,51 @@ Three roles in one app:
 
 - **Student** — attendance, published marks, timetable, their mentor's alerts,
   and a profile whose sections stay locked until a mentor opens one
-- **Faculty** — mark attendance, enter marks, track mentees, send a mentee an
-  alert, decide their edit requests
-- **HOD** — create accounts, and build the sections, subjects, faculty
-  assignments and timetable everything else hangs off
+- **Faculty** — mark attendance, enter marks and publish them, a per-class
+  attendance report, track mentees, send alerts, decide edit requests
+- **HOD** — build the sections, subjects, teaching assignments and timetable
+  everything else hangs off, and see everyone with an account
 
-Anyone signed in can change their own password.
+Anyone signed in can change their own password, and an account still on the
+default password has to pick its own before it can go anywhere.
 
 ## Run it
 
 ```
-npm install
-cp .env.example .env.local      # fill in the Supabase values
-npm run dev
+cp web/config.example.js web/config.js   # Supabase URL + publishable key
+npm run dev                              # serves web/ on http://localhost:3000
 ```
 
+Plain HTML, CSS and JavaScript: no build step. `npm run dev` is just Python's
+built-in static server, so any static server pointed at `web/` works too.
+
 Supabase setup is in [`docs/supabase-setup.md`](docs/supabase-setup.md).
-Test logins are in [`docs/dev-accounts.md`](docs/dev-accounts.md) — sign in as
-`1EP23CS001` with `123456`.
+Test logins are in [`docs/dev-accounts.md`](docs/dev-accounts.md).
 
-## Stack
+## How it is put together
 
-Next.js (App Router), TypeScript, CSS Modules, Supabase.
+The browser talks to Supabase directly with the public (publishable) key, as
+the signed-in person. **Row-level security in the database is what decides
+who sees and changes what** — the pages only decide what to show. So the
+migrations in `supabase/` are the security of the whole app.
+
+Three things need a secret and so wait for a small backend (Supabase Edge
+Functions): signing in with a USN instead of an email, the HOD creating
+accounts, and the AI roadmap and quiz. Until then accounts come from the
+scripts in `scripts/`.
 
 ## Where things are
 
 ```
-src/app         pages, one folder per role
-src/components  the shell, shared UI, the password form
-src/lib         Supabase clients, session helpers, profile sections
-supabase        migrations — apply in filename order
-scripts         seed accounts and a demo section
-mockups         design references, not shipped
+web/                 the app — open login.html
+web/js/api.js        shared: Supabase client, sign-in gate, layout, helpers
+web/js/auth.js       shared by the four sign-in pages
+web/js/pages/        one script per page
+web/student/ faculty/ admin/   the pages for each role (thin HTML shells)
+web/css/             nest.css (design tokens, from the mockups), web.css, polish.css, login.css
+supabase/            migrations — apply in filename order
+scripts/             seed accounts, a demo section, the roster and faculty imports
+backend/             the certificate checker (Python, not wired in yet)
+mockups/             the original design references
+docs/                setup, test accounts, what is next
 ```

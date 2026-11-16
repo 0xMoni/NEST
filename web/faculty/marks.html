@@ -1,115 +1,18 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NEST · Marks</title>
-<link rel="stylesheet" href="../css/nest.css"><link rel="stylesheet" href="../css/web.css">
+<script>try { var t = localStorage.getItem('nest-theme'); document.documentElement.setAttribute('data-theme', t === 'light' || t === 'dark' ? t : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')); } catch (e) {}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Carlito:wght@400;700&display=swap">
+<link rel="stylesheet" href="../css/nest.css"><link rel="stylesheet" href="../css/web.css"><link rel="stylesheet" href="../css/polish.css">
 </head>
 <body>
-<div class="wrap">
-  <div class="bar">
-    <div><h1>Marks</h1><p class="sub" id="sub">IAT marks. Students see nothing until you publish.</p></div>
-    <button class="btn ghost" onclick="NEST.signOut()">Sign out</button>
-  </div>
-  <div id="nav"></div>
-  <div id="app"><p class="dim">Loading…</p></div>
-</div>
+<p class="loading">Loading…</p>
 <script src="../config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../js/api.js"></script>
-<script>
-(async function () {
-  var sb = NEST.sb, esc = NEST.esc, app = document.getElementById('app');
-  await NEST.requireRole('faculty');
-  NEST.nav('marks');
-  var id = new URLSearchParams(location.search).get('id');
-  return id ? entry(id) : list();
-
-  function secName(s) { return s.dept + '-' + s.semester + s.name; }
-
-  // ---- all assessments, plus a form to create one ----
-  async function list() {
-    var as = await sb.from('faculty_assignments').select('id, sections!inner(dept, semester, name), subjects!inner(code, name)');
-    var ts = await sb.from('assessments').select('id, title, max_marks, held_on, published, assignment_id').order('created_at', { ascending: false });
-    if (as.error || ts.error) { app.innerHTML = '<p class="msg err">' + esc((as.error || ts.error).message) + '</p>'; return; }
-    var byId = {}; as.data.forEach(function (a) { byId[a.id] = a; });
-
-    var opts = as.data.map(function (a) { return '<option value="' + esc(a.id) + '">' + esc(a.subjects.name) + ' · ' + esc(secName(a.sections)) + '</option>'; }).join('');
-    var form = as.data.length ? '<form class="card" id="nf"><h2 style="margin-top:0;font-size:16px">New assessment</h2><div class="tools">' +
-      '<select id="na" required>' + opts + '</select>' +
-      '<input id="nt" placeholder="IAT 1" value="IAT 1" required>' +
-      '<input id="nm" type="number" min="1" step="0.5" value="25" style="width:80px" title="Out of">' +
-      '<input id="nd" type="date"><button class="btn">Create</button></div><div class="msg" id="nmsg"></div></form>' :
-      '<div class="card dim">You are not assigned to any class yet.</div>';
-
-    var rows = ts.data.length ? '<div class="card"><table><thead><tr><th>Assessment</th><th>Class</th><th>Out of</th><th>Status</th><th></th></tr></thead><tbody>' +
-      ts.data.map(function (t) {
-        var a = byId[t.assignment_id];
-        return '<tr><td>' + esc(t.title) + '</td><td class="dim">' + (a ? esc(a.subjects.name) + ' · ' + esc(secName(a.sections)) : '') + '</td><td>' + t.max_marks + '</td><td>' +
-          (t.published ? '<span class="badge ok">Published</span>' : '<span class="badge">Draft</span>') + '</td><td><a href="?id=' + encodeURIComponent(t.id) + '">Enter marks</a></td></tr>';
-      }).join('') + '</tbody></table></div>' : '<div class="card dim">No assessments yet.</div>';
-    app.innerHTML = form + rows;
-
-    var nf = document.getElementById('nf');
-    if (nf) nf.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      var m = document.getElementById('nmsg'); m.className = 'msg'; m.textContent = 'Creating…';
-      // Starts unpublished: students see nothing until the teacher says so.
-      var r = await sb.from('assessments').insert({ assignment_id: na.value, title: nt.value.trim(), max_marks: Number(nm.value), held_on: nd.value || null });
-      if (r.error) { m.className = 'msg err'; m.textContent = r.error.message; return; }
-      list();
-    });
-  }
-
-  // ---- one assessment: enter marks, save as draft, publish ----
-  async function entry(aid) {
-    var t = await sb.from('assessments').select('id, title, max_marks, published, assignment_id, faculty_assignments!inner(section_id, sections!inner(dept, semester, name), subjects!inner(name))').eq('id', aid).maybeSingle();
-    if (!t.data) { app.innerHTML = '<p class="msg err">Not found, or it is not yours.</p><a href="marks.html">Back</a>'; return; }
-    var A = t.data, max = Number(A.max_marks), published = A.published;
-    document.getElementById('sub').textContent = A.title + ' · ' + A.faculty_assignments.subjects.name + ' · ' + secName(A.faculty_assignments.sections) + ' · out of ' + max;
-
-    var en = await sb.from('section_students').select('profiles!inner(id, full_name, usn)').eq('section_id', A.faculty_assignments.section_id);
-    var students = (en.data || []).map(function (e) { return e.profiles; }).sort(function (x, y) { return (x.usn || '').localeCompare(y.usn || ''); });
-    var mk = await sb.from('marks').select('student_id, scored').eq('assessment_id', aid);
-    var saved = {}; (mk.data || []).forEach(function (m) { saved[m.student_id] = m.scored; });
-
-    app.innerHTML = '<div class="tools"><a class="btn ghost" href="marks.html">Back</a><span id="state"></span></div>' +
-      '<div class="card"><table><thead><tr><th>Student</th><th>USN</th><th>Marks (/' + max + ')</th></tr></thead><tbody>' +
-      students.map(function (s) {
-        var v = saved[s.id]; return '<tr><td>' + esc(s.full_name) + '</td><td class="dim">' + esc(s.usn || '') + '</td><td><input class="sc" type="number" min="0" max="' + max +
-          '" step="0.5" data-id="' + esc(s.id) + '" value="' + (v == null ? '' : v) + '"></td></tr>';
-      }).join('') + '</tbody></table></div>' +
-      '<div class="tools"><button class="btn" id="save">Save marks</button><button class="btn ghost" id="pub"></button></div><div class="msg" id="msg"></div>';
-
-    function paint() {
-      document.getElementById('state').innerHTML = published ? '<span class="badge ok">Published: students can see these marks</span>' : '<span class="badge">Draft: students cannot see these yet</span>';
-      document.getElementById('pub').textContent = published ? 'Unpublish' : 'Publish to students';
-    }
-    paint();
-    function say(cls, text) { var m = document.getElementById('msg'); m.className = 'msg ' + cls; m.textContent = text; }
-
-    document.getElementById('save').addEventListener('click', async function () {
-      var bad = null, rows = [];
-      document.querySelectorAll('input.sc').forEach(function (i) {
-        var raw = i.value.trim(), n = raw === '' ? null : Number(raw);
-        if (n !== null && (isNaN(n) || n < 0 || n > max)) bad = bad || i;
-        rows.push({ assessment_id: aid, student_id: i.getAttribute('data-id'), scored: n });
-      });
-      if (bad) { bad.focus(); say('err', 'Marks must be between 0 and ' + max + '.'); return; }
-      say('', 'Saving…');
-      var r = await sb.from('marks').upsert(rows, { onConflict: 'assessment_id,student_id' });
-      if (r.error) say('err', r.error.message); else say('good', 'Saved. ' + (published ? 'Students see the changes now.' : 'Still a draft: students cannot see it.'));
-    });
-
-    document.getElementById('pub').addEventListener('click', async function () {
-      var next = !published;
-      if (next && !confirm('Publish ' + A.title + '? Students will see their marks straight away.')) return;
-      var r = await sb.from('assessments').update({ published: next }).eq('id', aid);
-      if (r.error) { say('err', r.error.message); return; }
-      published = next; paint(); say('good', next ? 'Published.' : 'Unpublished. Students no longer see it.');
-    });
-  }
-})();
-</script>
+<script src="../js/pages/faculty-marks.js"></script>
 </body>
 </html>

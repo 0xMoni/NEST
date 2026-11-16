@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEST</title>
+<style>body{margin:0;font-family:sans-serif;background:#0d0f13;color:#a0a3ab}p{padding:2rem}</style>
+</head>
+<body>
+<p>Loading…</p>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="js/api.js"></script>
+<script>
+// Nothing lives at the root: send people to their own home, or to sign in.
+NEST.getMe().then(function (me) {
+  location.replace(!me ? 'login.html' : me.must_change_password ? 'change-password.html' : NEST.homeFor(me.role));
+}, function () { location.replace('login.html'); });
+</script>
+</body>
+</html>
