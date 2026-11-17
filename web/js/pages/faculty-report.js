@@ -68,5 +68,18 @@
       '<p class="foot-note">Present, late and excused count as attended. 75% is the minimum per subject.</p>' +
     '</section>';
 
+  // Excel: the whole class, whatever filter is showing.
+  var xh = document.createElement('div'); xh.className = 'tools';
+  app.querySelector('.tools').after(xh);
+  N.exportXlsx.buttons(xh, me, async function () {
+    var label = chosen.subjects.code + ' ' + N.sectionLabel(chosen.sections);
+    var rows = [[chosen.subjects.name + ' · ' + N.sectionLabel(chosen.sections) + ' · classes held: ' + sessions], [],
+      ['USN', 'Name', 'Held', 'Attended', 'Percentage', 'Status']];
+    students.forEach(function (s) {
+      rows.push([s.usn || '', s.name, s.held, s.attended, s.pct == null ? '' : s.pct, s.pct == null ? 'No classes yet' : s.short ? 'Below 75%' : s.edge ? 'One miss away' : 'Fine']);
+    });
+    return { title: 'Class report ' + label, sheet: 'Class report', rows: rows, widths: [14, 28, 8, 10, 12, 16] };
+  });
+
   N.$('pick').addEventListener('change', function (e) { location.search = '?a=' + encodeURIComponent(e.target.value); });
 })();

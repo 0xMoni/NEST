@@ -53,7 +53,35 @@
           '<label class="field">Date<input type="date" name="date" value="' + today + '" max="' + today + '" required></label>' +
           '<label class="field">Period<select name="period">' + N.PERIODS.map(function (p) { return '<option value="' + p.n + '">P' + p.n + ' · ' + p.from + '</option>'; }).join('') + '</select></label>' +
           '<button class="btn primary">Open roll</button>' +
-        '</form></section>';
+        '</form></section>' +
+      '<section class="card"><div class="card-head"><h2>Excel register</h2><span class="aside">Every student against every class held, with totals</span></div>' +
+        '<div class="tools"><label class="field" style="min-width:280px">Class<select id="xcls">' + opts + '</select></label></div>' +
+        '<div id="xbtns"></div></section>';
+
+    N.exportXlsx.buttons(N.$('xbtns'), me, async function () {
+      var aid = N.$('xcls').value, cls = assignments.filter(function (a) { return a.id === aid; })[0];
+      var r = await Promise.all([
+        must(sb.from('faculty_assignments').select('section_id').eq('id', aid).single()),
+        must(sb.from('attendance_sessions').select('id, held_on, period').eq('assignment_id', aid).order('held_on').order('period'))
+      ]);
+      var sess = r[1].data || [];
+      var st = await must(sb.from('section_students').select('profiles!inner(id, full_name, usn)').eq('section_id', r[0].data.section_id));
+      var students = (st.data || []).map(function (e) { return e.profiles; }).sort(function (x, y) { return (x.usn || '').localeCompare(y.usn || ''); });
+      var recs = sess.length ? await must(sb.from('attendance_records').select('session_id, student_id, status').in('session_id', sess.map(function (s) { return s.id; }))) : { data: [] };
+      var by = {}; (recs.data || []).forEach(function (x) { by[x.session_id + ':' + x.student_id] = x.status; });
+      var rows = [[cls.subjects.name + ' · ' + N.sectionLabel(cls.sections)], [],
+        ['USN', 'Name'].concat(sess.map(function (s) { return s.held_on + ' P' + s.period; }), ['Held', 'Attended', '%'])];
+      students.forEach(function (s) {
+        var held = 0, att = 0;
+        var cells = sess.map(function (x) {
+          var v = by[x.id + ':' + s.id]; if (!v) return '';
+          held++; if (v !== 'absent') att++;
+          return v === 'absent' ? 'A' : v === 'late' ? 'L' : v === 'excused' ? 'E' : 'P';
+        });
+        rows.push([s.usn || '', s.full_name].concat(cells, [held, att, held ? Math.round(1000 * att / held) / 10 : '']));
+      });
+      return { title: 'Attendance ' + cls.subjects.code + ' ' + N.sectionLabel(cls.sections), sheet: 'Register', rows: rows, widths: [14, 28].concat(sess.map(function () { return 11; }), [7, 9, 7]) };
+    });
 
     N.$('other').addEventListener('submit', function (e) {
       e.preventDefault();
