@@ -74,7 +74,11 @@
 
   function render() {
     app.innerHTML = '<div class="cards">' + SECTIONS.map(card).join('') + '</div>' +
-      '<p class="foot-note">Your password is on the <a class="link" href="' + esc(N.url('account.html')) + '">Account</a> page. You don\'t need your mentor for that.</p>';
+      '<p class="foot-note">Your password is on the <a class="link" href="' + esc(N.url('account.html')) + '">Account</a> page. You don\'t need your mentor for that.</p>' +
+      '<section class="card"><div class="card-head"><h2>Sign out</h2></div>' +
+      '<p style="margin:0 0 12px">Finished for now? Sign out so the next person on this device can\'t open your account.</p>' +
+      '<button class="btn danger" type="button" id="profSignOut">Sign out</button></section>';
+    N.$('profSignOut').addEventListener('click', N.signOut);
   }
 
   function msgIn(id) { return N.$('sec-' + id).querySelector('.msg'); }

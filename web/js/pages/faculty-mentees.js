@@ -26,11 +26,11 @@
     // One query for everyone's attendance, grouped here.
     summary = {};
     if (mentees.length) {
-      var att = await must(sb.from('v_student_attendance').select('student_id, subject_code, held, attended, short').in('student_id', mentees.map(function (m) { return m.id; })));
+      var att = await must(sb.from('v_student_attendance').select('student_id, subject_code, subject_name, held, attended, percentage, short').in('student_id', mentees.map(function (m) { return m.id; })));
       (att.data || []).forEach(function (r) {
         var s = summary[r.student_id] || (summary[r.student_id] = { held: 0, attended: 0, short: [] });
         s.held += Number(r.held); s.attended += Number(r.attended);
-        if (r.short) s.short.push(r.subject_code);
+        if (r.short) s.short.push({ code: r.subject_code, name: r.subject_name, pct: Number(r.percentage) });
       });
     }
     render();
@@ -52,11 +52,11 @@
             var open = sent.filter(function (a) { return a.student_id === m.id && !a.acknowledged_at; }).length;
             return '<tr class="' + (risk ? 'risk' : '') + '"><td class="code">' + esc(m.usn || '') + '</td><td class="subj">' + esc(m.full_name) + '</td>' +
               '<td>' + (p == null ? '<span class="dim">No data</span>' : '<div class="pbar"><div class="track mark"><i style="width:' + Math.min(100, p) + '%"></i></div><span class="v">' + p + '%</span></div>') + '</td>' +
-              '<td>' + (risk ? '<span class="pill risk">' + esc(s.short.join(', ')) + '</span>' : p == null ? '' : '<span class="pill ok">None</span>') + '</td>' +
+              '<td>' + (risk ? '<span class="pill risk">' + s.short.map(function (x) { return '<span title="' + esc(x.name || '') + '">' + esc(x.code) + ' ' + x.pct + '%</span>'; }).join(' · ') + '</span>' : p == null ? '' : '<span class="pill ok">None</span>') + '</td>' +
               '<td class="n">' + (open || '') + '</td>' +
               '<td class="actions"><button class="btn sm" data-alert="' + esc(m.id) + '">Send alert</button></td></tr>';
           }).join('') + '</tbody></table></div>' +
-        '<p class="foot-note">Attendance here covers only the classes you teach yourself. Seeing a mentee\'s other subjects needs a database change that is still to come.</p>';
+        '<p class="foot-note">Attendance covers every subject your mentees study, not just yours. Students below 75% are listed first.</p>';
 
     var reqHtml = !requests.length ? '<p class="empty">No requests waiting.</p>'
       : '<ul class="list">' + requests.map(function (r) {
