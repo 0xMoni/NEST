@@ -204,6 +204,8 @@
       ['scorecard', 'student/scorecard.html', 'Scorecard', 'chart'],
       ['timetable', 'student/timetable.html', 'Timetable', 'calendar'],
       ['mentor', 'student/mentor.html', 'Mentor', 'users', 'mentorBadge'],
+      ['news', 'student/news.html', 'News & events', 'list'],
+      ['certifications', 'student/certifications.html', 'Certifications', 'layers'],
       ['profile', 'student/profile.html', 'Profile', 'user']
     ],
     faculty: [
