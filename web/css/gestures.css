@@ -1,0 +1,72 @@
+/* Student dashboard gestures: hover/focus popovers on the summary cards, and the floating mentor pill.
+   Moved over from the original mockup (dashboard.html). Class names are prefixed (gp-, mp-). */
+
+/* ---- card popovers ---- */
+.stat-hold { position: relative; }
+.stat-hold > .stat { height: 100%; }
+.stat-hold:hover, .stat-hold:focus-within { z-index: 20; }
+.gp-pop {
+  position: absolute; left: 0; top: calc(100% + 8px); width: max(100%, 320px);
+  background: var(--surface); border: 1px solid var(--border-strong); border-radius: 14px;
+  box-shadow: var(--shadow); padding: 18px 18px 16px;
+  opacity: 0; visibility: hidden; transform: translateY(-4px);
+  transition: opacity .16s, transform .16s, visibility .16s;
+}
+.stat-hold:nth-child(n+3) .gp-pop { left: auto; right: 0; }
+.stat-hold:hover .gp-pop, .stat-hold:focus-within .gp-pop { opacity: 1; visibility: visible; transform: none; }
+.gp-pop::before { content: ""; position: absolute; left: 0; right: 0; top: -10px; height: 10px; } /* keeps hover alive across the gap */
+.gp-pop h3 { margin: 0 0 10px; font-family: var(--head); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.gp-link { display: inline-flex; gap: 6px; align-items: center; margin-top: 12px; font-size: 14px; color: var(--gold); text-decoration: none; font-weight: 700; }
+.gp-link:hover { text-decoration: underline; }
+.gp-empty { margin: 0; font-size: 14px; color: var(--muted); }
+
+.gp-subj { display: grid; grid-template-columns: 1fr 44px; gap: 4px 10px; align-items: center; padding: 6px 0; }
+.gp-subj .name { font-size: 14.5px; }
+.gp-subj .pct { font-family: var(--head); font-weight: 600; font-size: 12.5px; text-align: right; }
+.gp-subj .bar { grid-column: 1 / -1; height: 4px; background: var(--surface-3); border-radius: 4px; position: relative; }
+.gp-subj .bar i { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: var(--ok); }
+.gp-subj.risk .bar i, .gp-subj.risk .pct { background: var(--risk); color: var(--risk); }
+.gp-subj.risk .pct { background: none; }
+.gp-subj.watch .bar i { background: var(--watch); }
+.gp-subj.watch .pct { color: var(--watch); }
+.gp-subj .hint { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); }
+
+.gp-alert + .gp-alert { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.gp-alert .t { font-weight: 700; font-size: 14.5px; }
+.gp-alert .d { font-size: 13px; color: var(--muted); }
+
+/* ---- floating mentor pill ---- */
+.mp-wrap { position: fixed; right: 24px; bottom: 24px; z-index: 30; display: flex; flex-direction: column; align-items: flex-end; }
+.mp-card {
+  width: 300px; padding: 18px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow);
+  transform-origin: bottom right; transition: opacity .2s, transform .2s, visibility .2s;
+}
+.mp-wrap:not(.expanded) .mp-card { opacity: 0; visibility: hidden; transform: translateY(8px) scale(.97); position: absolute; right: 0; bottom: 0; }
+.mp-wrap.expanded .mp-pill { display: none; }
+.mp-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.mp-top .eyebrow { margin-right: auto; }
+.mp-x { width: 30px; height: 30px; border-radius: 8px; border: 0; background: none; color: var(--muted); cursor: pointer; display: grid; place-items: center; margin: -6px -6px -6px 0; }
+.mp-x:hover { background: var(--surface-2); color: var(--text); }
+.mp-x svg { width: 16px; height: 16px; }
+.mp-row { display: flex; gap: 12px; align-items: center; }
+.mp-avatar { width: 44px; height: 44px; border-radius: 50%; flex: none; display: grid; place-items: center; font-family: var(--head); font-weight: 600; font-size: 14px; background: var(--gold-soft); color: var(--gold); }
+.mp-avatar.sm { width: 34px; height: 34px; font-size: 12px; }
+.mp-name { font-family: var(--head); font-weight: 600; font-size: 15px; margin: 0; }
+.mp-dept { font-size: 13.5px; color: var(--muted); }
+.mp-where { font-size: 13.5px; color: var(--muted); margin: 12px 0 14px; }
+.mp-go { width: 100%; }
+.mp-pill {
+  display: flex; align-items: center; gap: 10px; padding: 6px 16px 6px 6px; border-radius: 999px; min-height: 48px;
+  background: var(--surface); border: 1px solid var(--border-strong); box-shadow: var(--shadow); cursor: pointer; text-align: left; color: inherit; font: inherit;
+  animation: mpIn .45s cubic-bezier(.2, .9, .3, 1.3) .6s both; transition: transform .15s, border-color .15s;
+}
+.mp-pill:hover { transform: translateY(-2px); border-color: var(--gold); }
+.mp-pill-txt b { display: block; font-family: var(--head); font-size: 12.5px; font-weight: 600; }
+.mp-pill-txt small { font-size: 12.5px; color: var(--muted); }
+@keyframes mpIn { from { opacity: 0; transform: translateY(12px) scale(.9); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 640px) {
+  .gp-pop { display: none; }              /* no hover on a phone: the card itself is the tap target */
+  .mp-wrap { right: 16px; bottom: 16px; }
+  .mp-card { width: calc(100vw - 32px); }
+}
