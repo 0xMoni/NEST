@@ -43,6 +43,9 @@ Then `supabase/migrations/20261117000000_attendance_export.sql`:
 - [x] No attendance for a date that hasn't happened yet (India's date, not UTC).
 - [x] No mark above the assessment's maximum, and the maximum can't be lowered below marks already given.
 
+Then `supabase/migrations/20261118000000_role_from_app_metadata.sql`:
+- [x] Accounts made with the secret key (import scripts, seed scripts) get the role, USN, department and semester they were given. Before this, Supabase wrote `app_metadata` just after the signup trigger ran, so everyone came out a student.
+
 ## Before handing the project over
 - [ ] Delete the demo accounts (`*@eastpoint.ac.in` test logins, `docs/dev-accounts.md`) and the demo section, or start a fresh Supabase project for the real data.
 - [ ] Import the real roster and faculty with `scripts/import-roster.py` and `scripts/import-faculty.py`.
