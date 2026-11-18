@@ -34,7 +34,20 @@ faculty6.cse@eastpoint.ac.in
 ## HOD
 
 ```
-dev.admin@eastpoint.ac.in
+hod.test@eastpoint.ac.in    Test HOD        password 123456
+dev.admin@eastpoint.ac.in   NEST Admin      password changed from 123456, not recorded
+```
+
+## Test logins that skip the first-sign-in password change
+
+Made on 18 Nov 2026 for testing, after the passwords of `faculty1.cse@…`,
+`dev.faculty@…` and `dev.admin@…` were changed and not written down. If you change
+one of these, write the new password here.
+
+```
+hod.test@eastpoint.ac.in       HOD       123456
+faculty.test@eastpoint.ac.in   Faculty   123456   teaches BCS501 Machine Learning in CSE-5B
+1ep23cs001@eastpoint.ac.in     Student   123456   CSE-5A, mentor Dr. Meera Rao
 ```
 
 ## Recreating them
