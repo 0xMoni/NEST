@@ -249,8 +249,7 @@
       '<div class="shell">' +
         '<aside class="side">' + swirl() +
           '<a class="brand" href="' + esc(homeFor(me.role)) + '">' +
-            '<div class="brand-word">NEST</div>' +
-            '<div class="brand-sub">NURTURING EDUCATION &amp; STUDENT TRACKING</div>' +
+            '<img class="brand-logo" src="' + esc(url('assets/nest-logo.png')) + '" alt="NEST — Nurturing Education and Student Tracking" width="274" height="246">' +
             '<div class="brand-role">' + ROLE_LABEL[me.role] + '</div>' +
           '</a>' +
           '<nav class="nav" aria-label="Main">' + items.map(function (it) {

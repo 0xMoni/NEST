@@ -39,7 +39,7 @@
     border-right: 0; border-bottom: 1px solid var(--border);
   }
   .side-swirl { display: none; }
-  .side .brand { display: flex; align-items: baseline; gap: 10px; margin: 0; padding: 0; }
+  .side .brand { display: flex; align-items: center; gap: 10px; margin: 0; padding: 0; }
   .brand-role { margin: 0; }
   .nav {
     gap: 6px; margin: 0 -16px; padding: 0 16px 2px; width: auto; max-width: none; flex: 1 1 100%;
