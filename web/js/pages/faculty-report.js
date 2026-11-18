@@ -17,7 +17,8 @@
   var filter = N.param('show') || 'all';
 
   var res = await Promise.all([
-    must(sb.from('section_students').select('profiles!inner(id, full_name, usn)').eq('section_id', chosen.section_id)),
+    // The roster view: name and USN only. Subject teachers can't read students' profiles.
+    must(sb.from('v_class_roster').select('student_id, full_name, usn').eq('section_id', chosen.section_id)),
     must(sb.from('v_student_attendance').select('student_id, held, attended, percentage, short').eq('section_id', chosen.section_id).eq('subject_id', chosen.subject_id)),
     must(sb.from('attendance_sessions').select('id', { count: 'exact', head: true }).eq('assignment_id', chosen.id))
   ]);
@@ -27,7 +28,7 @@
   // (a+k)/(h+k) >= 3/4  =>  k >= 3h - 4a : classes in a row needed to recover.
   function toRecover(s) { return Math.max(0, 3 * s.held - 4 * s.attended); }
   var students = (res[0].data || []).map(function (e) {
-    var p = e.profiles, s = stats[p.id], held = s ? Number(s.held) : 0, att = s ? Number(s.attended) : 0;
+    var p = { id: e.student_id, full_name: e.full_name, usn: e.usn }, s = stats[p.id], held = s ? Number(s.held) : 0, att = s ? Number(s.attended) : 0;
     var pc = s ? Number(s.percentage) : null;
     // One away: fine now, but a single absence next class drops them below 75%.
     var edge = held > 0 && pc >= 75 && (att / (held + 1)) * 100 < 75;
@@ -65,8 +66,19 @@
               '<td>' + (s.pct == null ? '<span class="dim">No classes yet</span>' : '<div class="pbar"><div class="track mark"><i style="width:' + Math.min(100, s.pct) + '%"></i></div><span class="v">' + s.pct + '%</span></div>') + '</td>' +
               '<td>' + (s.short ? '<span class="pill risk">Short</span> <span class="dim">needs ' + toRecover(s) + ' in a row</span>' : s.edge ? '<span class="pill watch">One miss away</span>' : s.pct == null ? '' : '<span class="pill ok">Fine</span>') + '</td></tr>';
           }).join('') + '</tbody></table></div>') +
-      '<p class="foot-note">Present, late and excused count as attended. 75% is the minimum per subject.</p>' +
+      '<p class="foot-note">75% is the minimum per subject.</p>' +
     '</section>';
+
+  // Excel: the whole class whatever filter is showing; whole term, or a date range (both ends optional).
+  var xh = document.createElement('div'); xh.className = 'tools'; xh.style.alignItems = 'flex-end';
+  xh.innerHTML = '<label class="field">From<input type="date" id="xFrom" max="' + N.localISO() + '"></label>' +
+    '<label class="field">To<input type="date" id="xTo" max="' + N.localISO() + '"></label><div id="xbtns"></div>';
+  app.querySelector('.tools').after(xh);
+  N.exportXlsx.buttons(N.$('xbtns'), me, function () {
+    var from = N.$('xFrom').value, to = N.$('xTo').value;
+    if (from && to && from > to) throw new Error('"From" is after "To".');
+    return N.exportXlsx.classWorkbook(chosen.id, 'summary', from, to);
+  });
 
   N.$('pick').addEventListener('change', function (e) { location.search = '?a=' + encodeURIComponent(e.target.value); });
 })();

@@ -75,10 +75,11 @@
     N.setHead(A.title + ' · ' + fa.subjects.name, N.sectionLabel(fa.sections) + ' · out of ' + max);
 
     var res = await Promise.all([
-      must(sb.from('section_students').select('profiles!inner(id, full_name, usn)').eq('section_id', fa.section_id)),
+      // The roster view: name and USN only. Subject teachers can't read students' profiles.
+      must(sb.from('v_class_roster').select('student_id, full_name, usn').eq('section_id', fa.section_id)),
       must(sb.from('marks').select('student_id, scored').eq('assessment_id', aid))
     ]);
-    var students = (res[0].data || []).map(function (e) { return e.profiles; }).sort(function (x, y) { return (x.usn || '').localeCompare(y.usn || ''); });
+    var students = (res[0].data || []).map(function (r) { return { id: r.student_id, full_name: r.full_name, usn: r.usn }; }).sort(function (x, y) { return (x.usn || '').localeCompare(y.usn || ''); });
     var saved = {}; (res[1].data || []).forEach(function (m) { saved[m.student_id] = m.scored; });
 
     if (!students.length) {

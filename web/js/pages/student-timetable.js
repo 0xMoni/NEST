@@ -5,11 +5,14 @@
   var me = await N.requireRole('student');
   var app = N.shell(me, { active: 'timetable', title: 'Timetable', sub: 'Your week.' });
 
-  var r = await must(sb.from('timetable_slots')
-    .select('day_of_week, period, faculty_assignments!inner(subjects!inner(code, name), profiles(full_name))'));
-  var slots = (r.data || []).map(function (s) {
-    var fa = s.faculty_assignments;
-    return { day: s.day_of_week, period: s.period, code: fa.subjects.code, name: fa.subjects.name, who: fa.profiles ? fa.profiles.full_name : '' };
+  var res = await Promise.all([
+    must(sb.from('timetable_slots').select('day_of_week, period, assignment_id, faculty_assignments!inner(subjects!inner(code, name))')),
+    must(sb.from('v_my_teachers').select('assignment_id, faculty_name'))
+  ]);
+  var who = {}; (res[1].data || []).forEach(function (t) { who[t.assignment_id] = t.faculty_name; });
+  var slots = (res[0].data || []).map(function (s) {
+    var sub = s.faculty_assignments.subjects;
+    return { day: s.day_of_week, period: s.period, code: sub.code, name: sub.name, who: who[s.assignment_id] || '' };
   });
   if (!slots.length) {
     app.innerHTML = '<div class="card"><p class="empty">No timetable has been set for your section yet.</p></div>';

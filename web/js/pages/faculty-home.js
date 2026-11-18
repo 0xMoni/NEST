@@ -26,7 +26,7 @@
   var drafts = res[2].count || 0, requests = res[3].count || 0, openAlerts = res[5].count || 0;
   var mentees = (res[4].data || []).filter(function (m) { return m.profiles; });
 
-  // Mentees below 75% in any subject this teacher can see.
+  // Mentees below 75% in any subject.
   var atRisk = [];
   if (mentees.length) {
     var ids = mentees.map(function (m) { return m.student_id; });
@@ -71,7 +71,7 @@
     '<section class="stats" aria-label="Waiting on you">' +
       stat('marks.html', 'Marks not published', drafts, drafts ? 'Students can\'t see these yet' : 'Nothing in draft') +
       stat('mentees.html#requests', 'Edit requests', requests, requests ? 'Mentees waiting on you' : 'None waiting', requests > 0) +
-      stat('mentees.html', 'Mentees below 75%', mentees.length ? atRisk.length : '—', mentees.length ? 'Of ' + mentees.length + ' mentees, in the classes you teach' : 'No mentees assigned', atRisk.length > 0) +
+      stat('mentees.html', 'Mentees below 75%', mentees.length ? atRisk.length : '—', mentees.length ? 'Of ' + mentees.length + ' mentees, in any subject' : 'No mentees assigned', atRisk.length > 0) +
       stat('mentees.html#alerts', 'Alerts not acknowledged', openAlerts, openAlerts ? 'Sent, not yet seen to' : 'All acknowledged') +
     '</section>' +
     '<section class="card"><div class="card-head"><h2>Today\'s classes</h2><a class="link" href="attendance.html">All classes</a></div>' + classes + '</section>' +

@@ -144,6 +144,7 @@ class Supabase:
             "email": email, "password": password,
             "email_confirm": True,          # nothing is ever mailed to a real address
             "user_metadata": meta,
+            "app_metadata": meta,         # what the database trusts: only the secret key can set it
         })["id"]
 
 

@@ -53,7 +53,12 @@
           '<label class="field">Date<input type="date" name="date" value="' + today + '" max="' + today + '" required></label>' +
           '<label class="field">Period<select name="period">' + N.PERIODS.map(function (p) { return '<option value="' + p.n + '">P' + p.n + ' · ' + p.from + '</option>'; }).join('') + '</select></label>' +
           '<button class="btn primary">Open roll</button>' +
-        '</form></section>';
+        '</form></section>' +
+      '<section class="card"><div class="card-head"><h2>Excel register</h2><span class="aside">Every student against every class held, with totals</span></div>' +
+        '<div class="tools"><label class="field" style="min-width:280px">Class<select id="xcls">' + opts + '</select></label></div>' +
+        '<div id="xbtns"></div></section>';
+
+    N.exportXlsx.buttons(N.$('xbtns'), me, function () { return N.exportXlsx.classWorkbook(N.$('xcls').value, 'register'); });
 
     N.$('other').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -83,10 +88,11 @@
     }
     var cls = a.data;
     var res = await Promise.all([
-      must(sb.from('section_students').select('profiles!inner(id, full_name, usn)').eq('section_id', cls.section_id)),
+      // The roster view: name and USN only. Subject teachers can't read students' profiles.
+      must(sb.from('v_class_roster').select('student_id, full_name, usn').eq('section_id', cls.section_id)),
       must(sb.from('attendance_sessions').select('id').eq('assignment_id', aid).eq('held_on', date).eq('period', period).maybeSingle())
     ]);
-    var students = (res[0].data || []).map(function (e) { return e.profiles; })
+    var students = (res[0].data || []).map(function (r) { return { id: r.student_id, full_name: r.full_name, usn: r.usn }; })
       .sort(function (x, y) { return (x.usn || '').localeCompare(y.usn || ''); });
     var session = res[1].data, absent = new Set();
     if (session) {

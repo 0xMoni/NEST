@@ -26,11 +26,18 @@
     // One query for everyone's attendance, grouped here.
     summary = {};
     if (mentees.length) {
-      var att = await must(sb.from('v_student_attendance').select('student_id, subject_code, held, attended, short').in('student_id', mentees.map(function (m) { return m.id; })));
+      var att = await must(sb.from('v_student_attendance').select('student_id, subject_code, subject_name, held, attended, percentage, short').in('student_id', mentees.map(function (m) { return m.id; })));
       (att.data || []).forEach(function (r) {
         var s = summary[r.student_id] || (summary[r.student_id] = { held: 0, attended: 0, short: [] });
         s.held += Number(r.held); s.attended += Number(r.attended);
-        if (r.short) s.short.push(r.subject_code);
+        if (r.short) s.short.push({ code: r.subject_code, name: r.subject_name, pct: Number(r.percentage) });
+      });
+      // Published marks only: drafts are the subject teacher's business until they publish.
+      var sc = await must(sb.from('v_student_scorecard').select('student_id, scored, max_marks').in('student_id', mentees.map(function (m) { return m.id; })));
+      (sc.data || []).forEach(function (r) {
+        if (r.scored == null) return;
+        var s = summary[r.student_id] || (summary[r.student_id] = { held: 0, attended: 0, short: [] });
+        s.scored = (s.scored || 0) + Number(r.scored); s.out = (s.out || 0) + Number(r.max_marks);
       });
     }
     render();
@@ -44,19 +51,21 @@
 
     var table = !mentees.length
       ? '<p class="empty">No students have been assigned to you as mentees yet. The HOD sets this.</p>'
-      : '<div class="table-wrap"><table class="data"><thead><tr><th>USN</th><th>Name</th><th>Attendance</th><th>Below 75% in</th><th>Open alerts</th><th></th></tr></thead><tbody>' +
+      : '<div class="table-wrap"><table class="data"><thead><tr><th>USN</th><th>Name</th><th>Attendance</th><th>Below 75% in</th><th>Marks</th><th>Open alerts</th><th></th></tr></thead><tbody>' +
         mentees.map(function (m) { return { m: m, s: summary[m.id] }; })
           .sort(function (a, b) { return ((b.s && b.s.short.length) || 0) - ((a.s && a.s.short.length) || 0); })
           .map(function (x) {
-            var m = x.m, s = x.s, p = s ? N.pct(s.attended, s.held) : null, risk = s && s.short.length;
+            var m = x.m, s = x.s, p = s && s.held ? N.pct(s.attended, s.held) : null, risk = s && s.short.length;
+            var mk = s && s.out ? N.pct(s.scored, s.out) : null;
             var open = sent.filter(function (a) { return a.student_id === m.id && !a.acknowledged_at; }).length;
             return '<tr class="' + (risk ? 'risk' : '') + '"><td class="code">' + esc(m.usn || '') + '</td><td class="subj">' + esc(m.full_name) + '</td>' +
               '<td>' + (p == null ? '<span class="dim">No data</span>' : '<div class="pbar"><div class="track mark"><i style="width:' + Math.min(100, p) + '%"></i></div><span class="v">' + p + '%</span></div>') + '</td>' +
-              '<td>' + (risk ? '<span class="pill risk">' + esc(s.short.join(', ')) + '</span>' : p == null ? '' : '<span class="pill ok">None</span>') + '</td>' +
+              '<td>' + (risk ? '<span class="pill risk">' + s.short.map(function (x) { return '<span title="' + esc(x.name || '') + '">' + esc(x.code) + ' ' + x.pct + '%</span>'; }).join(' · ') + '</span>' : p == null ? '' : '<span class="pill ok">None</span>') + '</td>' +
+              '<td class="n">' + (mk == null ? '<span class="dim">—</span>' : mk + '%') + '</td>' +
               '<td class="n">' + (open || '') + '</td>' +
               '<td class="actions"><button class="btn sm" data-alert="' + esc(m.id) + '">Send alert</button></td></tr>';
           }).join('') + '</tbody></table></div>' +
-        '<p class="foot-note">Attendance here covers only the classes you teach yourself. Seeing a mentee\'s other subjects needs a database change that is still to come.</p>';
+        '<p class="foot-note">Attendance covers every subject your mentees study, not just yours. Marks are the average of everything published so far.</p>';
 
     var reqHtml = !requests.length ? '<p class="empty">No requests waiting.</p>'
       : '<ul class="list">' + requests.map(function (r) {
@@ -166,19 +175,9 @@
       var cm = N.$('cMsg');
       var text = function (k) { return el[k].value.trim() || null; };
       await N.busy(f.querySelector('.btn'), 'Saving…', async function () {
-        var r = await sb.from('profiles').update({ cabin: text('cabin'), office_hours: text('hours') }).eq('id', me.id);
+        var r = await sb.from('profiles').update({ cabin: text('cabin'), office_hours: text('hours'), phone: text('phone') }).eq('id', me.id);
         if (r.error) return N.say(cm, 'err', r.error.message);
-        mine.cabin = text('cabin'); mine.office_hours = text('hours');
-        // Phone goes separately: a database rule written for student profiles
-        // also blocks it for faculty, so it can fail on its own while the rest saves.
-        if (text('phone') !== (mine.phone || null)) {
-          var p = await sb.from('profiles').update({ phone: text('phone') }).eq('id', me.id);
-          if (p.error) {
-            el.phone.value = mine.phone || '';
-            return N.say(cm, 'err', 'Cabin and office hours saved. Your phone number could not be changed yet: a database rule meant for students blocks it. That is fixed in the database step.');
-          }
-          mine.phone = text('phone');
-        }
+        mine.cabin = text('cabin'); mine.office_hours = text('hours'); mine.phone = text('phone');
         N.say(cm, 'good', 'Saved. Your mentees see this now.');
       });
     }

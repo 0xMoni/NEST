@@ -17,16 +17,37 @@ Next.js version that used to live in `src/` has been removed. NPTEL is dropped.
 - [x] Student: dashboard, attendance (per class), scorecard, timetable, mentor + alerts, profile with locked sections
 - [x] HOD: overview, people list, structure (sections, subjects, who teaches what), timetable editor
 
-## Database (next)
-These are in the database, not the pages, and matter more now that the browser
-talks to it directly — row-level security is the only lock.
-- [ ] **Critical:** the signup trigger takes `role` from what the person signing up sends, so anyone can make themselves HOD. Fix the trigger and turn off public sign-ups.
-- [ ] Narrow "faculty read profiles": every teacher can currently read every student's private details.
-- [ ] Let mentors see their mentees' attendance and marks in every subject (today: only subjects they teach).
-- [ ] Faculty can't change their own phone (the student profile lock catches it).
-- [ ] New accounts never get `dept` / `semester` (the trigger ignores them).
-- [ ] `ai_quiz_attempts` table is missing.
-- [ ] Removing a teaching assignment cascades into its attendance and marks (the page refuses; the database should too).
+## Database
+Fixed in `supabase/migrations/20261116000000_lock_down_access.sql`:
+- [x] **Critical:** sign-ups could make themselves HOD. Role, USN, department and semester now come only from `app_metadata`, which only the secret key can set.
+- [x] Teachers no longer read every student's private details: mentors read their mentees' profiles; subject teachers get a name-and-USN roster (`v_class_roster`).
+- [x] Mentors see their mentees' attendance and published marks in every subject.
+- [x] Faculty can change their own phone number.
+- [x] Department and semester filled in from each student's section, now and on every enrolment.
+- [x] A teaching assignment with attendance or marks can't be deleted.
+- [x] Attendance, marks, alerts and edit-request decisions can't be saved in someone else's name or for students outside the class.
+- [x] AI roadmaps: readable by the student, their mentor and the HOD only.
+- [ ] **Turn off public sign-ups** in the dashboard (Authentication → Sign In / Providers → "Allow new users to sign up").
+
+Then `supabase/migrations/20261116010000_tidy_up.sql`:
+- [x] Students see each subject's teacher name and their mentor's contact card, not teachers' private details.
+- [x] A section can't get two classes in the same period.
+- [x] Attendance is present or absent only.
+- [x] Indexes on assessments by class, enrolment by student, alerts by mentor.
+- [x] `ai_quiz_attempts` (made by hand in the dashboard) written into a migration, with its access rules. The AI features stay for the backend.
+- [x] Removed `profiles.avatar_url` and the duplicate `current_role_is()` helper.
+
+Then `supabase/migrations/20261117000000_attendance_export.sql`:
+- [x] Attendance to Excel: teachers download (or save to Google Drive) a class's summary and date-by-date register, for the whole term or a date range; the HOD downloads a whole section, every subject side by side. Built by two database functions, so a term's register isn't cut off at the API's 1000-row limit.
+- [x] Each attendance mark records who last changed it, and when.
+- [x] No attendance for a date that hasn't happened yet (India's date, not UTC).
+- [x] No mark above the assessment's maximum, and the maximum can't be lowered below marks already given.
+
+## Before handing the project over
+- [ ] Delete the demo accounts (`*@eastpoint.ac.in` test logins, `docs/dev-accounts.md`) and the demo section, or start a fresh Supabase project for the real data.
+- [ ] Import the real roster and faculty with `scripts/import-roster.py` and `scripts/import-faculty.py`.
+- [ ] Turn email confirmation back on, and set up real SMTP for password resets.
+- [ ] Check the HOD list (query in `docs/supabase-setup.md`).
 
 ## Backend (needs a secret, so a small server — Supabase Edge Functions)
 - [ ] Sign in and reset with a USN instead of an email

@@ -7,11 +7,12 @@
 
   async function load() {
     var res = await Promise.all([
-      must(sb.from('mentorships').select('profiles!mentorships_mentor_id_fkey(full_name, email, phone, cabin, office_hours, designation)').eq('student_id', me.id).maybeSingle()),
+      // The contact card: the mentor's name and how to reach them, nothing more.
+      must(sb.from('v_my_mentor').select('full_name, designation, email, phone, cabin, office_hours').maybeSingle()),
       must(sb.from('mentor_alerts').select('id, kind, urgent, title, message, due_text, created_at, acknowledged_at').eq('student_id', me.id)
         .order('acknowledged_at', { ascending: false, nullsFirst: true }).order('created_at', { ascending: false }))
     ]);
-    render(res[0].data && res[0].data.profiles, res[1].data || []);
+    render(res[0].data, res[1].data || []);
   }
 
   function render(mentor, alerts) {

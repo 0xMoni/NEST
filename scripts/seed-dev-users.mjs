@@ -43,7 +43,8 @@ for (const u of users) {
     email: u.email,
     password: PASSWORD,
     email_confirm: true, // these addresses can't receive mail, so confirm them here
-    user_metadata: { full_name: u.full_name, role: u.role, usn: u.usn },
+    // app_metadata is what the database trusts for role and USN: only the secret key can set it.
+    user_metadata: { full_name: u.full_name }, app_metadata: { role: u.role, usn: u.usn },
   });
 
   if (error) {

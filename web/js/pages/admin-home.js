@@ -17,6 +17,8 @@
     count('mentorships'), count('section_students'),
     count('profiles', function (q) { return q.eq('must_change_password', true); })
   ]);
+  var secs = (await must(sb.from('sections').select('id, dept, semester, name'))).data || [];
+  secs.sort(function (a, b) { return N.sectionLabel(a).localeCompare(N.sectionLabel(b)); });
   var students = c[0], faculty = c[1], sections = c[2], subjects = c[3], assignments = c[4], slots = c[5], mentored = c[6], enrolled = c[7], defaultPw = c[8];
 
   function stat(href, label, value, note, risk) {
@@ -42,5 +44,16 @@
     '<section class="card"><div class="card-head"><h2>Still to do</h2></div>' +
       (todo.length ? '<ul class="list">' + todo.map(function (t) { return '<li><div class="list-row"><span>' + esc(t[0]) + '</span><a class="link" href="' + t[1] + '">Open</a></div></li>'; }).join('') + '</ul>'
                    : '<p class="empty">Everything is set up.</p>') +
+    '</section>' +
+    // A section's attendance as one Excel file: every subject side by side, then one register sheet per subject.
+    '<section class="card"><div class="card-head"><h2>Attendance in Excel</h2></div>' +
+      (secs.length
+        ? '<div class="tools" style="align-items:flex-end;margin:0"><label class="field" style="min-width:200px">Section<select id="xsec">' +
+            secs.map(function (x) { return '<option value="' + esc(x.id) + '">' + esc(N.sectionLabel(x)) + '</option>'; }).join('') +
+          '</select></label><div id="xbtns"></div></div>' +
+          '<p class="foot-note">Every subject\'s percentage per student, who is below 75%, and the full date-by-date register for each subject.</p>'
+        : '<p class="empty">Create a section first.</p>') +
     '</section>';
+
+  if (secs.length) N.exportXlsx.buttons(N.$('xbtns'), me, function () { return N.exportXlsx.sectionWorkbook(N.$('xsec').value); });
 })();

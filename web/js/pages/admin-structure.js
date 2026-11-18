@@ -92,9 +92,9 @@
     var b = e.target.closest('[data-remove]'); if (!b) return;
     var id = b.getAttribute('data-remove');
     await N.busy(b, 'Checking…', async function () {
-      // Attendance and marks are deleted along with the assignment (the
-      // foreign keys cascade), so a class with any history is refused here
-      // rather than quietly wiping a term's records.
+      // A class with attendance or marks can't be removed: the database
+      // refuses (it would otherwise lose the term's records). Checking first
+      // means the HOD gets the reason in plain words.
       var used = await Promise.all([
         sb.from('attendance_sessions').select('id', { count: 'exact', head: true }).eq('assignment_id', id),
         sb.from('assessments').select('id', { count: 'exact', head: true }).eq('assignment_id', id)
@@ -107,7 +107,7 @@
       }
       if (!confirm('Remove this teaching assignment? Its timetable periods go with it.')) return;
       var r = await sb.from('faculty_assignments').delete().eq('id', id);
-      if (r.error) return N.say(msg('assignment'), 'err', r.error.message);
+      if (r.error) return N.say(msg('assignment'), 'err', r.error.code === '23503' ? 'This class already has attendance or marks against it, so it can\'t be removed.' : r.error.message);
       N.toast('Removed');
       await load();
     });

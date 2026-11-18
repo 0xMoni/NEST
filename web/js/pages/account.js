@@ -11,10 +11,10 @@
   if (me.role === 'student') {
     var res = await Promise.all([
       must(sb.from('section_students').select('sections!inner(dept, semester, name)').eq('student_id', me.id)),
-      must(sb.from('mentorships').select('profiles!mentorships_mentor_id_fkey(full_name)').eq('student_id', me.id).maybeSingle())
+      must(sb.from('v_my_mentor').select('full_name').maybeSingle())
     ]);
     var secs = (res[0].data || []).map(function (r) { return N.sectionLabel(r.sections); });
-    var mentor = res[1].data && res[1].data.profiles;
+    var mentor = res[1].data;
     rows.push(['USN', esc(me.usn || '—')], ['Section', esc(secs.join(', ') || 'Not enrolled yet')], ['Mentor', esc(mentor ? mentor.full_name : 'Not assigned yet')]);
   } else if (me.role === 'faculty') {
     var r2 = await Promise.all([
