@@ -22,3 +22,7 @@ __pycache__/
 .DS_Store
 *.pem
 npm-debug.log*
+
+# Next.js build output from the old app (huge; broke a push with a 109 MB file)
+/.next/
+next-env.d.ts

@@ -37,6 +37,12 @@ Then `supabase/migrations/20261116010000_tidy_up.sql`:
 - [x] `ai_quiz_attempts` (made by hand in the dashboard) written into a migration, with its access rules. The AI features stay for the backend.
 - [x] Removed `profiles.avatar_url` and the duplicate `current_role_is()` helper.
 
+Then `supabase/migrations/20261117000000_attendance_export.sql`:
+- [x] Attendance to Excel: teachers download (or save to Google Drive) a class's summary and date-by-date register, for the whole term or a date range; the HOD downloads a whole section, every subject side by side. Built by two database functions, so a term's register isn't cut off at the API's 1000-row limit.
+- [x] Each attendance mark records who last changed it, and when.
+- [x] No attendance for a date that hasn't happened yet (India's date, not UTC).
+- [x] No mark above the assessment's maximum, and the maximum can't be lowered below marks already given.
+
 ## Before handing the project over
 - [ ] Delete the demo accounts (`*@eastpoint.ac.in` test logins, `docs/dev-accounts.md`) and the demo section, or start a fresh Supabase project for the real data.
 - [ ] Import the real roster and faculty with `scripts/import-roster.py` and `scripts/import-faculty.py`.

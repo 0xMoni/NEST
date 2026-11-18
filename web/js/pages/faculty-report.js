@@ -69,5 +69,16 @@
       '<p class="foot-note">75% is the minimum per subject.</p>' +
     '</section>';
 
+  // Excel: the whole class whatever filter is showing; whole term, or a date range (both ends optional).
+  var xh = document.createElement('div'); xh.className = 'tools'; xh.style.alignItems = 'flex-end';
+  xh.innerHTML = '<label class="field">From<input type="date" id="xFrom" max="' + N.localISO() + '"></label>' +
+    '<label class="field">To<input type="date" id="xTo" max="' + N.localISO() + '"></label><div id="xbtns"></div>';
+  app.querySelector('.tools').after(xh);
+  N.exportXlsx.buttons(N.$('xbtns'), me, function () {
+    var from = N.$('xFrom').value, to = N.$('xTo').value;
+    if (from && to && from > to) throw new Error('"From" is after "To".');
+    return N.exportXlsx.classWorkbook(chosen.id, 'summary', from, to);
+  });
+
   N.$('pick').addEventListener('change', function (e) { location.search = '?a=' + encodeURIComponent(e.target.value); });
 })();
