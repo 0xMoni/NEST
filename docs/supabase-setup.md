@@ -74,6 +74,7 @@ filename order. They depend on each other, so the order matters:
 | `20261116010000_tidy_up.sql` | Students see teachers' names and their mentor's contact card only; one class per section per period; present/absent only; indexes; `ai_quiz_attempts` written down; `avatar_url` removed |
 | `20261117000000_attendance_export.sql` | Attendance to Excel (`attendance_register()`, `section_attendance_summary()`); who last changed each attendance mark; no attendance for future dates; no mark above the maximum |
 | `20261118000000_role_from_app_metadata.sql` | New teachers and HODs no longer come out as students: the profile follows `app_metadata` when the secret key sets it |
+| `20261118010000_advisor_fixes.sql` | What Supabase's advisor flagged: the roster, teachers and mentor views read through functions in a `private` schema instead of running as their owner; every policy calls `auth.uid()` / `is_admin()` once per query, not once per row |
 
 **Run the last two before using the current pages**, in that order: the pages read
 the views they create (`v_class_roster`, `v_my_teachers`, `v_my_mentor`).
