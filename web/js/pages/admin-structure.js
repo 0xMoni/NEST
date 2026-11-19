@@ -13,7 +13,7 @@
       must(sb.from('subjects').select('id, code, name, semester, credits').order('semester').order('code')),
       must(sb.from('faculty_assignments').select('id, section_id, subject_id, sections!inner(dept, semester, name), subjects!inner(code, name), profiles!inner(full_name)')),
       must(sb.from('profiles').select('id, full_name, designation').eq('role', 'faculty').order('full_name')),
-      must(sb.from('section_students').select('section_id').range(0, 9999))
+      N.mustAll(function () { return sb.from('section_students').select('section_id, student_id').order('section_id').order('student_id'); })
     ]);
     render(res[0].data || [], res[1].data || [], res[2].data || [], res[3].data || [], res[4].data || []);
   }

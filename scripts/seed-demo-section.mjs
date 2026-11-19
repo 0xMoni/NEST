@@ -8,7 +8,8 @@
  *
  *   node scripts/seed-demo-section.mjs
  *
- * Safe to re-run: everything upserts on a natural key.
+ * Safe to re-run: everything upserts on a natural key. Any refusal from the
+ * database stops it with the reason, rather than printing a count anyway.
  */
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "node:fs";
@@ -28,7 +29,7 @@ const db = createClient(url, process.env.SUPABASE_SECRET_KEY, {
 });
 
 const DOMAIN = "eastpoint.ac.in";
-const PASSWORD = "123456";
+const PASSWORD = process.env.SEED_PASSWORD ?? "123456"; // invented dev accounts only; real ones come from the import scripts
 
 const SUBJECTS = [
   { code: "BCS501", name: "Machine Learning", credits: 4 },
@@ -49,6 +50,15 @@ const FIRST = ["Aarav","Diya","Rohan","Ananya","Karthik","Meghana","Nikhil","Sne
                "Manoj","Keerthi","Aniket","Divya"];
 const LAST = ["Sharma","Reddy","Nair","Iyer","Gowda","Patel","Rao","Shetty","Hegde","Kulkarni"];
 
+/** The result's data, or stop with the database's reason. */
+function must({ data, error }, what) {
+  if (error) {
+    console.error(`${what}: ${error.message}`);
+    process.exit(1);
+  }
+  return data;
+}
+
 async function user(email, meta) {
   const { data, error } = await db.auth.admin.createUser({
     email, password: PASSWORD, email_confirm: true,
@@ -62,15 +72,17 @@ async function user(email, meta) {
 }
 
 // ---- subjects ----
-const { data: subjects } = await db.from("subjects")
+const subjects = must(await db.from("subjects")
   .upsert(SUBJECTS.map((s) => ({ ...s, semester: 5 })), { onConflict: "code" })
-  .select("id, code");
+  .select("id, code"), "subjects");
+// in SUBJECTS order, so each run gives a subject the same teacher and periods
+subjects.sort((a, b) => SUBJECTS.findIndex((s) => s.code === a.code) - SUBJECTS.findIndex((s) => s.code === b.code));
 console.log(`subjects        ${subjects.length}`);
 
 // ---- section ----
-const { data: section } = await db.from("sections")
+const section = must(await db.from("sections")
   .upsert({ dept: "CSE", semester: 5, name: "A" }, { onConflict: "dept,semester,name" })
-  .select("id").single();
+  .select("id").single(), "section");
 console.log(`section         CSE sem 5 A`);
 
 // ---- faculty ----
@@ -82,11 +94,12 @@ for (let i = 0; i < FACULTY.length; i++) {
 console.log(`faculty         ${facultyIds.filter(Boolean).length}`);
 
 // ---- who teaches what ----
-const { data: assignments } = await db.from("faculty_assignments")
+const assignments = must(await db.from("faculty_assignments")
   .upsert(subjects.map((s, i) => ({
     section_id: section.id, subject_id: s.id, faculty_id: facultyIds[i],
   })), { onConflict: "section_id,subject_id" })
-  .select("id, subject_id");
+  .select("id, subject_id"), "assignments");
+assignments.sort((a, b) => subjects.findIndex((s) => s.id === a.subject_id) - subjects.findIndex((s) => s.id === b.subject_id));
 console.log(`assignments     ${assignments.length}`);
 
 // ---- timetable: six periods, Monday to Saturday ----
@@ -97,7 +110,7 @@ for (let day = 1; day <= 6; day++) {
     slots.push({ assignment_id: assignments[(day + period) % assignments.length].id, day_of_week: day, period });
   }
 }
-await db.from("timetable_slots").upsert(slots, { onConflict: "assignment_id,day_of_week,period" });
+must(await db.from("timetable_slots").upsert(slots, { onConflict: "assignment_id,day_of_week,period" }), "timetable");
 console.log(`timetable       ${slots.length} slots`);
 
 // ---- students ----
@@ -110,15 +123,15 @@ for (let i = 0; i < 24; i++) {
   });
   if (id) studentIds.push(id);
 }
-await db.from("section_students")
-  .upsert(studentIds.map((id) => ({ section_id: section.id, student_id: id })), { onConflict: "section_id,student_id" });
+must(await db.from("section_students")
+  .upsert(studentIds.map((id) => ({ section_id: section.id, student_id: id })), { onConflict: "section_id,student_id" }), "enrolment");
 console.log(`students        ${studentIds.length}`);
 
 // ---- mentors: four students each ----
-await db.from("mentorships").upsert(
+must(await db.from("mentorships").upsert(
   studentIds.map((id, i) => ({ mentor_id: facultyIds[Math.floor(i / 6) % facultyIds.length], student_id: id })),
   { onConflict: "student_id" },
-);
+), "mentorships");
 console.log(`mentorships     ${studentIds.length}`);
 
 console.log(`\nAll accounts use the password ${PASSWORD}`);

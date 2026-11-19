@@ -82,12 +82,14 @@
     var day = Number(sel.getAttribute('data-day')), period = Number(sel.getAttribute('data-period')), key = day + ':' + period;
     var want = sel.value || null, had = slots[key], msg = N.$('msg');
     var prev = had ? had.assignment_id : '';
-    if (want) {
-      var warn = await clash(want, day, period);
-      if (warn && !confirm(warn + ' Put them here anyway?')) { sel.value = prev; return; }
-    }
+    // Locked from the first await: a second pick while the clash check is
+    // out would run its own delete and insert over this one.
     sel.disabled = true;
     try {
+      if (want) {
+        var warn = await clash(want, day, period);
+        if (warn && !confirm(warn + ' Put them here anyway?')) { sel.value = prev; return; }
+      }
       if (had) {
         var del = await sb.from('timetable_slots').delete().eq('id', had.id);
         if (del.error) { sel.value = prev; return N.say(msg, 'err', del.error.message); }

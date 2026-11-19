@@ -71,7 +71,7 @@
 
   async function markSheet(aid) {
     var period = Number(N.param('period') || 1), date = N.param('date') || today;
-    if (!Number.isInteger(period) || period < 1 || period > 8 || !N.isISODate(date)) {
+    if (!Number.isInteger(period) || period < 1 || period > N.PERIODS.length || !N.isISODate(date)) {
       app.innerHTML = '<div class="card"><p class="msg err">That link has an invalid date or period.</p><a class="btn" href="attendance.html">Back to your classes</a></div>';
       return;
     }
@@ -80,8 +80,9 @@
       return;
     }
 
-    // Row-level security: this comes back empty unless they teach it.
-    var a = await must(sb.from('faculty_assignments').select('id, section_id, sections!inner(dept, semester, name), subjects!inner(code, name)').eq('id', aid).maybeSingle());
+    // Their own class only. Row-level security also lets a mentor read the
+    // classes in their mentees' sections, so it alone is not the check.
+    var a = await must(sb.from('faculty_assignments').select('id, section_id, sections!inner(dept, semester, name), subjects!inner(code, name)').eq('id', aid).eq('faculty_id', me.id).maybeSingle());
     if (!a.data) {
       app.innerHTML = '<div class="card"><p class="msg err">Class not found, or it is not yours.</p><a class="btn" href="attendance.html">Back to your classes</a></div>';
       return;
@@ -110,7 +111,7 @@
     // "USN only" fits a whole class on a phone; names help early in the term.
     var view = 'usn';
     try { view = localStorage.getItem('nest-roll-view') === 'full' ? 'full' : 'usn'; } catch (e) { /* default */ }
-    var saved = !!session, dirty = false;
+    var saved = !!session, dirty = false, saving = false;
 
     function count() {
       N.$('count').innerHTML = '<b>' + (students.length - absent.size) + '</b> present · <b class="' + (absent.size ? 'risk' : '') + '">' + absent.size + '</b> absent';
@@ -140,6 +141,9 @@
     draw();
 
     app.addEventListener('click', function (e) {
+      // The roll is what is being saved; a tap mid-save would be lost
+      // (or half-saved), so it waits until the save is done.
+      if (saving) return;
       var b = e.target.closest('#roll button');
       if (b) {
         var id = b.getAttribute('data-id'), ab = !absent.has(id);
@@ -165,8 +169,9 @@
     addEventListener('beforeunload', function (e) { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
 
     async function save(btn) {
-      var msg = N.$('msg');
-      await N.busy(btn, 'Saving…', async function () {
+      var msg = N.$('msg'), roll = N.$('roll');
+      saving = true; roll.setAttribute('aria-busy', 'true');
+      try { await N.busy(btn, 'Saving…', async function () {
         var s = await sb.from('attendance_sessions')
           .upsert({ assignment_id: aid, held_on: date, period: period, taken_by: me.id }, { onConflict: 'assignment_id,held_on,period' })
           .select('id').single();
@@ -179,7 +184,7 @@
         dirty = false; saved = true;
         N.toast('Saved: ' + (students.length - absent.size) + ' present, ' + absent.size + ' absent');
         N.say(msg, 'good', 'Saved: ' + (students.length - absent.size) + ' present, ' + absent.size + ' absent.');
-      });
+      }); } finally { saving = false; roll.removeAttribute('aria-busy'); }
       if (saved) btn.textContent = 'Update attendance';
     }
   }

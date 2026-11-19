@@ -3,7 +3,9 @@
 Invented people on a real structure. The college's own list is 514 actual students
 and is gitignored — it never goes near this.
 
-**Every account below uses the password `123456`.**
+**These accounts use the password `123456`, except where the tables below say otherwise.**
+That default is for these invented dev accounts only: the import scripts for real
+students and staff refuse to run without a proper `SEED_PASSWORD`.
 
 ## Students
 
@@ -57,7 +59,8 @@ node scripts/seed-dev-users.mjs      # one per role
 node scripts/seed-demo-section.mjs   # CSE-5A and everyone in it
 ```
 
-Both upsert, so re-running is safe. `SEED_PASSWORD` overrides the default.
+Both upsert, so re-running is safe, and both stop with the database's reason if
+anything is refused. `SEED_PASSWORD` overrides the default.
 
 ## `123456` is a default, not a password
 
@@ -66,8 +69,11 @@ default. That is normal, and safe only while the second half is true: the accoun
 must demand a new password on first sign-in.
 
 Every new account carries `must_change_password` on `profiles`. Until it is
-cleared, every page sends that person to `change-password.html`, and picking a
-password there (or through a reset link) clears it. Anyone can change theirs again
+cleared, every page sends that person to `change-password.html`. The database
+clears it when the account's password actually changes (there, through a reset
+link, or on the Account page); a student can't clear it any other way. If the
+office resets someone's password with the secret key, that clears it too, so set
+it back to `true` afterwards. Anyone can change theirs again
 later on the **Account** page.
 
 `1EP23CS001` has the flag cleared, so it goes straight in — handy for testing the
@@ -76,7 +82,8 @@ change-password screen first.
 
 ## Rules while these exist
 
-- **Turn off email confirmation** in Supabase Auth while developing. These addresses
-  cannot receive mail, so confirmation would lock the accounts out of themselves.
+- **Email confirmation doesn't affect them.** The scripts create every account
+  already confirmed (`email_confirm: true`), so the **Confirm email** setting only
+  matters for public sign-ups, which are off.
 - **Never seed these into production.** They are known credentials on a public repo.
 - **Password reset cannot be tested** with them. That needs real inboxes.

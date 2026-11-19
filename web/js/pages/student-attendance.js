@@ -7,7 +7,7 @@
 
   var res = await Promise.all([
     must(sb.from('v_student_attendance').select('subject_id, subject_code, subject_name, section_id, held, attended, percentage, short').eq('student_id', me.id).order('subject_code')),
-    must(sb.from('attendance_records').select('status, attendance_sessions!inner(held_on, period, faculty_assignments!inner(subject_id))').eq('student_id', me.id)),
+    N.mustAll(function () { return sb.from('attendance_records').select('session_id, status, attendance_sessions!inner(held_on, period, faculty_assignments!inner(subject_id))').eq('student_id', me.id).order('session_id'); }),
     must(sb.from('v_my_teachers').select('subject_id, section_id, faculty_name'))
   ]);
   var rows = res[0].data || [], records = res[1].data || [];

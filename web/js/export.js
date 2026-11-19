@@ -210,8 +210,7 @@
     return c.id;
   }
 
-  async function saveToDrive(buf, name, email) {
-    var tok = await driveToken(email);
+  async function saveToDrive(buf, name, tok) {
     var parent = await folderId(tok);
     var b = 'nest' + Date.now();
     var meta = JSON.stringify({ name: name, parents: [parent] });
@@ -231,16 +230,21 @@
       '<button type="button" class="btn sm" data-x="drive">Save to Google Drive</button>' +
       '<span class="msg" data-x="msg" role="status" style="margin-left:8px"></span>';
     var msg = host.querySelector('[data-x=msg]');
+    // Google's sign-in window only opens straight from a click; a browser
+    // blocks it once the click is a few seconds old. So its script is loaded
+    // now, and the click asks for Drive access before building the file.
+    if (window.NEST_CONFIG && window.NEST_CONFIG.GOOGLE_CLIENT_ID) loadScript(GIS_URL).catch(function () { /* retried on click */ });
     host.addEventListener('click', async function (e) {
       var b = e.target.closest('[data-x=dl], [data-x=drive]'); if (!b) return;
       var toDrive = b.getAttribute('data-x') === 'drive';
       await N.busy(b, toDrive ? 'Saving…' : 'Preparing…', async function () {
         try {
           N.say(msg, '', '');
+          var tok = toDrive ? await driveToken(me.email) : null;
           var f = await makeFile();
           var buf = f.X.write(f.wb, { bookType: 'xlsx', type: 'array', compression: true });
           if (!toDrive) { download(buf, f.name); N.toast('Downloaded: ' + f.note); return; }
-          var saved = await saveToDrive(buf, f.name, me.email);
+          var saved = await saveToDrive(buf, f.name, tok);
           msg.innerHTML = 'Saved to Drive: <a class="link" href="' + N.esc(saved.webViewLink) + '" target="_blank" rel="noopener">' + N.esc(saved.name) + '</a>';
           msg.className = 'msg good';
         } catch (err) { N.say(msg, 'err', err.message); }

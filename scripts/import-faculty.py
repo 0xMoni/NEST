@@ -158,6 +158,22 @@ def env_from_local():
             os.environ[m.group(1)] = m.group(2).strip()
 
 
+# Real accounts, and USNs are printed on noticeboards: whoever signs in first
+# with the starting password has the account. So there is no default; the
+# office picks one for each batch and hands it out with the USNs.
+WEAK = {"123456", "1234567", "12345678", "password", "password1", "eastpoint", "qwerty123"}
+
+
+def starting_password():
+    pw = os.environ.get("SEED_PASSWORD", "")
+    if len(pw) < 8 or pw.lower() in WEAK:
+        sys.exit("Set SEED_PASSWORD to the starting password for these accounts: at least\n"
+                 "8 characters and not a common one, e.g.\n"
+                 "    SEED_PASSWORD='…' python3 scripts/" + os.path.basename(sys.argv[0]) + " … --commit\n"
+                 "Everyone is made to change it on first sign-in.")
+    return pw
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--file", required=True, help="the faculty list, .csv or .xlsx")
@@ -168,7 +184,6 @@ def main():
     url, key = (os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")), os.environ.get("SUPABASE_SECRET_KEY")
     if not url or not key:
         sys.exit("Missing SUPABASE_URL or SUPABASE_SECRET_KEY in .env.local")
-    password = os.environ.get("SEED_PASSWORD", "123456")
 
     people, problems = parse(args.file)
 
@@ -206,6 +221,7 @@ def main():
         print("\n  Nothing written. Re-run with --commit to create these accounts.\n")
         return
 
+    password = starting_password()
     sb = Supabase(url, key)
     made = skipped = failed = 0
     print()
