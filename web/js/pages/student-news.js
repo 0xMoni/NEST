@@ -1,30 +1,35 @@
 /* Student News & events: the newsletter, and upcoming hackathons, workshops and talks.
    Moved over from the original mockup (news.html).
 
-   The content below is SAMPLE data. There are no newsletter or event tables yet (an earlier
-   migration dropped them), so nothing a teacher posts can show up here until those exist. */
+   Posts come from public.posts: teachers and the HOD write them on their own News & events
+   page. "Read" marks are per device. */
 (async function () {
   'use strict';
   var N = NEST, esc = N.esc;
   var me = await N.requireRole('student');
   var app = N.shell(me, { active: 'news', title: 'News & events', sub: 'Newsletters from your teachers, and what is coming up.' });
 
-  var NEWS = [
-    { id: 'n1', by: 'Dr. Rahul Menon', subject: 'Deep Learning', when: 'Today', t: 'Extra class on CNNs this Saturday', sum: 'Sat 10 Oct · 10:00 AM · Room 304',
-      body: ['We will go through CNN architectures and work through last year’s exam questions. Optional, but recommended before the lab internals.', 'Bring your DL Assignment 3 doubts.'] },
-    { id: 'n2', by: 'Prof. Kavya S', subject: 'Software Engg. & Project Mgmt', when: 'Yesterday', t: 'Sprint 2 project reviews next week', sum: 'Review slots 12–14 Oct · sign up with your team',
-      body: ['Each team gets a 15-minute slot to demo Sprint 2 and walk through the burndown chart.', 'Team leads: pick a slot by Friday. Teams without a slot will be assigned one.'] },
-    { id: 'n3', by: 'Dr. Meera Rao', subject: 'AI & DS department', when: '27 Sep', t: 'September newsletter: student projects and a faculty Q&A', sum: '6 min read',
-      body: ['This month: three student projects from the Sem 7 capstone, a Q&A on getting started with research, and the results of the department coding contest.'] }
-  ];
+  // Posts meant for this student: everyone's, their semester's, their section's.
+  // Row-level security does the choosing.
+  var res = await N.must(N.sb.from('posts')
+    .select('id, kind, title, summary, body, event_on, event_time, location, team, closes, link, posted_by_name, created_at')
+    .order('created_at', { ascending: false }).limit(200));
+  var posts = res.data || [];
 
-  // date: YYYY-MM-DD. link: the event's own page (placeholder URLs).
-  var EVENTS = [
-    { id: 'o2', k: 'workshop', date: '2026-12-06', t: 'MLOps with Docker & FastAPI', desc: 'Package and serve a model, then deploy it. Hands-on, bring a laptop.', where: 'Seminar Hall 2', time: '2:00–5:00 PM', team: 'Individual', link: 'https://example.com/nest/mlops-workshop' },
-    { id: 'o3', k: 'talk', date: '2026-12-09', t: 'LLMs in production: alumni talk', desc: 'An alumnus on what it takes to ship and run LLM features at scale.', where: 'Auditorium', time: '11:10 AM', team: 'Open to Sem 5+', link: 'https://example.com/nest/llm-talk' },
-    { id: 'o1', k: 'hackathon', date: '2026-12-16', t: 'Inter-college AI hackathon', desc: 'Build an AI tool for a campus problem in 36 hours. Mentors on site.', where: 'Main auditorium', time: '36 hours, from 9:00 AM', team: 'Teams of 4', close: 'Registrations close Mon 12 Dec', link: 'https://example.com/nest/ai-hackathon' },
-    { id: 'o6', k: 'talk', date: '2026-12-21', t: 'Women in tech: panel discussion', desc: 'Engineers and founders on careers, research and building teams.', where: 'Seminar Hall 1', time: '3:00 PM', team: 'Open to all', link: 'https://example.com/nest/women-in-tech' }
-  ];
+  function when(ts) {
+    var d = new Date(ts), t = new Date(); t.setHours(0, 0, 0, 0);
+    var days = Math.round((t - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 864e5);
+    return days <= 0 ? 'Today' : days === 1 ? 'Yesterday' : N.fmtDate(N.localISO(d), { day: 'numeric', month: 'short' });
+  }
+  function paras(text) { return String(text || '').split(/\n\s*\n/).map(function (p) { return p.trim(); }).filter(Boolean); }
+
+  var NEWS = posts.filter(function (p) { return p.kind === 'news'; }).map(function (p) {
+    return { id: p.id, by: p.posted_by_name || 'Your department', when: when(p.created_at), t: p.title, sum: p.summary || '', body: paras(p.body) };
+  });
+  var EVENTS = posts.filter(function (p) { return p.kind !== 'news' && p.event_on; }).map(function (p) {
+    return { id: p.id, k: p.kind, date: p.event_on, t: p.title, desc: p.summary || paras(p.body)[0] || '', where: p.location || '', time: p.event_time || '',
+      team: p.team || '', close: p.closes || '', link: p.link || '' };
+  });
 
   var VIEWS = [['newsletter', 'Newsletter'], ['hackathon', 'Hackathons'], ['workshop', 'Workshops'], ['talk', 'Talks']];
   var MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
@@ -57,6 +62,7 @@
   }
 
   function newsHTML() {
+    if (!NEWS.length) return '<div class="nw-empty">No news yet. Posts from your teachers and the HOD appear here.</div>';
     return '<ul class="nw-news card">' + NEWS.map(function (n) {
       var open = openItem === n.id;
       return '<li class="' + (readMap[n.id] ? 'nw-read' : '') + '">' +
@@ -67,19 +73,21 @@
           ICON.chev + '</button>' +
         '<div class="nw-body" id="b-' + n.id + '"' + (open ? '' : ' hidden') + '>' +
           n.body.map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('') +
-          '<div class="from">' + esc(n.by) + ' · ' + esc(n.subject) + '</div></div></li>';
+          '<div class="from">' + esc(n.by) + '</div></div></li>';
     }).join('') + '</ul>';
   }
 
   function eventHTML(e) {
     var d = new Date(e.date + 'T00:00:00');
-    return '<li><a class="nw-ev" href="' + esc(e.link) + '" target="_blank" rel="noopener">' +
+    var open = e.link ? '<a class="nw-ev" href="' + esc(e.link) + '" target="_blank" rel="noopener">' : '<div class="nw-ev">';
+    return '<li>' + open +
       '<div class="nw-ev-top"><div class="nw-date"><div class="d">' + ('0' + d.getDate()).slice(-2) + '</div><div class="m">' + MONTHS[d.getMonth()] + '</div></div>' +
         '<div><div class="kind">' + esc(e.k) + '</div><div class="ttl">' + esc(e.t) + '</div></div></div>' +
       '<div class="desc">' + esc(e.desc) + '</div>' +
-      '<ul class="facts"><li>' + ICON.pin + esc(e.where) + '</li><li>' + ICON.clock + esc(e.time) + '</li><li>' + ICON.team + esc(e.team) + '</li>' +
+      '<ul class="facts">' + (e.where ? '<li>' + ICON.pin + esc(e.where) + '</li>' : '') + (e.time ? '<li>' + ICON.clock + esc(e.time) + '</li>' : '') +
+        (e.team ? '<li>' + ICON.team + esc(e.team) + '</li>' : '') +
         (e.close ? '<li class="closing">' + esc(e.close) + '</li>' : '') + '</ul>' +
-      '<span class="go">Open event page' + ICON.out + '<span class="sr"> (opens in a new tab)</span></span></a></li>';
+      (e.link ? '<span class="go">Open event page' + ICON.out + '<span class="sr"> (opens in a new tab)</span></span></a></li>' : '</div></li>');
   }
 
   function render() {
@@ -94,8 +102,7 @@
       var list = events.filter(function (e) { return e.k === view; });
       body = list.length ? '<ul class="nw-events">' + list.map(eventHTML).join('') + '</ul>' : '<div class="nw-empty">Nothing coming up here yet.</div>';
     }
-    app.innerHTML = '<p class="nw-sample">Sample content: posting by teachers is not connected yet.</p>' +
-      '<div class="nw-bar"><div class="nw-chips" role="tablist" aria-label="Show" id="chips">' + chips + '</div>' +
+    app.innerHTML = '<div class="nw-bar"><div class="nw-chips" role="tablist" aria-label="Show" id="chips">' + chips + '</div>' +
       '<button class="nw-link" type="button" id="markAll"' + (view !== 'newsletter' || !count('newsletter') ? ' hidden' : '') + '>Mark all as read</button></div>' +
       '<section role="tabpanel" aria-labelledby="chip-' + view + '" id="view">' + body + '</section>';
   }

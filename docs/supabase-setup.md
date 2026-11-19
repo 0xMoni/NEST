@@ -82,11 +82,18 @@ already applied"* instead of running out of order. To see what a database has:
 | `20261118000000_role_from_app_metadata.sql` | New teachers and HODs no longer come out as students: the profile follows `app_metadata` when the secret key sets it |
 | `20261118010000_advisor_fixes.sql` | What Supabase's advisor flagged: the roster, teachers and mentor views read through functions in a `private` schema instead of running as their owner; every policy calls `auth.uid()` / `is_admin()` once per query, not once per row |
 | `20261119000000_review_fixes.sql` | Records which migrations are applied, so old files refuse to run again; the role sync copies only what changed; only a real password change clears `must_change_password`; one section per student, one subject marked per section per period, periods 1–6; teachers can't delete a class they took; students read but can't write AI quiz attempts and roadmaps; helper functions closed to signed-out visitors |
+| `20261120000000_academic_terms.sql` | Academic terms: every section belongs to a term, one term is current, and pages show the current term while earlier terms keep their records; one section per student per term; `promote_term()` moves every section one semester up into the next term; the HOD manages terms on the Structure page |
+| `20261120010000_news_and_events.sql` | News & events (`posts`): teachers and the HOD post news or an event to every student, one semester or one section; students see what is meant for them |
+| `20261120020000_certificates.sql` | Certificates: students upload to the private `certificates` Storage bucket, their mentor verifies or rejects (with a reason), the HOD sees all |
 
 **Run `20261118000000`, `20261118010000` and `20261119000000` before using the
 current pages**, in that order: the pages read the views the first two create
 (`v_class_roster`, `v_my_teachers`, `v_my_mentor`), and the third refuses to run
 until both are in.
+
+The three `20261120…` files follow, in order. After the first, check the term it
+made on the HOD's **Structure** page: it is called *2026–27 odd semester* and runs
+1 Aug 2026 to 31 Jan 2027, which is a guess; correct the dates there if they are off.
 
 ### What `lock_down_access` changes
 

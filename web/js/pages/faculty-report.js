@@ -4,9 +4,10 @@
   'use strict';
   var N = NEST, sb = N.sb, esc = N.esc, must = N.must;
   var me = await N.requireRole('faculty');
+  var term = await N.currentTerm();   // pages show the current term's sections
   var app = N.shell(me, { active: 'report', title: 'Class report', sub: 'Attendance per student, for one class at a time.' });
 
-  var as = await must(sb.from('faculty_assignments').select('id, section_id, subject_id, sections!inner(dept, semester, name), subjects!inner(code, name)').eq('faculty_id', me.id));
+  var as = await must(N.inTerm(sb.from('faculty_assignments').select('id, section_id, subject_id, sections!inner(dept, semester, name), subjects!inner(code, name)').eq('faculty_id', me.id), 'sections.term_id', term));
   var classes = (as.data || []).sort(function (a, b) { return (a.subjects.code + N.sectionLabel(a.sections)).localeCompare(b.subjects.code + N.sectionLabel(b.sections)); });
   if (!classes.length) {
     app.innerHTML = '<div class="card"><p class="empty">You are not assigned to any class yet. The HOD sets this.</p></div>';

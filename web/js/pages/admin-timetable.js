@@ -4,9 +4,10 @@
   'use strict';
   var N = NEST, sb = N.sb, esc = N.esc, must = N.must;
   var me = await N.requireRole('admin');
+  var term = await N.currentTerm();   // pages show the current term's sections
   var app = N.shell(me, { active: 'timetable', title: 'Timetable', sub: 'Pick a section, then a class for each period.' });
 
-  var sr = await must(sb.from('sections').select('id, dept, semester, name').order('dept').order('semester').order('name'));
+  var sr = await must(N.inTerm(sb.from('sections').select('id, dept, semester, name'), 'term_id', term).order('dept').order('semester').order('name'));
   var sections = sr.data || [];
   if (!sections.length) {
     app.innerHTML = '<div class="card"><p class="empty">Create a section on the <a class="link" href="structure.html">Structure</a> page first.</p></div>';
@@ -71,8 +72,10 @@
   // another section in this slot.
   async function clash(assignmentId, day, period) {
     var c = byId[assignmentId];
-    var r = await sb.from('timetable_slots').select('faculty_assignments!inner(faculty_id, section_id, sections!inner(dept, semester, name))')
-      .eq('day_of_week', day).eq('period', period).eq('faculty_assignments.faculty_id', c.faculty_id).neq('faculty_assignments.section_id', active.id);
+    // this term's timetable only: last year's slots are no clash
+    var r = await N.inTerm(sb.from('timetable_slots').select('faculty_assignments!inner(faculty_id, section_id, sections!inner(dept, semester, name))')
+      .eq('day_of_week', day).eq('period', period).eq('faculty_assignments.faculty_id', c.faculty_id).neq('faculty_assignments.section_id', active.id),
+      'faculty_assignments.sections.term_id', term);
     if (r.error || !r.data || !r.data.length) return null;
     return c.profiles.full_name + ' already teaches ' + N.sectionLabel(r.data[0].faculty_assignments.sections) + ' then.';
   }

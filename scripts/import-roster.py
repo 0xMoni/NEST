@@ -168,7 +168,10 @@ class Supabase:
                 raise RuntimeError(f"connection failed after {tries} tries: {e}") from None
 
     def section_id(self, dept, semester, name):
-        q = f"/rest/v1/sections?dept=eq.{dept}&semester=eq.{semester}&name=eq.{name}&select=id"
+        """The section in the current term, made if it isn't there yet (a new
+        section goes into the current term by itself)."""
+        q = (f"/rest/v1/sections?dept=eq.{dept}&semester=eq.{semester}&name=eq.{name}"
+             f"&select=id,academic_terms!inner(is_current)&academic_terms.is_current=is.true")
         rows = self._call("GET", q)
         if rows:
             return rows[0]["id"]
