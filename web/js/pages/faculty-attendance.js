@@ -7,6 +7,7 @@
   'use strict';
   var N = NEST, sb = N.sb, esc = N.esc, must = N.must;
   var me = await N.requireRole('faculty');
+  var term = await N.currentTerm();   // pages show the current term's sections
   var app = N.shell(me, { active: 'attendance', title: 'Attendance', sub: 'Every class you teach.' });
   var today = N.localISO();
 
@@ -17,11 +18,11 @@
 
   async function classList() {
     var res = await Promise.all([
-      must(sb.from('timetable_slots')
+      must(N.inTerm(sb.from('timetable_slots')
         .select('day_of_week, period, assignment_id, faculty_assignments!inner(faculty_id, sections!inner(dept, semester, name), subjects!inner(code, name))')
-        .eq('faculty_assignments.faculty_id', me.id).order('day_of_week').order('period')),
+        .eq('faculty_assignments.faculty_id', me.id), 'faculty_assignments.sections.term_id', term).order('day_of_week').order('period')),
       must(sb.from('attendance_sessions').select('assignment_id, period').eq('held_on', today)),
-      must(sb.from('faculty_assignments').select('id, sections!inner(dept, semester, name), subjects!inner(code, name)').eq('faculty_id', me.id))
+      must(N.inTerm(sb.from('faculty_assignments').select('id, sections!inner(dept, semester, name), subjects!inner(code, name)').eq('faculty_id', me.id), 'sections.term_id', term))
     ]);
     var slots = res[0].data || [], assignments = res[2].data || [];
     var marked = {}; (res[1].data || []).forEach(function (m) { marked[m.assignment_id + ':' + m.period] = true; });

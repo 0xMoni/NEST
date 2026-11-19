@@ -4,17 +4,20 @@
   'use strict';
   var N = NEST, sb = N.sb, esc = N.esc, must = N.must;
   var me = await N.requireRole('faculty');
+  var term = await N.currentTerm();   // this term's figures
   var app = N.shell(me, { active: 'mentees', title: 'Mentees' });
   var SECTION_LABEL = { student: 'Student details', parent: 'Parent details', guardian: 'Guardian details', contact: 'Contact details', academic: 'Academic details', admission: 'Admission details' };
 
-  var mentees, requests, sent, mine, summary;
+  var mentees, requests, sent, mine, summary, certs;
 
   async function load() {
     var res = await Promise.all([
       must(sb.from('mentorships').select('student_id, profiles!mentorships_student_id_fkey(id, full_name, usn)').eq('mentor_id', me.id)),
       must(sb.from('profile_edit_requests').select('id, student_id, section, reason, requested_at').eq('status', 'pending').order('requested_at')),
       must(sb.from('mentor_alerts').select('id, student_id, kind, urgent, title, due_text, created_at, acknowledged_at').eq('mentor_id', me.id).order('created_at', { ascending: false }).limit(30)),
-      must(sb.from('profiles').select('cabin, office_hours, phone').eq('id', me.id).single())
+      must(sb.from('profiles').select('cabin, office_hours, phone').eq('id', me.id).single()),
+      // not must(): a database from before certificates has no such table
+      sb.from('certificates').select('id, student_id, title, provider, issued_on, file_path, created_at').eq('status', 'pending').order('created_at')
     ]);
     mentees = (res[0].data || []).map(function (m) { return m.profiles; }).filter(Boolean)
       .sort(function (a, b) { return (a.usn || '').localeCompare(b.usn || ''); });
@@ -22,18 +25,19 @@
     requests = (res[1].data || []).filter(function (r) { return mine_ids[r.student_id]; });
     sent = res[2].data || [];
     mine = res[3].data || {};
+    certs = res[4].error ? null : (res[4].data || []).filter(function (c) { return mine_ids[c.student_id]; });
 
     // One query for everyone's attendance, grouped here.
     summary = {};
     if (mentees.length) {
-      var att = await must(sb.from('v_student_attendance').select('student_id, subject_code, subject_name, held, attended, percentage, short').in('student_id', mentees.map(function (m) { return m.id; })));
+      var att = await must(N.inTerm(sb.from('v_student_attendance').select('student_id, subject_code, subject_name, held, attended, percentage, short').in('student_id', mentees.map(function (m) { return m.id; })), 'term_id', term));
       (att.data || []).forEach(function (r) {
         var s = summary[r.student_id] || (summary[r.student_id] = { held: 0, attended: 0, short: [] });
         s.held += Number(r.held); s.attended += Number(r.attended);
         if (r.short) s.short.push({ code: r.subject_code, name: r.subject_name, pct: Number(r.percentage) });
       });
       // Published marks only: drafts are the subject teacher's business until they publish.
-      var sc = await must(sb.from('v_student_scorecard').select('student_id, scored, max_marks').in('student_id', mentees.map(function (m) { return m.id; })));
+      var sc = await must(N.inTerm(sb.from('v_student_scorecard').select('student_id, scored, max_marks').in('student_id', mentees.map(function (m) { return m.id; })), 'term_id', term));
       (sc.data || []).forEach(function (r) {
         if (r.scored == null) return;
         var s = summary[r.student_id] || (summary[r.student_id] = { held: 0, attended: 0, short: [] });
@@ -63,7 +67,7 @@
               '<td>' + (risk ? '<span class="pill risk">' + s.short.map(function (x) { return '<span title="' + esc(x.name || '') + '">' + esc(x.code) + ' ' + x.pct + '%</span>'; }).join(' · ') + '</span>' : p == null ? '' : '<span class="pill ok">None</span>') + '</td>' +
               '<td class="n">' + (mk == null ? '<span class="dim">—</span>' : mk + '%') + '</td>' +
               '<td class="n">' + (open || '') + '</td>' +
-              '<td class="actions"><button class="btn sm" data-alert="' + esc(m.id) + '">Send alert</button></td></tr>';
+              '<td class="actions"><a class="btn sm" href="student.html?s=' + encodeURIComponent(m.id) + '">Report</a> <button class="btn sm" data-alert="' + esc(m.id) + '">Send alert</button></td></tr>';
           }).join('') + '</tbody></table></div>' +
         '<p class="foot-note">Attendance covers every subject your mentees study, not just yours. Marks are the average of everything published so far.</p>';
 
@@ -76,6 +80,17 @@
               '<option value="24">Open for 1 day</option><option value="48" selected>Open for 2 days</option><option value="72">Open for 3 days</option><option value="168">Open for a week</option></select>' +
             '<button class="btn sm primary" data-approve="' + esc(r.id) + '">Approve</button><button class="btn sm danger" data-reject="' + esc(r.id) + '">Decline</button></div></div></li>';
         }).join('') + '</ul>';
+
+    var certHtml = certs === null ? '' :
+      '<section class="card" id="certificates"><div class="card-head"><h2>Certificates to check</h2><span class="aside">Uploaded by your mentees</span></div>' +
+      (!certs.length ? '<p class="empty">Nothing waiting.</p>' : '<ul class="list">' + certs.map(function (c) {
+        return '<li><div class="list-row"><div><div class="title-line">' + esc(c.title) + '</div>' +
+          '<div class="meta-line">' + esc(who(c.student_id)) + (c.provider ? ' · ' + esc(c.provider) : '') + (c.issued_on ? ' · issued ' + esc(N.fmtDate(c.issued_on)) : '') +
+            ' · uploaded ' + esc(N.fmtDateTime(c.created_at)) + '</div>' +
+          '<input data-note="' + esc(c.id) + '" maxlength="500" placeholder="If rejecting: what is wrong with it" aria-label="Reason, if rejecting" style="margin-top:8px;width:100%"></div>' +
+          '<div class="row"><button class="btn sm" data-copen="' + esc(c.file_path) + '">Open</button>' +
+          '<button class="btn sm primary" data-verify="' + esc(c.id) + '">Verify</button><button class="btn sm danger" data-creject="' + esc(c.id) + '">Reject</button></div></div></li>';
+      }).join('') + '</ul>') + '<p class="msg" id="certMsg" role="status"></p></section>';
 
     var sentHtml = !sent.length ? '<p class="empty">You haven\'t sent any alerts yet.</p>'
       : '<div class="table-wrap"><table class="data"><thead><tr><th>To</th><th>Alert</th><th>Sent</th><th>Status</th><th></th></tr></thead><tbody>' +
@@ -90,6 +105,7 @@
     app.innerHTML =
       '<section class="card"><div class="card-head"><h2>Your mentees</h2></div>' + table + '</section>' +
       '<section class="card" id="requests"><div class="card-head"><h2>Profile edit requests</h2><span class="aside">Approving opens the section for a while, not for good</span></div>' + reqHtml + '<p class="msg" id="reqMsg" role="status"></p></section>' +
+      certHtml +
       (mentees.length ?
       '<section class="card" id="alerts"><div class="card-head"><h2>Send an alert</h2><span class="aside">Shows on their dashboard until they acknowledge it</span></div>' +
         '<form id="af" novalidate><div class="form-grid">' +
@@ -135,6 +151,25 @@
         }).eq('id', id);
         if (r.error) return N.say(N.$('reqMsg'), 'err', r.error.message);
         N.toast(approve ? 'Approved. The section is open for ' + (hours >= 48 ? hours / 24 + ' days' : '1 day') : 'Declined');
+        await load();
+      });
+      return;
+    }
+    if ((b = e.target.closest('[data-copen]'))) {
+      var w = window.open('', '_blank');   // opened now, so it isn't blocked as a pop-up
+      var su = await sb.storage.from('certificates').createSignedUrl(b.getAttribute('data-copen'), 300);
+      if (su.error) { if (w) w.close(); return N.say(N.$('certMsg'), 'err', 'Could not open it: ' + su.error.message); }
+      if (w) w.location = su.data.signedUrl; else location.href = su.data.signedUrl;
+      return;
+    }
+    if ((b = e.target.closest('[data-verify], [data-creject]'))) {
+      var ok = b.hasAttribute('data-verify'), cid = b.getAttribute(ok ? 'data-verify' : 'data-creject');
+      var note = app.querySelector('[data-note="' + cid + '"]').value.trim();
+      if (!ok && !note) return N.say(N.$('certMsg'), 'err', 'Say what is wrong with it, so the student can fix it.');
+      await N.busy(b, ok ? 'Verifying…' : 'Rejecting…', async function () {
+        var r = await sb.from('certificates').update({ status: ok ? 'verified' : 'rejected', note: ok ? null : note }).eq('id', cid);
+        if (r.error) return N.say(N.$('certMsg'), 'err', r.error.message);
+        N.toast(ok ? 'Verified' : 'Rejected. The student sees your reason.');
         await load();
       });
       return;

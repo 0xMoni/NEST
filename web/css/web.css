@@ -168,3 +168,6 @@ tr.detail[hidden] { display: none; }
 .cls-list { display: flex; flex-wrap: wrap; gap: 6px; }
 .cls { font-family: var(--head); font-size: 11.5px; font-weight: 500; padding: 4px 9px; border-radius: 8px; border: 1px solid var(--border); color: var(--faint); }
 .cls.miss { background: var(--risk-soft); border-color: color-mix(in srgb, var(--risk) 55%, transparent); color: var(--risk); }
+
+/* Pages that print (the student report): controls stay on screen. */
+@media print { .no-print { display: none !important; } }

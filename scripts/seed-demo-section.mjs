@@ -80,9 +80,14 @@ subjects.sort((a, b) => SUBJECTS.findIndex((s) => s.code === a.code) - SUBJECTS.
 console.log(`subjects        ${subjects.length}`);
 
 // ---- section ----
-const section = must(await db.from("sections")
-  .upsert({ dept: "CSE", semester: 5, name: "A" }, { onConflict: "dept,semester,name" })
-  .select("id").single(), "section");
+// CSE-5A of the current term; a new section goes into the current term by itself
+let section = must(await db.from("sections")
+  .select("id, academic_terms!inner(is_current)")
+  .eq("dept", "CSE").eq("semester", 5).eq("name", "A").eq("academic_terms.is_current", true)
+  .maybeSingle(), "section");
+if (!section) {
+  section = must(await db.from("sections").insert({ dept: "CSE", semester: 5, name: "A" }).select("id").single(), "section");
+}
 console.log(`section         CSE sem 5 A`);
 
 // ---- faculty ----

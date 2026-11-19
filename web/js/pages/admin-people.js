@@ -5,11 +5,12 @@
   'use strict';
   var N = NEST, sb = N.sb, esc = N.esc, must = N.must;
   var me = await N.requireRole('admin');
+  var term = await N.currentTerm();   // pages show the current term's sections
   var app = N.shell(me, { active: 'people', title: 'People', sub: 'Everyone with an account.' });
 
   var res = await Promise.all([
     N.mustAll(function () { return sb.from('profiles').select('id, full_name, role, usn, email, designation, must_change_password').order('role').order('usn', { nullsFirst: false }).order('full_name').order('id'); }),
-    N.mustAll(function () { return sb.from('section_students').select('student_id, section_id, sections!inner(dept, semester, name)').order('student_id').order('section_id'); }),
+    N.mustAll(function () { return N.inTerm(sb.from('section_students').select('student_id, section_id, sections!inner(dept, semester, name)'), 'sections.term_id', term).order('student_id').order('section_id'); }),
     N.mustAll(function () { return sb.from('mentorships').select('student_id, profiles!mentorships_mentor_id_fkey(full_name)').order('student_id'); })
   ]);
   var people = res[0].data || [];
@@ -44,7 +45,7 @@
       '<p class="note" style="margin:0 0 10px">' + shown.length + ' shown</p>' +
       '<div class="table-wrap"><table class="data"><thead><tr><th>Name</th><th>Role</th><th>USN</th><th>Email</th><th>Section</th><th>Mentor</th><th>Password</th></tr></thead><tbody>' +
       shown.slice(0, 600).map(function (p) {
-        return '<tr><td class="subj">' + esc(p.full_name || '—') + (p.designation ? '<div class="meta-line">' + esc(p.designation) + '</div>' : '') + '</td>' +
+        return '<tr><td class="subj">' + (p.role === 'student' ? '<a class="link" href="student.html?s=' + encodeURIComponent(p.id) + '" title="Report">' + esc(p.full_name || '—') + '</a>' : esc(p.full_name || '—')) + (p.designation ? '<div class="meta-line">' + esc(p.designation) + '</div>' : '') + '</td>' +
           '<td><span class="pill ' + ROLE[p.role][0] + '">' + ROLE[p.role][1] + '</span></td>' +
           '<td class="code">' + esc(p.usn || '') + '</td><td class="dim">' + esc(p.email || '') + '</td>' +
           '<td>' + esc(section[p.id] || (p.role === 'student' ? '—' : '')) + '</td>' +

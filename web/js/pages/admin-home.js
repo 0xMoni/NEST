@@ -3,6 +3,7 @@
   'use strict';
   var N = NEST, sb = N.sb, esc = N.esc, must = N.must;
   var me = await N.requireRole('admin');
+  var term = await N.currentTerm();   // pages show the current term's sections
   var app = N.shell(me, { active: 'home', title: 'Overview', sub: 'The department at a glance.' });
 
   function count(table, filter) {
@@ -17,7 +18,7 @@
     count('mentorships'), count('section_students'),
     count('profiles', function (q) { return q.eq('must_change_password', true); })
   ]);
-  var secs = (await must(sb.from('sections').select('id, dept, semester, name'))).data || [];
+  var secs = (await must(N.inTerm(sb.from('sections').select('id, dept, semester, name'), 'term_id', term))).data || [];
   secs.sort(function (a, b) { return N.sectionLabel(a).localeCompare(N.sectionLabel(b)); });
   var students = c[0], faculty = c[1], sections = c[2], subjects = c[3], assignments = c[4], slots = c[5], mentored = c[6], enrolled = c[7], defaultPw = c[8];
 

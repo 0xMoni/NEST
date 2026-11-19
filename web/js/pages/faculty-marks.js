@@ -5,6 +5,7 @@
   'use strict';
   var N = NEST, sb = N.sb, esc = N.esc, must = N.must;
   var me = await N.requireRole('faculty');
+  var term = await N.currentTerm();   // pages show the current term's sections
   var app = N.shell(me, { active: 'marks', title: 'Marks', sub: 'IAT marks. Students see nothing until you publish.' });
 
   var id = N.param('id');
@@ -14,7 +15,7 @@
 
   async function list() {
     var res = await Promise.all([
-      must(sb.from('faculty_assignments').select('id, sections!inner(dept, semester, name), subjects!inner(code, name)').eq('faculty_id', me.id)),
+      must(N.inTerm(sb.from('faculty_assignments').select('id, sections!inner(dept, semester, name), subjects!inner(code, name)').eq('faculty_id', me.id), 'sections.term_id', term)),
       must(sb.from('assessments').select('id, title, max_marks, held_on, published, assignment_id, created_at, marks(count)').order('created_at', { ascending: false }))
     ]);
     var as = res[0].data || [], ts = res[1].data || [];

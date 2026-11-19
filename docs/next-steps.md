@@ -51,6 +51,18 @@ Then `supabase/migrations/20261118010000_advisor_fixes.sql`:
 - [x] Advisor "Auth RLS Initialization Plan": all 37 policies that called `auth.uid()` or `is_admin()` per row now call them once per query.
 - New policies: write `(select auth.uid())` and `(select public.is_admin())`, not the bare calls, or the advisor warning comes back.
 
+Then `supabase/migrations/20261119000000_review_fixes.sql`:
+- [x] The role sync copies only what changed; only a real password change clears `must_change_password`.
+- [x] Old migration files refuse to run once a later one is applied (`private.applied_migrations`).
+- [x] One subject marked per section per period; periods 1–6; teachers can't delete a class they took.
+- [x] Students read but can't write AI quiz attempts and roadmaps; helper functions closed to signed-out visitors.
+
+Then the three `20261120…` files:
+- [x] **Academic terms.** Sections belong to a term; pages show the current one; earlier terms keep their records. The HOD adds terms, switches the current one and promotes every section a semester up on the Structure page. One section per student per term.
+- [x] **News & events.** Teachers and the HOD post news or events (hackathon, workshop, talk) to every student, a semester or a section, from their own News & events page; students read theirs.
+- [x] **Certificates.** Students upload to private Storage; mentors verify or reject (with a reason) on the Mentees page; the HOD can see all.
+- [x] **Per-student report**, saved as PDF from the browser: details, attendance, published marks and verified certificates. From Mentees (mentors) and People (HOD).
+
 ## Before handing the project over
 - [ ] Delete the demo accounts (`*@eastpoint.ac.in` test logins, `docs/dev-accounts.md`) and the demo section, or start a fresh Supabase project for the real data.
 - [ ] Import the real roster and faculty with `scripts/import-roster.py` and `scripts/import-faculty.py`.
@@ -61,11 +73,9 @@ Then `supabase/migrations/20261118010000_advisor_fixes.sql`:
 - [ ] Sign in and reset with a USN instead of an email
 - [ ] HOD creates accounts and resets logins from the People page
 - [ ] AI roadmap and quiz (Groq key)
-- [ ] Certifications: connect the Python checker in `backend/`
+- [ ] Certifications: connect the Python checker in `backend/` (uploads and mentor review work without it)
 
 ## Later (see `docs/teacher-features.md`)
 - [ ] HOD: enrol students in sections and assign mentors from the app (today: import scripts)
 - [ ] Tasks and reminders (new tables)
-- [ ] Newsletters and events (new tables; the old ones were dropped)
-- [ ] Per-student PDF reports
 - [ ] Email-to-news ingestion, notifications

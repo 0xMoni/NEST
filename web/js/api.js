@@ -190,6 +190,22 @@
     return me;
   }
 
+  /** The current academic term { id, name, starts_on, ends_on }, or null
+   *  (no term marked current, or a database from before terms). Asked once
+   *  per page. */
+  var termP = null;
+  function currentTerm() {
+    if (!termP) {
+      termP = sb.from('academic_terms').select('id, name, starts_on, ends_on').eq('is_current', true).maybeSingle()
+        .then(function (r) { return r.error ? null : r.data; }, function () { return null; });
+    }
+    return termP;
+  }
+  /** Narrow a query to the current term, through the column that holds a
+   *  section's term_id: 'sections.term_id', 'faculty_assignments.sections.term_id', …
+   *  With no current term, every term shows, as before terms existed. */
+  function inTerm(q, column, term) { return term ? q.eq(column, term.id) : q; }
+
   async function signOut() {
     try { await sb.auth.signOut(); } finally { location.replace(url('login.html')); }
   }
@@ -207,6 +223,7 @@
     pen: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
     layers: '<path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/>',
     list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+    news: '<path d="M4 4h13a2 2 0 0 1 2 2v13a1 1 0 0 0 2 0V8"/><path d="M4 4v15a2 2 0 0 0 2 2h15"/><path d="M8 8h7M8 12h7M8 16h4"/>',
     out: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>'
   };
   function icon(name) {
@@ -220,7 +237,7 @@
       ['scorecard', 'student/scorecard.html', 'Scorecard', 'chart'],
       ['timetable', 'student/timetable.html', 'Timetable', 'calendar'],
       ['mentor', 'student/mentor.html', 'Mentor', 'users', 'mentorBadge'],
-      ['news', 'student/news.html', 'News & events', 'list'],
+      ['news', 'student/news.html', 'News & events', 'news'],
       ['certifications', 'student/certifications.html', 'Certifications', 'layers'],
       ['profile', 'student/profile.html', 'Profile', 'user']
     ],
@@ -229,13 +246,15 @@
       ['attendance', 'faculty/attendance.html', 'Attendance', 'check'],
       ['report', 'faculty/report.html', 'Class report', 'list'],
       ['marks', 'faculty/marks.html', 'Marks', 'pen'],
-      ['mentees', 'faculty/mentees.html', 'Mentees', 'users', 'menteeBadge']
+      ['mentees', 'faculty/mentees.html', 'Mentees', 'users', 'menteeBadge'],
+      ['news', 'faculty/news.html', 'News & events', 'news']
     ],
     admin: [
       ['home', 'admin/index.html', 'Overview', 'grid'],
       ['people', 'admin/people.html', 'People', 'users'],
       ['structure', 'admin/structure.html', 'Structure', 'layers'],
-      ['timetable', 'admin/timetable.html', 'Timetable', 'calendar']
+      ['timetable', 'admin/timetable.html', 'Timetable', 'calendar'],
+      ['news', 'admin/news.html', 'News & events', 'news']
     ]
   };
 
@@ -343,7 +362,7 @@
     localISO: localISO, isISODate: isISODate, fmtDate: fmtDate, fmtDateTime: fmtDateTime,
     DAYS: DAYS, DAYS_SHORT: DAYS_SHORT, PERIODS: PERIODS, BREAK_AFTER: BREAK_AFTER, periodAt: periodAt, periodTime: periodTime,
     sectionLabel: sectionLabel, pct: pct, initials: initials, busy: busy, say: say, toast: toast,
-    theme: theme, setTheme: setTheme, getMe: getMe, requireRole: requireRole, signOut: signOut,
+    theme: theme, setTheme: setTheme, getMe: getMe, requireRole: requireRole, currentTerm: currentTerm, inTerm: inTerm, signOut: signOut,
     shell: shell, setHead: setHead
   };
 })();

@@ -3,6 +3,7 @@
   'use strict';
   var N = NEST, sb = N.sb, esc = N.esc, must = N.must;
   var me = await N.requireRole(null);
+  var term = await N.currentTerm();   // pages show the current term's sections
   var app = N.shell(me, { active: 'account', title: 'Account', sub: 'Your details, and your password.' });
   var ROLE = { student: 'Student', faculty: 'Faculty', admin: 'HOD' };
 
@@ -10,7 +11,7 @@
 
   if (me.role === 'student') {
     var res = await Promise.all([
-      must(sb.from('section_students').select('sections!inner(dept, semester, name)').eq('student_id', me.id)),
+      must(N.inTerm(sb.from('section_students').select('sections!inner(dept, semester, name)').eq('student_id', me.id), 'sections.term_id', term)),
       must(sb.from('v_my_mentor').select('full_name').maybeSingle())
     ]);
     var secs = (res[0].data || []).map(function (r) { return N.sectionLabel(r.sections); });
@@ -18,7 +19,7 @@
     rows.push(['USN', esc(me.usn || '—')], ['Section', esc(secs.join(', ') || 'Not enrolled yet')], ['Mentor', esc(mentor ? mentor.full_name : 'Not assigned yet')]);
   } else if (me.role === 'faculty') {
     var r2 = await Promise.all([
-      must(sb.from('faculty_assignments').select('sections!inner(dept, semester, name), subjects!inner(code, name)').eq('faculty_id', me.id)),
+      must(N.inTerm(sb.from('faculty_assignments').select('sections!inner(dept, semester, name), subjects!inner(code, name)').eq('faculty_id', me.id), 'sections.term_id', term)),
       must(sb.from('mentorships').select('student_id', { count: 'exact', head: true }).eq('mentor_id', me.id))
     ]);
     var teaches = (r2[0].data || []).map(function (a) { return esc(a.subjects.name) + ' <span class="dim">' + esc(a.subjects.code) + ' · ' + esc(N.sectionLabel(a.sections)) + '</span>'; });
