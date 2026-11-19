@@ -85,6 +85,7 @@ already applied"* instead of running out of order. To see what a database has:
 | `20261120000000_academic_terms.sql` | Academic terms: every section belongs to a term, one term is current, and pages show the current term while earlier terms keep their records; one section per student per term; `promote_term()` moves every section one semester up into the next term; the HOD manages terms on the Structure page |
 | `20261120010000_news_and_events.sql` | News & events (`posts`): teachers and the HOD post news or an event to every student, one semester or one section; students see what is meant for them |
 | `20261120020000_certificates.sql` | Certificates: students upload to the private `certificates` Storage bucket, their mentor verifies or rejects (with a reason), the HOD sees all |
+| `20261121000000_hod_removes_certificates.sql` | The HOD can remove any certificate and its file (from the student's report page); students and mentors still can't remove a verified one |
 
 **Run `20261118000000`, `20261118010000` and `20261119000000` before using the
 current pages**, in that order: the pages read the views the first two create
