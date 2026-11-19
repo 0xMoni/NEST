@@ -49,6 +49,22 @@
     return r;
   }
 
+  /** must(), for a list that can outgrow one response. The API returns at
+   *  most 1000 rows per request and says nothing when it stops there, so
+   *  this asks page by page until a short page comes back. build() makes a
+   *  fresh query each time; give it an order() that is unique, or rows can
+   *  slip between pages. */
+  var PAGE = 1000;
+  async function mustAll(build) {
+    var all = [];
+    for (var from = 0; ; from += PAGE) {
+      var r = await must(build().range(from, from + PAGE - 1));
+      var rows = r.data || [];
+      all = all.concat(rows);
+      if (rows.length < PAGE) return { data: all, error: null };
+    }
+  }
+
   // Dates are the browser's local time — the person is in the college's
   // timezone, which is exactly what "today" and "now" should mean.
   function pad(n) { return String(n).padStart(2, '0'); }
@@ -323,7 +339,7 @@
   });
 
   window.NEST = {
-    sb: sb, url: url, homeFor: homeFor, esc: esc, $: $, param: param, must: must,
+    sb: sb, url: url, homeFor: homeFor, esc: esc, $: $, param: param, must: must, mustAll: mustAll,
     localISO: localISO, isISODate: isISODate, fmtDate: fmtDate, fmtDateTime: fmtDateTime,
     DAYS: DAYS, DAYS_SHORT: DAYS_SHORT, PERIODS: PERIODS, BREAK_AFTER: BREAK_AFTER, periodAt: periodAt, periodTime: periodTime,
     sectionLabel: sectionLabel, pct: pct, initials: initials, busy: busy, say: say, toast: toast,

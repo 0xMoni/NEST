@@ -122,6 +122,7 @@ table.data.compact { min-width: 0; }
 .roll .nm { font-size: 14px; color: var(--muted); }
 .roll .st { font-family: var(--head); font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ok); }
 .roll button[aria-pressed="true"] { background: var(--risk-soft); border-color: var(--risk); }
+.roll[aria-busy="true"] button { opacity: .6; cursor: progress; }
 .roll button[aria-pressed="true"] .st, .roll button[aria-pressed="true"] .usn { color: var(--risk); }
 .save-bar { position: sticky; bottom: 0; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 14px 0; margin-top: 16px; background: linear-gradient(transparent, var(--bg) 30%); }
 

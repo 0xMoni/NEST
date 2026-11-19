@@ -8,9 +8,9 @@
   var app = N.shell(me, { active: 'people', title: 'People', sub: 'Everyone with an account.' });
 
   var res = await Promise.all([
-    must(sb.from('profiles').select('id, full_name, role, usn, email, designation, must_change_password').order('role').order('usn', { nullsFirst: false }).order('full_name').range(0, 4999)),
-    must(sb.from('section_students').select('student_id, sections!inner(dept, semester, name)').range(0, 4999)),
-    must(sb.from('mentorships').select('student_id, profiles!mentorships_mentor_id_fkey(full_name)').range(0, 4999))
+    N.mustAll(function () { return sb.from('profiles').select('id, full_name, role, usn, email, designation, must_change_password').order('role').order('usn', { nullsFirst: false }).order('full_name').order('id'); }),
+    N.mustAll(function () { return sb.from('section_students').select('student_id, section_id, sections!inner(dept, semester, name)').order('student_id').order('section_id'); }),
+    N.mustAll(function () { return sb.from('mentorships').select('student_id, profiles!mentorships_mentor_id_fkey(full_name)').order('student_id'); })
   ]);
   var people = res[0].data || [];
   var section = {}; (res[1].data || []).forEach(function (r) { section[r.student_id] = N.sectionLabel(r.sections); });

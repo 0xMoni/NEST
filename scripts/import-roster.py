@@ -191,11 +191,26 @@ class Supabase:
         return made["id"]
 
     def enrol(self, section_id, student_ids):
+        """Enrol in batches of 50. A batch the database refuses (someone in it
+        is already in another section) is retried one by one, so the rest
+        still go in. Returns the ids that could not be enrolled."""
+        refused = []
         for i in range(0, len(student_ids), 50):
             chunk = student_ids[i:i + 50]
-            self._call("POST", "/rest/v1/section_students",
-                       [{"section_id": section_id, "student_id": s} for s in chunk],
-                       {"Prefer": "resolution=ignore-duplicates"})
+            try:
+                self._insert_enrolment(section_id, chunk)
+            except RuntimeError:
+                for s in chunk:
+                    try:
+                        self._insert_enrolment(section_id, [s])
+                    except RuntimeError:
+                        refused.append(s)
+        return refused
+
+    def _insert_enrolment(self, section_id, ids):
+        self._call("POST", "/rest/v1/section_students",
+                   [{"section_id": section_id, "student_id": s} for s in ids],
+                   {"Prefer": "resolution=ignore-duplicates"})
 
 
 # ---------------------------------------------------------------- main
@@ -208,6 +223,22 @@ def env_from_local():
         m = re.match(r"^([A-Z0-9_]+)=(.*)$", line.strip())
         if m and m.group(1) not in os.environ:
             os.environ[m.group(1)] = m.group(2).strip()
+
+
+# Real accounts, and USNs are printed on noticeboards: whoever signs in first
+# with the starting password has the account. So there is no default; the
+# office picks one for each batch and hands it out with the USNs.
+WEAK = {"123456", "1234567", "12345678", "password", "password1", "eastpoint", "qwerty123"}
+
+
+def starting_password():
+    pw = os.environ.get("SEED_PASSWORD", "")
+    if len(pw) < 8 or pw.lower() in WEAK:
+        sys.exit("Set SEED_PASSWORD to the starting password for these accounts: at least\n"
+                 "8 characters and not a common one, e.g.\n"
+                 "    SEED_PASSWORD='…' python3 scripts/" + os.path.basename(sys.argv[0]) + " … --commit\n"
+                 "Everyone is made to change it on first sign-in.")
+    return pw
 
 
 def main():
@@ -224,7 +255,6 @@ def main():
     url, key = (os.environ.get("SUPABASE_URL") or os.environ.get("NEXT_PUBLIC_SUPABASE_URL")), os.environ.get("SUPABASE_SECRET_KEY")
     if not url or not key:
         sys.exit("Missing SUPABASE_URL or SUPABASE_SECRET_KEY in .env.local")
-    password = os.environ.get("SEED_PASSWORD", "123456")
 
     students, no_usn, problems = parse(args.file, args.sheet)
 
@@ -292,6 +322,7 @@ def main():
         print("\n  Nothing written. Re-run with --commit to create these accounts.\n")
         return
 
+    password = starting_password()
     sb = Supabase(url, key)
     print()
 
@@ -325,11 +356,23 @@ def main():
                 else:
                     failed += 1
                     print(f"      {s['usn']}  {e}")
-        sb.enrol(sid, ids)
-        print(f"    {d}-{sem}{sec:<3} {len(ids):>3} enrolled")
+        refused = sb.enrol(sid, ids)
+        print(f"    {d}-{sem}{sec:<3} {len(ids) - len(refused):>3} enrolled")
+        if refused:
+            # the usual reason: they are already in another section (a student is in one)
+            usn_of = {}
+            for s in group:
+                try:
+                    usn_of[sb.profile_by_usn(s["usn"])] = s["usn"]
+                except RuntimeError:
+                    pass
+            print(f"      {len(refused)} not enrolled, already in another section: "
+                  + ", ".join(usn_of.get(i, i[:8]) for i in refused))
+            failed += len(refused)
 
-    print(f"\n    {made} created, {skipped} already existed, {failed} failed")
-    print(f"    Everyone starts on the password in SEED_PASSWORD (currently set).\n")
+    print(f"\n    {made} created, {skipped} already existed, {failed} failed or not enrolled")
+    print(f"    Everyone starts on the password in SEED_PASSWORD and is sent to "
+          f"/change-password on first sign in.\n")
 
 
 if __name__ == "__main__":

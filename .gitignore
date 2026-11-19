@@ -11,7 +11,10 @@
 # Keep source spreadsheets outside the repo, or inside private-data/.
 *.xlsx
 *.xls
+*.xlsm
+*.ods
 *.csv
+*.pdf
 private-data/
 
 # Python bytecode from scripts/ and backend/
@@ -26,3 +29,6 @@ npm-debug.log*
 # Next.js build output from the old app (huge; broke a push with a 109 MB file)
 /.next/
 next-env.d.ts
+
+# TypeScript build cache
+*.tsbuildinfo

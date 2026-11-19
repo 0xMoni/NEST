@@ -47,22 +47,28 @@ same page, but the legacy pair is being retired at the end of 2026 — so take t
 There is no longer a **Settings → API** page; keys live under **Settings → API
 Keys**.
 
-## 3. Turn off public sign-ups, and email confirmation
+## 3. Turn off public sign-ups
 
 **Authentication → Sign In / Providers**: switch off **Allow new users to sign up**.
 Accounts are made by the office with the scripts; nobody should be able to make
 their own. (Making accounts with the secret key still works with this off.)
 
-Then **Authentication → Providers → Email**, and switch **Confirm email** off.
-
-Our dev accounts use addresses that cannot receive mail. Leave
-confirmation on and every seeded account is locked out of itself. Turn it back
-on before this is ever used with real addresses.
+**Confirm email** (Authentication → Providers → Email) can stay on. The scripts
+create every account already confirmed (`email_confirm`), so it never stops a
+seeded or imported account from signing in; it would only apply to public
+sign-ups, which are off.
 
 ## 4. Apply the migrations
 
 In the dashboard's **SQL Editor**, run each file in `supabase/migrations/` in
-filename order. They depend on each other, so the order matters:
+filename order. They depend on each other, so the order matters.
+
+**Run each file once, and only ever the new ones.** Most files redefine functions,
+views and access rules, so pasting an old file again puts back what a later one
+fixed. Since `20261119000000`, the database records which files it has
+(`private.applied_migrations`), and every file stops with *"A later migration is
+already applied"* instead of running out of order. To see what a database has:
+`select * from private.applied_migrations order by version;`
 
 | File | What it adds |
 | --- | --- |
@@ -75,9 +81,12 @@ filename order. They depend on each other, so the order matters:
 | `20261117000000_attendance_export.sql` | Attendance to Excel (`attendance_register()`, `section_attendance_summary()`); who last changed each attendance mark; no attendance for future dates; no mark above the maximum |
 | `20261118000000_role_from_app_metadata.sql` | New teachers and HODs no longer come out as students: the profile follows `app_metadata` when the secret key sets it |
 | `20261118010000_advisor_fixes.sql` | What Supabase's advisor flagged: the roster, teachers and mentor views read through functions in a `private` schema instead of running as their owner; every policy calls `auth.uid()` / `is_admin()` once per query, not once per row |
+| `20261119000000_review_fixes.sql` | Records which migrations are applied, so old files refuse to run again; the role sync copies only what changed; only a real password change clears `must_change_password`; one section per student, one subject marked per section per period, periods 1–6; teachers can't delete a class they took; students read but can't write AI quiz attempts and roadmaps; helper functions closed to signed-out visitors |
 
-**Run the last two before using the current pages**, in that order: the pages read
-the views they create (`v_class_roster`, `v_my_teachers`, `v_my_mentor`).
+**Run `20261118000000`, `20261118010000` and `20261119000000` before using the
+current pages**, in that order: the pages read the views the first two create
+(`v_class_roster`, `v_my_teachers`, `v_my_mentor`), and the third refuses to run
+until both are in.
 
 ### What `lock_down_access` changes
 
