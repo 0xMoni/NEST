@@ -28,7 +28,7 @@
     must(scope(sb.from('v_student_attendance').select('subject_code, subject_name, held, attended, percentage, short').eq('student_id', p.id)).order('subject_code')),
     must(scope(sb.from('v_student_scorecard').select('subject_code, subject_name, title, scored, max_marks, percentage').eq('student_id', p.id)).order('subject_code')),
     sb.from('mentorships').select('profiles!mentorships_mentor_id_fkey(full_name)').eq('student_id', p.id).maybeSingle(),
-    sb.from('certificates').select('title, provider, issued_on').eq('student_id', p.id).eq('status', 'verified').order('issued_on', { ascending: false })
+    sb.from('certificates').select('id, title, provider, issued_on, file_path').eq('student_id', p.id).eq('status', 'verified').order('issued_on', { ascending: false })
   ]);
   var att = res[0].data || [], marks = res[1].data || [];
   var mentor = res[2].data && res[2].data.profiles ? res[2].data.profiles.full_name : (me.role === 'faculty' ? me.full_name : null);
@@ -94,8 +94,25 @@
     (certs === null ? '' :
     '<section class="card"><div class="card-head"><h2>Certificates</h2><span class="aside">Verified by the mentor</span></div>' +
       (certs.length ? '<ul class="list">' + certs.map(function (c) {
-        return '<li><div class="title-line">' + esc(c.title) + '</div><div class="meta-line">' + esc([c.provider, c.issued_on ? N.fmtDate(c.issued_on) : null].filter(Boolean).join(' · ')) + '</div></li>';
-      }).join('') + '</ul>' : '<p class="empty">None verified yet.</p>') + '</section>');
+        return '<li><div class="list-row"><div><div class="title-line">' + esc(c.title) + '</div><div class="meta-line">' + esc([c.provider, c.issued_on ? N.fmtDate(c.issued_on) : null].filter(Boolean).join(' · ')) + '</div></div>' +
+          // the HOD can take out one uploaded or verified by mistake; nobody else can remove a verified one
+          (me.role === 'admin' ? '<div class="row no-print"><button class="btn sm danger" data-rmcert="' + esc(c.id) + '">Remove</button></div>' : '') + '</div></li>';
+      }).join('') + '</ul>' : '<p class="empty">None verified yet.</p>') + '<p class="msg no-print" id="certMsg" role="status"></p></section>');
+
+  app.addEventListener('click', async function (e) {
+    var b = e.target.closest('[data-rmcert]'); if (!b) return;
+    var c = certs.find(function (x) { return x.id === b.getAttribute('data-rmcert'); });
+    if (!c || !confirm('Remove "' + c.title + '" from ' + p.full_name + '\'s record? The file is deleted too, and this can\'t be undone.')) return;
+    await N.busy(b, 'Removing…', async function () {
+      var r = await sb.from('certificates').delete().eq('id', c.id).select('id');
+      if (r.error) return N.say(N.$('certMsg'), 'err', r.error.message);
+      if (!r.data || !r.data.length) return N.say(N.$('certMsg'), 'err', 'It could not be removed. Has 20261121000000_hod_removes_certificates.sql been run?');
+      var f = await sb.storage.from('certificates').remove([c.file_path]);
+      N.toast(f.error ? 'Removed from the record; the file could not be deleted: ' + f.error.message : 'Removed');
+      b.closest('li').remove();
+      certs = certs.filter(function (x) { return x.id !== c.id; });
+    });
+  });
 
   N.$('print').addEventListener('click', function () {
     var was = document.title;
