@@ -17,7 +17,7 @@
       must(sb.from('mentor_alerts').select('id, student_id, kind, urgent, title, due_text, created_at, acknowledged_at').eq('mentor_id', me.id).order('created_at', { ascending: false }).limit(30)),
       must(sb.from('profiles').select('cabin, office_hours, phone').eq('id', me.id).single()),
       // not must(): a database from before certificates has no such table
-      sb.from('certificates').select('id, student_id, title, provider, issued_on, file_path, created_at').eq('status', 'pending').order('created_at')
+      sb.from('certificates').select('id, student_id, title, provider, issued_on, file_path, created_at, auto_check').eq('status', 'pending').order('created_at')
     ]);
     mentees = (res[0].data || []).map(function (m) { return m.profiles; }).filter(Boolean)
       .sort(function (a, b) { return (a.usn || '').localeCompare(b.usn || ''); });
@@ -45,6 +45,22 @@
       });
     }
     render();
+  }
+
+  // What the automatic check found: advice for the mentor, who decides.
+  var AUTO = { verified: ['ok', 'Check found nothing wrong'], review: ['watch', 'Check couldn’t tell'], rejected: ['risk', 'Check found a problem'] };
+  function autoHtml(c) {
+    var a = c.auto_check;
+    if (!a) return '<div class="meta-line" style="margin-top:6px"><span class="pill muted">Not checked automatically</span> ' +
+      '<button class="btn sm" data-autocheck="' + esc(c.id) + '">Run the check</button></div>';
+    var k = AUTO[a.status] || AUTO.review;
+    var found = [a.provider, a.course, a.issued ? 'issued ' + N.fmtDate(a.issued) : null, a.credential_id ? 'credential ' + a.credential_id : null].filter(Boolean);
+    var link = a.verify_url && /^https?:\/\//i.test(a.verify_url)
+      ? ' · <a href="' + esc(a.verify_url) + '" target="_blank" rel="noopener noreferrer">Open the verification link</a>' : '';
+    return '<div class="meta-line" style="margin-top:6px"><span class="pill ' + k[0] + '">' + k[1] + '</span>' +
+      (a.reason ? ' ' + esc(a.reason) : '') + '</div>' +
+      (found.length || link ? '<div class="meta-line">' + esc(found.join(' · ')) + link + '</div>' : '') +
+      '<div class="meta-line"><button class="btn sm" data-autocheck="' + esc(c.id) + '" data-force="1">Check again</button></div>';
   }
 
   function who(id) { var m = mentees.filter(function (x) { return x.id === id; })[0]; return m ? m.full_name + (m.usn ? ' (' + m.usn + ')' : '') : 'A student'; }
@@ -86,7 +102,7 @@
       (!certs.length ? '<p class="empty">Nothing waiting.</p>' : '<ul class="list">' + certs.map(function (c) {
         return '<li><div class="list-row"><div><div class="title-line">' + esc(c.title) + '</div>' +
           '<div class="meta-line">' + esc(who(c.student_id)) + (c.provider ? ' · ' + esc(c.provider) : '') + (c.issued_on ? ' · issued ' + esc(N.fmtDate(c.issued_on)) : '') +
-            ' · uploaded ' + esc(N.fmtDateTime(c.created_at)) + '</div>' +
+            ' · uploaded ' + esc(N.fmtDateTime(c.created_at)) + '</div>' + autoHtml(c) +
           '<input data-note="' + esc(c.id) + '" maxlength="500" placeholder="If rejecting: what is wrong with it" aria-label="Reason, if rejecting" style="margin-top:8px;width:100%"></div>' +
           '<div class="row"><button class="btn sm" data-copen="' + esc(c.file_path) + '">Open</button>' +
           '<button class="btn sm primary" data-verify="' + esc(c.id) + '">Verify</button><button class="btn sm danger" data-creject="' + esc(c.id) + '">Reject</button></div></div></li>';
@@ -160,6 +176,14 @@
       var su = await sb.storage.from('certificates').createSignedUrl(b.getAttribute('data-copen'), 300);
       if (su.error) { if (w) w.close(); return N.say(N.$('certMsg'), 'err', 'Could not open it: ' + su.error.message); }
       if (w) w.location = su.data.signedUrl; else location.href = su.data.signedUrl;
+      return;
+    }
+    if ((b = e.target.closest('[data-autocheck]'))) {
+      await N.busy(b, 'Checking…', async function () {
+        var r = await sb.functions.invoke('check-certificate', { body: { id: b.getAttribute('data-autocheck'), force: b.hasAttribute('data-force') } });
+        if (r.error) return N.say(N.$('certMsg'), 'err', 'The automatic check isn’t available: ' + r.error.message);
+        await load();
+      });
       return;
     }
     if ((b = e.target.closest('[data-verify], [data-creject]'))) {

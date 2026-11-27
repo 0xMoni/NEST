@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "python3 -m http.server 3000 -d web",
     "seed:users": "node scripts/seed-dev-users.mjs",
-    "seed:section": "node scripts/seed-demo-section.mjs"
+    "seed:section": "node scripts/seed-demo-section.mjs",
+    "test:checker": "node --test supabase/functions/check-certificate/"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2"
