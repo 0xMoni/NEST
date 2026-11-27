@@ -80,6 +80,8 @@ input[aria-invalid="true"] { border-color: var(--risk); }
 .cards .card + .card { margin-top: 0; }
 .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; align-items: start; }
 .grid2 > .card + .card { margin-top: 0; }
+/* the same 24px between a two-column row and the cards above and below it */
+.card + .grid2, .grid2 + .card, .grid2 + .grid2 { margin-top: 24px; }
 a.stat { display: block; text-decoration: none; color: inherit; }
 .stat-value.small { font-size: 20px; margin-top: 18px; line-height: 1.25; }
 .list { list-style: none; margin: 0; padding: 0; }
