@@ -1,7 +1,12 @@
 # Certificate checker
 
 Takes a certificate a student uploaded, checks it, works out which provider issued it, and files it in the
-teacher's Google Drive. This is only the checking-and-filing part; it isn't connected to the web app yet.
+teacher's Google Drive.
+
+**The app doesn't run this code.** The checking part is ported to JavaScript in
+`supabase/functions/check-certificate/checker.mjs`, which the `check-certificate` Edge Function
+runs on every upload (see docs/supabase-setup.md). Change the rules there; this folder is kept for
+the Google Drive filing, which isn't in the app.
 
 ## What it does
 
@@ -50,6 +55,5 @@ The Drive folder is created automatically the first time a certificate from it a
 
 ## Not done yet
 
-- The web endpoint the Online certifications page will call, and storing results per student.
 - Reading image certificates is untested without Tesseract installed.
 - Provider patterns are written from what these certificates usually say; check each against a real sample before relying on it.

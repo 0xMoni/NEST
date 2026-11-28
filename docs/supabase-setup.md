@@ -86,6 +86,7 @@ already applied"* instead of running out of order. To see what a database has:
 | `20261120010000_news_and_events.sql` | News & events (`posts`): teachers and the HOD post news or an event to every student, one semester or one section; students see what is meant for them |
 | `20261120020000_certificates.sql` | Certificates: students upload to the private `certificates` Storage bucket, their mentor verifies or rejects (with a reason), the HOD sees all |
 | `20261121000000_hod_removes_certificates.sql` | The HOD can remove any certificate and its file (from the student's report page); students and mentors still can't remove a verified one |
+| `20261127000000_certificate_checks.sql` | Room for the automatic certificate check's findings (`auto_check`, `file_sha256`); only the `check-certificate` Edge Function can write them. Deploy the function too — see below |
 
 **Run `20261118000000`, `20261118010000` and `20261119000000` before using the
 current pages**, in that order: the pages read the views the first two create
@@ -129,6 +130,32 @@ npx supabase db push
 ```
 
 The project ref is the subdomain of your project URL.
+
+### The automatic certificate check (Edge Function)
+
+`supabase/functions/check-certificate/` reads each uploaded certificate and tells
+the mentor what it found: whether the student's name is on it, which provider
+issued it (NPTEL, Coursera, Udemy, edX, Microsoft, AWS, Google, Oracle, Infosys
+Springboard), the course and credential ID, whether the verification link is on
+the provider's own site and actually opens, and whether the same file was
+uploaded before. It only advises; the mentor still verifies or rejects. Without
+it, uploads and the mentor's check work as before.
+
+Run `20261127000000_certificate_checks.sql` first, then deploy it once (and again
+after it changes):
+
+```
+npx supabase login
+npx supabase functions deploy check-certificate --no-verify-jwt --project-ref <your-project-ref>
+```
+
+`--no-verify-jwt` is deliberate: the function checks who is calling itself, and
+reads the certificate as that person, so nobody can check one they can't see.
+It needs no secrets of its own; Supabase gives every function the project's URL
+and keys.
+
+Photos and scans have no text to read, so they come out as "couldn't tell" and
+the mentor looks at them. The checks themselves: `node --test supabase/functions/check-certificate/`.
 
 ## 5. Seed something to work against
 

@@ -3,9 +3,11 @@
 
    The file goes to the private `certificates` bucket in Supabase Storage,
    under a folder named after the student; a row in public.certificates says
-   what it is and where it stands. The mentor verifies or rejects it on their
-   Mentees page. The automatic checker in backend/certifications is not wired
-   in yet, so every certificate is checked by a person. */
+   what it is and where it stands. Straight after the upload the
+   check-certificate Edge Function reads it (is the student's name on it,
+   which provider, is the verification link on the provider's site) and
+   says what it found. That only advises: the mentor still verifies or
+   rejects it on their Mentees page. */
 (async function () {
   'use strict';
   var N = NEST, sb = N.sb, esc = N.esc, must = N.must;
@@ -34,16 +36,25 @@
     '</div>' +
     '<aside class="card ct-panel" aria-label="Summary"><dl class="ct-facts" id="facts"></dl>' +
       '<span class="eyebrow">What happens to a file</span>' +
-      '<ol class="ct-how"><li>It is stored privately: only you, your mentor and the HOD can open it.</li><li>Your mentor checks it and marks it verified, or tells you what is wrong.</li><li>A verified certificate shows on your record.</li></ol>' +
+      '<ol class="ct-how"><li>It is stored privately: only you, your mentor and the HOD can open it.</li><li>An automatic check reads it straight away: your name, the provider, the verification link.</li><li>Your mentor checks it and marks it verified, or tells you what is wrong.</li><li>A verified certificate shows on your record.</li></ol>' +
       '<p class="note">You can withdraw a certificate until your mentor has checked it.</p></aside></div>';
 
   var msg = N.$('msg');
+
+  // What the automatic check said, for a certificate the mentor hasn't decided on yet.
+  function autoLine(c) {
+    var a = c.auto_check;
+    if (!a) return 'Waiting for your mentor to check it.';
+    if (a.status === 'verified') return 'The automatic check found nothing wrong. Waiting for your mentor.';
+    if (a.status === 'rejected') return 'The automatic check found a problem: ' + a.reason + ' Your mentor still decides; if you uploaded the wrong file, withdraw it and upload the right one.';
+    return 'The automatic check couldn’t tell: ' + a.reason + ' Your mentor will look at it.';
+  }
 
   function count(st) { return certs.filter(function (c) { return c.status === st; }).length; }
 
   function render() {
     N.$('list').innerHTML = certs.length ? certs.map(function (c) {
-      var why = c.status === 'rejected' ? (c.note || 'Rejected.') : c.status === 'pending' ? 'Waiting for your mentor to check it.' : '';
+      var why = c.status === 'rejected' ? (c.note || 'Rejected.') : c.status === 'pending' ? autoLine(c) : '';
       return '<div class="ct-cert"><div><div class="nm">' + esc(c.title) + '</div><div class="meta">' +
           esc([c.provider, c.issued_on ? 'issued ' + N.fmtDate(c.issued_on) : null, 'added ' + N.fmtDate(N.localISO(new Date(c.created_at)))].filter(Boolean).join(' · ')) + '</div></div>' +
         '<span class="ct-pill ' + STATUS_CLASS[c.status] + '">' + LABEL[c.status] + '</span>' +
@@ -57,7 +68,7 @@
   }
 
   async function load() {
-    var r = await must(sb.from('certificates').select('id, title, provider, issued_on, file_path, file_name, status, note, created_at')
+    var r = await must(sb.from('certificates').select('id, title, provider, issued_on, file_path, file_name, status, note, created_at, auto_check')
       .eq('student_id', me.id).order('created_at', { ascending: false }));
     certs = r.data || [];
     render();
@@ -80,13 +91,21 @@
       var r = await sb.from('certificates').insert({
         title: title, provider: f.provider.value.trim() || null, issued_on: f.issued_on.value || null,
         file_path: path, file_name: file.name
-      });
+      }).select('id').single();
       if (r.error) {
         await sb.storage.from(BUCKET).remove([path]);   // don't leave a file nobody can see listed
         return N.say(msg, 'err', r.error.message);
       }
       N.$('meta').reset();
-      N.say(msg, 'good', 'Uploaded. Your mentor will check it.');
+      N.say(msg, '', 'Uploaded. Checking it…');
+      // The automatic check. If it isn't set up or fails, the mentor still checks by hand.
+      var chk = await sb.functions.invoke('check-certificate', { body: { id: r.data.id } });
+      var a = chk.error ? null : chk.data;
+      N.say(msg, a && a.status === 'rejected' ? 'err' : 'good',
+        !a ? 'Uploaded. Your mentor will check it.'
+          : a.status === 'verified' ? 'Uploaded, and the automatic check found nothing wrong. Your mentor will confirm it.'
+          : a.status === 'rejected' ? 'Uploaded, but the automatic check found a problem: ' + a.reason
+          : 'Uploaded. ' + a.reason + ' Your mentor will look at it.');
       await load();
     } finally { uploading = false; }
   }

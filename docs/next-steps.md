@@ -73,7 +73,7 @@ Then the three `20261120…` files:
 - [ ] Sign in and reset with a USN instead of an email
 - [ ] HOD creates accounts and resets logins from the People page
 - [ ] AI roadmap and quiz (Groq key)
-- [ ] Certifications: connect the Python checker in `backend/` (uploads and mentor review work without it)
+- [x] Certifications: the automatic check runs on every upload (`check-certificate` Edge Function, ported from the Python checker in `backend/`) and advises the mentor. Not done: reading text from photos and scans (OCR), and filing copies in a teacher's Google Drive
 
 ## Later (see `docs/teacher-features.md`)
 - [ ] HOD: enrol students in sections and assign mentors from the app (today: import scripts)
