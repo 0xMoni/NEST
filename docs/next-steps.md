@@ -65,6 +65,7 @@ Then the three `20261120…` files:
 
 ## Before handing the project over
 - [ ] **Turn the first-sign-in password change back on.** It is paused while the real data goes in: set `PASSWORD_CHANGE_PAUSED = false` in `web/js/api.js`. Everyone still on the default password will then be made to pick their own.
+- [ ] **Stop using the shared setup password `123456`.** The real accounts were imported with `ALLOW_WEAK_SEED=1 SEED_PASSWORD=123456`. Once the step above is back on, everyone is made to replace it; import any later batches without `ALLOW_WEAK_SEED`.
 - [ ] Delete the demo accounts (`*@eastpoint.ac.in` test logins, `docs/dev-accounts.md`) and the demo section, or start a fresh Supabase project for the real data.
 - [ ] Import the real roster and faculty with `scripts/import-roster.py` and `scripts/import-faculty.py`.
 - [ ] Turn email confirmation back on, and set up real SMTP for password resets.

@@ -166,6 +166,12 @@ WEAK = {"123456", "1234567", "12345678", "password", "password1", "eastpoint", "
 
 def starting_password():
     pw = os.environ.get("SEED_PASSWORD", "")
+    # TEMPORARY, while the real data goes in: ALLOW_WEAK_SEED=1 lets the shared
+    # setup password (123456) through. Stop using it before shipping; see
+    # docs/next-steps.md.
+    if os.environ.get("ALLOW_WEAK_SEED") == "1" and len(pw) >= 6:
+        print("    Note: ALLOW_WEAK_SEED=1, using a weak starting password (setup only).")
+        return pw
     if len(pw) < 8 or pw.lower() in WEAK:
         sys.exit("Set SEED_PASSWORD to the starting password for these accounts: at least\n"
                  "8 characters and not a common one, e.g.\n"
