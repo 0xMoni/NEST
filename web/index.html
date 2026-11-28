@@ -13,7 +13,7 @@
 <script>
 // Nothing lives at the root: send people to their own home, or to sign in.
 NEST.getMe().then(function (me) {
-  location.replace(!me ? 'login.html' : me.must_change_password ? 'change-password.html' : NEST.homeFor(me.role));
+  location.replace(!me ? 'login.html' : NEST.mustChange(me) ? 'change-password.html' : NEST.homeFor(me.role));
 }, function () { location.replace('login.html'); });
 </script>
 </body>

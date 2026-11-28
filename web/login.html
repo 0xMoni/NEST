@@ -58,7 +58,7 @@
 
   // Already signed in: go straight to where this person belongs.
   var me = await NEST.getMe().catch(function () { return null; });
-  if (me) return location.replace(me.must_change_password ? 'change-password.html' : NEST.homeFor(me.role));
+  if (me) return location.replace(NEST.mustChange(me) ? 'change-password.html' : NEST.homeFor(me.role));
 
   if (NEST.param('reset') === '1') AUTH.show('Password changed. Sign in with the new one.', true);
 
@@ -86,7 +86,7 @@
       go.disabled = false; go.textContent = 'Log in';
       return AUTH.fail('Signed in, but this account has no NEST profile. Ask the HOD to check it.', email);
     }
-    location.replace(who.must_change_password ? 'change-password.html' : NEST.homeFor(who.role));
+    location.replace(NEST.mustChange(who) ? 'change-password.html' : NEST.homeFor(who.role));
   });
 })();
 </script>

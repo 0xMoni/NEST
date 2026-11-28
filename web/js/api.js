@@ -175,6 +175,15 @@
     return p.data;
   }
 
+  // PAUSED FOR NOW: people are not forced to pick a new password on first
+  // sign-in while the real data is being set up. Everyone's flag in the
+  // database is left as it is, so setting this back to false makes every
+  // account still on the default password change it on next sign-in.
+  // TURN THIS BACK ON (false) BEFORE SHIPPING. See docs/next-steps.md.
+  var PASSWORD_CHANGE_PAUSED = true;
+  /** True when this person has to pick a new password before going anywhere. */
+  function mustChange(me) { return !!me.must_change_password && !PASSWORD_CHANGE_PAUSED; }
+
   /** Gate a page. roles: 'faculty' or ['student', …]; omit to allow any role.
    *  Not signed in -> login. Still on the office's default password -> made to
    *  pick one first. Wrong role -> their own home, not an error page. */
@@ -182,7 +191,7 @@
     opts = opts || {};
     var me = await getMe();
     if (!me) return go(url('login.html'));
-    if (me.must_change_password && !opts.allowUnsettled) return go(url('change-password.html'));
+    if (mustChange(me) && !opts.allowUnsettled) return go(url('change-password.html'));
     if (roles) {
       var list = Array.isArray(roles) ? roles : [roles];
       if (list.indexOf(me.role) < 0) return go(homeFor(me.role));
@@ -362,7 +371,7 @@
     localISO: localISO, isISODate: isISODate, fmtDate: fmtDate, fmtDateTime: fmtDateTime,
     DAYS: DAYS, DAYS_SHORT: DAYS_SHORT, PERIODS: PERIODS, BREAK_AFTER: BREAK_AFTER, periodAt: periodAt, periodTime: periodTime,
     sectionLabel: sectionLabel, pct: pct, initials: initials, busy: busy, say: say, toast: toast,
-    theme: theme, setTheme: setTheme, getMe: getMe, requireRole: requireRole, currentTerm: currentTerm, inTerm: inTerm, signOut: signOut,
+    theme: theme, setTheme: setTheme, getMe: getMe, requireRole: requireRole, mustChange: mustChange, currentTerm: currentTerm, inTerm: inTerm, signOut: signOut,
     shell: shell, setHead: setHead
   };
 })();
